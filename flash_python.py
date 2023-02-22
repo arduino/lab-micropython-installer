@@ -163,11 +163,14 @@ def download_file(url):
     return file_path
 
 # Runs the dfu-util command to flash the firmware
-def run_dfu_util(firmware_filepath, vendor_id, product_id):
+def run_dfu_util(firmware_filepath, vendor_id, product_id, reset=True):
     folder = platform.system()
     script_dir = os.path.dirname(os.path.realpath(__file__))
     dfu_util_path = os.path.join(script_dir, 'bin', folder, 'dfu-util')
     cmd = [dfu_util_path, '-a', '0', '-d', f'{vendor_id}:{product_id}', '-D', firmware_filepath]
+    if reset:
+        # FIXME doesn't seem to have an effect
+        cmd.append('-R')    
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         print(f"Error running dfu-util: {result.stderr}")
@@ -257,8 +260,6 @@ if __name__ == "__main__":
             wait_for_device(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
             
             device_port = get_serial_port(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
-            #time.sleep(10) # Wait for the serial port to become available
-
             firmware_url = get_firmware_url("arduino_nano_33_ble_sense", ".bin")
             file = download_file(firmware_url)
             if file:
@@ -286,12 +287,22 @@ if __name__ == "__main__":
             print("🎉 Done!")
         exit()
 
-    if get_device(ARDUINO_VENDOR_ID, PORTENTA_H7_ARDUINO_PID) or get_device(ARDUINO_VENDOR_ID, PORTENTA_H7_MP_PID) or get_device(ARDUINO_VENDOR_ID, PORTENTA_H7_OMV_PID):
-        print("👀 Arduino Portenta H7 detected.")
+    if get_device(ARDUINO_VENDOR_ID, PORTENTA_H7_MP_PID):
+        print("👀 Arduino Portenta H7 running uPython detected.")
         print("👉 Put it in bootloader mode and run this script again.")
         print("📚 Read how to do this here: https://docs.arduino.cc/tutorials/portenta-h7/micropython-installation")
         exit()
-        
+
+    if get_device(ARDUINO_VENDOR_ID, PORTENTA_H7_ARDUINO_PID):
+        print("👀 Arduino Portenta H7 detected. Putting it in bootloader mode...")
+        perform_1200_touch(get_serial_port(ARDUINO_VENDOR_ID, PORTENTA_H7_ARDUINO_PID))        
+        wait_for_device(ARDUINO_VENDOR_ID, PORTENTA_H7_BL_PID)
+
+    if get_device(ARDUINO_VENDOR_ID, PORTENTA_H7_OMV_PID):
+        print("👀 Arduino Portenta H7 running OpenMV detected. Putting it in bootloader mode...")
+        perform_1200_touch(get_serial_port(ARDUINO_VENDOR_ID, PORTENTA_H7_OMV_PID))        
+        wait_for_device(ARDUINO_VENDOR_ID, PORTENTA_H7_BL_PID)
+
     device = get_device(ARDUINO_VENDOR_ID, PORTENTA_H7_BL_PID)
     if device:
         print("👀 Arduino Portenta H7 in bootloader mode detected.")
@@ -300,7 +311,7 @@ if __name__ == "__main__":
         if file:
             print("🐍 Flashing MicroPython...")
             if run_dfu_util(file, ARDUINO_VENDOR_ID, PORTENTA_H7_BL_PID):
-                # TODO check why this is needed
+                # TODO check why manual reset is needed
                 print("🎉 Done! Now restart the board by pressing the reset button.")
             else:
                 print("🚨 Error flashing MicroPython.")
