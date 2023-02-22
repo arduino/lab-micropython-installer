@@ -9,6 +9,15 @@ import os
 import tempfile
 import time
 
+# Add the lib folder to the path
+import sys, inspect
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+binarydir = os.path.join(currentdir, 'lib')
+sys.path.insert(0, binarydir)
+
+import serial
+import serial.tools.list_ports
+
 SOFT_DEVICE_FIRMWARE_FILENAME = "Nano33_updateBLandSoftDevice.bin"
 
 ARDUINO_VENDOR_ID = "0x2341"
@@ -81,6 +90,27 @@ def get_connected_devices(vendor_product_ids):
     connected_devices = get_connected_usb_devices()
     connected_devices = list(filter(lambda x: (x['vendor_id'], x['product_id']) in vendor_product_ids, connected_devices))
     return connected_devices
+
+# Gets the serial port for a given VID and PID
+def get_serial_port(vendor_id, product_id):
+    # Remove '0x' from the beginning of the strings if they are there
+    product_id = product_id[2:] if product_id.startswith("0x") else product_id
+    vendor_id = vendor_id[2:] if vendor_id.startswith("0x") else vendor_id
+
+    ports = list(serial.tools.list_ports.grep(f"(?i){vendor_id}:{product_id}"))
+    if len(ports) == 0:
+        return None
+    elif len(ports) > 1:
+        print(f"Warning: Found {len(ports)} ports for PID {product_id} and VID {vendor_id}. Using the first one.")
+    return str(ports[0].device)
+
+# Waits for a device to become available as a serial port
+def wait_for_device(vendor_id, product_id):
+    print("⌛️ Waiting for the device to become available...")
+    while not get_serial_port(vendor_id, product_id):
+        print(".", end="", flush=True)
+        time.sleep(1)
+    print("")
 
 # Flashes the latest firmware for a given board by copying the file to its mount point
 def copy_file_to_device(file_path, mount_point):
@@ -173,6 +203,10 @@ def flash_soft_device(port=None):
 
 # Puts supported boards in bootloader mode by sending a 1200bps touch
 def perform_1200_touch(port):
+    # Consider using pyserial instead of stty
+    # ser = serial.Serial(port, baudrate=1200)
+    # ser.close()
+
     if platform.system() == 'Linux':
         stty_cmd = ['stty', '-F', port, '1200']
     elif platform.system() == 'Darwin':
@@ -205,8 +239,9 @@ if __name__ == "__main__":
 
     if get_device(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID):
         print("👀 Arduino Nano BLE in bootloader mode detected.")
+        wait_for_device(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
         print("⌛️ Downloading SoftDevice firmware to device. Please wait...")
-        device_port = "/dev/cu.usbmodem3"
+        device_port = get_serial_port(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
         
         if flash_soft_device(device_port):
             print("✅ Done downloading SoftDevice firmware!")
@@ -218,8 +253,11 @@ if __name__ == "__main__":
             time.sleep(10) # Wait for the SoftDevice firmware to be flashed
             
             print("✅ Done. Putting the board in bootloader mode...")            
-            perform_1200_touch(device_port)
-            time.sleep(10) # Wait for the serial port to become available
+            perform_1200_touch(device_port)            
+            wait_for_device(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
+            
+            device_port = get_serial_port(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
+            #time.sleep(10) # Wait for the serial port to become available
 
             firmware_url = get_firmware_url("arduino_nano_33_ble_sense", ".bin")
             file = download_file(firmware_url)
