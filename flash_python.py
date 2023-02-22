@@ -39,6 +39,7 @@ RP2040_BL_PID = "0x0003"
 
 
 # Returns a list of connected USB devices
+# TODO consider using pyusb instead of system commands
 def get_connected_usb_devices():
     system = platform.system()
     devices = []
@@ -234,6 +235,8 @@ if __name__ == "__main__":
     # TODO add selection of board if multiple are connected
     # get_connected_devices()
 
+
+    # TODO put board in bootloader mode automatically
     if get_device(ARDUINO_VENDOR_ID, NANO_33_BLE_ARDUINO_PID):
         print("👀 Arduino Nano 33 BLE detected.")
         print("👉 Put it in bootloader mode and run this script again.")
@@ -270,6 +273,7 @@ if __name__ == "__main__":
             print("❌ Failed to flash SoftDevice.")
         exit()
 
+    # TODO put board in bootloader mode automatically
     if get_device(ARDUINO_VENDOR_ID, NANO_RP2040_OMV_PID) or get_device(ARDUINO_VENDOR_ID, NANO_RP2040_MP_PID) or get_device(ARDUINO_VENDOR_ID, NANO_RP2040_ARDUINO_PID):
         print("👀 Arduino Nano RP2040 Connect detected.")
         print("👉 Put it in bootloader mode and run this script again.")
