@@ -105,8 +105,20 @@ def get_serial_port(vendor_id, product_id):
         print(f"Warning: Found {len(ports)} ports for PID {product_id} and VID {vendor_id}. Using the first one.")
     return str(ports[0].device)
 
+# Waits for a USB device's mass storage to become available
+def wait_for_storage_device(vendor_id, product_id):
+    print("⌛️ Waiting for the device to become available...")
+    while True: 
+        device = get_device(vendor_id, product_id)    
+        if not device or not device.get('mount_point'):
+            print(".", end="", flush=True)
+            time.sleep(1)
+            continue
+        break
+    print("")
+
 # Waits for a device to become available as a serial port
-def wait_for_device(vendor_id, product_id):
+def wait_for_device_serial_port(vendor_id, product_id):
     print("⌛️ Waiting for the device to become available...")
     while not get_serial_port(vendor_id, product_id):
         print(".", end="", flush=True)
@@ -245,7 +257,7 @@ if __name__ == "__main__":
 
     if get_device(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID):
         print("👀 Arduino Nano BLE in bootloader mode detected.")
-        wait_for_device(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
+        wait_for_device_serial_port(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
         print("⌛️ Downloading SoftDevice firmware to device. Please wait...")
         device_port = get_serial_port(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
         
@@ -260,7 +272,7 @@ if __name__ == "__main__":
             
             print("✅ Done. Putting the board in bootloader mode...")            
             perform_1200_touch(device_port)            
-            wait_for_device(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
+            wait_for_device_serial_port(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
             
             device_port = get_serial_port(ARDUINO_VENDOR_ID, NANO_33_BLE_BL_PID)
             firmware_url = get_firmware_url("arduino_nano_33_ble_sense", ".bin")
@@ -273,12 +285,16 @@ if __name__ == "__main__":
             print("❌ Failed to flash SoftDevice.")
         exit()
 
-    # TODO put board in bootloader mode automatically
-    if get_device(ARDUINO_VENDOR_ID, NANO_RP2040_OMV_PID) or get_device(ARDUINO_VENDOR_ID, NANO_RP2040_MP_PID) or get_device(ARDUINO_VENDOR_ID, NANO_RP2040_ARDUINO_PID):
+    if get_device(ARDUINO_VENDOR_ID, NANO_RP2040_OMV_PID) or get_device(ARDUINO_VENDOR_ID, NANO_RP2040_MP_PID):
         print("👀 Arduino Nano RP2040 Connect detected.")
         print("👉 Put it in bootloader mode and run this script again.")
         print("📚 Read how to do this here: https://docs.arduino.cc/tutorials/nano-rp2040-connect/micropython-installation")
         exit()
+
+    if get_device(ARDUINO_VENDOR_ID, NANO_RP2040_ARDUINO_PID):
+        print("👀 Arduino Nano RP2040 Connect detected. Putting it in bootloader mode...")
+        perform_1200_touch(get_serial_port(ARDUINO_VENDOR_ID, NANO_RP2040_ARDUINO_PID))        
+        wait_for_storage_device(RASPERRY_PI_VENDOR_ID, RP2040_BL_PID)
 
     device = get_device(RASPERRY_PI_VENDOR_ID, RP2040_BL_PID)
     if device:
@@ -300,12 +316,12 @@ if __name__ == "__main__":
     if get_device(ARDUINO_VENDOR_ID, PORTENTA_H7_ARDUINO_PID):
         print("👀 Arduino Portenta H7 detected. Putting it in bootloader mode...")
         perform_1200_touch(get_serial_port(ARDUINO_VENDOR_ID, PORTENTA_H7_ARDUINO_PID))        
-        wait_for_device(ARDUINO_VENDOR_ID, PORTENTA_H7_BL_PID)
+        wait_for_device_serial_port(ARDUINO_VENDOR_ID, PORTENTA_H7_BL_PID)
 
     if get_device(ARDUINO_VENDOR_ID, PORTENTA_H7_OMV_PID):
         print("👀 Arduino Portenta H7 running OpenMV detected. Putting it in bootloader mode...")
         perform_1200_touch(get_serial_port(ARDUINO_VENDOR_ID, PORTENTA_H7_OMV_PID))        
-        wait_for_device(ARDUINO_VENDOR_ID, PORTENTA_H7_BL_PID)
+        wait_for_device_serial_port(ARDUINO_VENDOR_ID, PORTENTA_H7_BL_PID)
 
     device = get_device(ARDUINO_VENDOR_ID, PORTENTA_H7_BL_PID)
     if device:
