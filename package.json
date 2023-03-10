@@ -1,0 +1,30 @@
+{
+  "name": "upython-flasher",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A tool to flash MicroPython onto supported Arduino boards.",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sebromero/upython-flasher.git"
+  },
+  "keywords": [
+    "MicroPython"
+  ],
+  "author": "Sebastian Romero",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sebromero/upython-flasher/issues"
+  },
+  "homepage": "https://github.com/sebromero/upython-flasher#readme",
+  "dependencies": {
+    "serialport": "^10.5.0",
+    "usb": "^2.8.3"
+  }
+}
