@@ -1,29 +1,36 @@
 import DeviceManager from './logic/DeviceManager.js';
-import Device from './logic/Device.js';
 import { usb, getDeviceList } from 'usb';
-import { SerialPort } from 'serialport'
-
 import * as readline from 'readline';
+import Flasher from './logic/flasher.js';
+import DeviceDescriptor from './logic/DeviceDescriptor.js';
 
+const SOFT_DEVICE_FIRMWARE_FILENAME = "Nano33_updateBLandSoftDevice.bin"
+const flasher = new Flasher();
 const deviceManager = new DeviceManager();
-deviceManager.addDevice(new Device(0x2341, 0x0266, 'Giga R1 WiFi', 'Arduino', 'ARDUINO_GIGA'));
-deviceManager.addDevice(new Device(0x2341, 0x025f, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION'));
-const connectedDevices = getDeviceList();
-const foundDevices = deviceManager.findDevicesFromDeviceList(connectedDevices);
 
-async function findSerialPort(vendorId, productId) {
-    const ports = await SerialPort.list();
-  
-    for (const port of ports) {
-        console.log(port);
-      if (port.vendorId === vendorId && port.productId === productId) {
-        return port.path;
-      }
-    }
-  
-    throw new Error(`Could not find serial port for vendor ID ${vendorId} and product ID ${productId}`);
+const arduinoGigaDescriptor = new DeviceDescriptor(0x2341, {"arduinoPID" : 0x0266, "bootloaderPID" : 0x0366}, 'Giga R1 WiFi', 'Arduino', 'ARDUINO_GIGA', 'dfu');
+arduinoGigaDescriptor.onFlashFirmware = (firmware) => {
+    flasher.runDfuUtil(firmware, arduinoGigaDescriptor.vendorID, arduinoGigaDescriptor.productID);
+};
+
+const arduinoNiclaVisionDescriptor = new DeviceDescriptor(0x2341, 0x025f, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
+arduinoNiclaVisionDescriptor.onFlashFirmware = (firmware) => {
+    flasher.runDfuUtil(firmware, arduinoNiclaVisionDescriptor.vendorID, arduinoNiclaVisionDescriptor.productID);
+};
+
+deviceManager.addDeviceDescriptor(arduinoGigaDescriptor);
+deviceManager.addDeviceDescriptor(arduinoNiclaVisionDescriptor);
+
+await deviceManager.refreshDevices();
+const foundDevices = deviceManager.getDeviceList();
+
+function getSoftDevicePath(){
+    const scriptDir = path.dirname(__filename);
+    const firmwarePath = path.join(scriptDir, "bin", "firmware", SOFT_DEVICE_FIRMWARE_FILENAME);
+    return firmwarePath;  
 }
 
+// TODO: implement a device selection dialog
 async function selectDevice(devices) {
     // create an array of device names to display to the user
     const deviceNames = devices.map(device => device.name);
@@ -32,11 +39,10 @@ async function selectDevice(devices) {
 }
 
 if(foundDevices.length === 0) {
-    console.log('No devices found');
+    console.log('🤷 No compatible device detected.');
     process.exit(-1);
 }
 
 const selectedDevice = foundDevices[0]; // await selectDevice(foundDevices);
-findSerialPort(selectedDevice.getVendorIDString(), selectedDevice.getProductIDString()).then((port) => {
-    console.log(port);
-});
+console.log(selectedDevice);
+await selectedDevice.flashMicroPythonFirmware();

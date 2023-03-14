@@ -1,31 +1,53 @@
+import { SerialPort } from 'serialport'
+import DeviceDescriptor from './DeviceDescriptor.js';
+import Device from './Device.js';
+
 class DeviceManager {
     constructor() {
       this.devices = [];
-    }
-  
-    addDevice(device) {
-      this.devices.push(device);
-    }
-  
-    findDevice(vendorID, productID) {
-      return this.devices.find(device => device.vendorID === vendorID && device.productID === productID);
+      this.deviceDescriptors = [];
     }
 
-    getProductList() {
-        return this.devices.map(device => ({ vendorID: device.vendorID, productID: device.productID }));
+    addDeviceDescriptor(deviceDescriptor) {
+        this.deviceDescriptors.push(deviceDescriptor);
     }
 
-    findDevicesFromDeviceList(list) {
-        const foundDevices = [];
-        for (const element of list) {
-            const device = this.findDevice(element.deviceDescriptor.idVendor, element.deviceDescriptor.idProduct);
-            if (device) {
-              foundDevices.push(device);
+    waitForDevice(deviceDescriptor) {
+        console.log("⌛️ Waiting for the device to become available...")
+        return new Promise((resolve, reject) => {
+            const interval = setInterval(async () => {
+                await this.refreshDevices();
+                const foundDevice = this.devices.find(device => device.deviceDescriptor === deviceDescriptor);
+                if(foundDevice) {
+                    clearInterval(interval);
+                    resolve(foundDevice);
+                }
+            }, 1000);
+        });
+    }    
+
+    async refreshDevices() {
+        this.devices = [];
+        const ports = await SerialPort.list();
+  
+        for (const port of ports) {
+            let deviceDescriptor = this.getDeviceDescriptor(port.vendorId, port.productId);
+            if (deviceDescriptor) {
+                this.devices.push(new Device(deviceDescriptor, port.path, port.serialNumber));
             }
         }
-        return foundDevices;
-      }
-      
+    }
+  
+    getDeviceDescriptor(vendorID, productID) {
+        if(!vendorID || !productID) {
+            return null;
+        }
+        return this.deviceDescriptors.find(dev => dev.getVendorIDString() === vendorID && dev.getProductIDString() === productID);
+    }
+
+    getDeviceList() {
+        return this.devices;
+    }
     
   }
   
