@@ -12,21 +12,21 @@ arduinoGigaDescriptor.onFlashFirmware = async (firmware, device) => {
     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 
-// const arduinoNiclaVisionDescriptor = new DeviceDescriptor(0x2341, 0x025f, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
-// arduinoNiclaVisionDescriptor.onFlashFirmware = (firmware) => {
-//     flasher.runDfuUtil(firmware, arduinoNiclaVisionDescriptor.vendorID, arduinoNiclaVisionDescriptor.productIDs);
+// const arduinoNiclaVisionDescriptor = new DeviceDescriptor(0x2341, {"arduinoPID" : 0x0000, "bootloaderPID" : 0x0000, "upythonPID" : 0x0000 }, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
+// arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device) => {
+//     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
 // };
+
 // deviceManager.addDeviceDescriptor(arduinoNiclaVisionDescriptor);
 
 deviceManager.addDeviceDescriptor(arduinoGigaDescriptor);
 const foundDevices = await deviceManager.getDeviceList();
 
-
-function getSoftDevicePath(){
-    const scriptDir = path.dirname(__filename);
-    const firmwarePath = path.join(scriptDir, "bin", "firmware", SOFT_DEVICE_FIRMWARE_FILENAME);
-    return firmwarePath;  
-}
+// function getSoftDevicePath(){
+//     const scriptDir = path.dirname(__filename);
+//     const firmwarePath = path.join(scriptDir, "bin", "firmware", SOFT_DEVICE_FIRMWARE_FILENAME);
+//     return firmwarePath;  
+// }
 
 if(foundDevices.length === 0) {
     console.log('🤷 No compatible device detected.');
