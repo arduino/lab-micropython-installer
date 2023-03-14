@@ -14,6 +14,9 @@ export class Flasher {
 
         // Specify the altsetting of the DFU interface via -a.
         let cmd = `${dfuUtilPath} -a 0 -d ${vendorId}:${productId} -D ${firmwareFilepath}`;
+        
+        // In theory, the reset should be automatic, but it doesn't seem to work
+        // The -s :leave is a workaround but requires the memory address to be specified
         if (reset) {
             cmd += " -R";
         }
@@ -33,7 +36,7 @@ export class Flasher {
         });
     }
 
-    runBossac(firmwareFilepath, port = null, offset = null) {
+    async runBossac(firmwareFilepath, port = null, offset = null) {
         const folder = os.platform();
         const scriptDir = path.dirname(__filename);
         const bossacPath = path.join(scriptDir, "..", "bin", folder, "bossac");
@@ -49,17 +52,18 @@ export class Flasher {
         }
         cmd += ` ${firmwareFilepath}`;
 
-        exec(cmd, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error running bossac: ${error.message}`);
-                return false;
-            }
-            if (stderr) {
-                console.error(`Error running bossac: ${stderr}`);
-                return false;
-            }
-            console.log(stdout);
-            return true;
+        return new Promise((resolve, reject) => {
+            exec(cmd, (error, stdout, stderr) => {
+                if (error) {
+                    reject(`Error running bossac: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    reject(`Error running bossac: ${stderr}`);
+                    return;
+                }
+                resolve(stdout);
+            });
         });
     }
 
