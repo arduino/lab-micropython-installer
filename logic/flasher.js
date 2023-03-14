@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 
 export class Flasher {
 
-    runDfuUtil(firmwareFilepath, vendorId, productId, reset = true) {
+    async runDfuUtil(firmwareFilepath, vendorId, productId, reset = true) {
         const binaryFolder = os.platform();
         const scriptDir = path.dirname(__filename);
         const dfuUtilPath = path.join(scriptDir, "..", "bin", binaryFolder, "dfu-util");
@@ -18,17 +18,18 @@ export class Flasher {
             cmd += " -R";
         }
 
-        exec(cmd, (error, stdout, stderr) => {
-            if (error) {
-                console.error(`Error running dfu-util: ${error.message}`);
-                return false;
-            }
-            if (stderr) {
-                console.error(`Error running dfu-util: ${stderr}`);
-                return false;
-            }
-            // console.log(stdout);
-            return true;
+        return new Promise((resolve, reject) => {
+            exec(cmd, (error, stdout, stderr) => {
+                if (error) {
+                    reject(`Error running dfu-util: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    reject(`Error running dfu-util: ${stderr}`);
+                    return;
+                }
+                resolve(stdout);
+            });
         });
     }
 

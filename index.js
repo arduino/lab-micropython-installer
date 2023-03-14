@@ -9,7 +9,7 @@ const deviceManager = new DeviceManager();
 
 const arduinoGigaDescriptor = new DeviceDescriptor(0x2341, {"arduinoPID" : 0x0266, "bootloaderPID" : 0x0366, "upythonPID" : 0x0566 }, 'Giga R1 WiFi', 'Arduino', 'ARDUINO_GIGA', 'dfu');
 arduinoGigaDescriptor.onFlashFirmware = async (firmware, device) => {
-    flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
+    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 
 // const arduinoNiclaVisionDescriptor = new DeviceDescriptor(0x2341, 0x025f, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
