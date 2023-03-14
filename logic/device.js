@@ -5,7 +5,9 @@ import os from 'os';
 import path from 'path';
 
 export class Device {
-    constructor(deviceDescriptor, serialPort, serialNumber = null, mountPoint = null) {
+    constructor(vendorID, productID, deviceDescriptor, serialPort, serialNumber = null, mountPoint = null) {
+        this.vendorID = vendorID;
+        this.productID = productID;
         this.deviceDescriptor = deviceDescriptor;
         this.serialNumber = serialNumber;
         this.serialPort = serialPort;
@@ -14,7 +16,7 @@ export class Device {
 
     async getUPythonFirmwareUrl() {
         const fileExtension = this.deviceDescriptor.firmwareExtension;
-        const boardName = this.deviceDescriptor.firmwareID;        
+        const boardName = this.deviceDescriptor.firmwareID;
         console.log(`🔍 Finding latest firmware for board '${boardName}' ...`);
 
         const jsonUrl = "https://downloads.arduino.cc/micropython/index.json";
@@ -38,7 +40,7 @@ export class Device {
         }
     }
 
-    async downloadFirmware(firmwareUrl) {        
+    async downloadFirmware(firmwareUrl) {
         console.log(`🔗 Firmware URL: ${firmwareUrl}`);
         console.log(`🌐 Downloading firmware ...`);
 
@@ -55,38 +57,117 @@ export class Device {
     }
 
     async flashFirmware(firmwareFile) {
-        if(!this.deviceDescriptor.runsBootloader) this.enterBootloader();
-        return this.deviceDescriptor.onFlashFirmware(firmwareFile);
+        console.log(`🔥 Flashing firmware ...`);
+        return this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
     }
 
-    sendREPLCommand(command) {
-        // For MicroPython devices, we need to open the serial port with a baud rate of 115200
-        const serialport = new SerialPort({ path: this.serialPort, baudRate: 115200 });
-        serialport.write(command);
-        serialport.close();
+    async sendREPLCommand(command, awaitResponse = true) {
+        // console.log(`📤 Sending REPL command: ${command}`);
+        
+        return new Promise((resolve, reject) => {
+            let responseData = "";
+            // For MicroPython devices, we need to open the serial port with a baud rate of 115200
+            const serialport = new SerialPort({ path: this.serialPort, baudRate: 115200, autoOpen : false } );
+            
+            serialport.open(function (err) {
+                if (err) {
+                    return console.log('❌ Error opening port: ', err.message)
+                }
+                
+                serialport.write(command, function (err) {
+                    if (err) {
+                        return console.log('❌ Error on write: ', err.message)
+                    }
+                });
+    
+                if(!awaitResponse) {
+                    if(serialport.isOpen) serialport.close();
+                    resolve();
+                    return;
+                }
+            });
+    
+            // Read response
+            serialport.on('data', function (data) {
+                responseData += data.toString();
+                let lines = responseData.split('\r\n');
+                let lastLine = lines[lines.length - 1];
+                
+                if(lastLine === ">>> ") {
+                    serialport.close();
+                    resolve(responseData);
+                }
+            });
+        });
     }
 
     async flashMicroPythonFirmware() {
         const firmwareUrl = await this.getUPythonFirmwareUrl();
         const firmwareFile = await this.downloadFirmware(firmwareUrl);
-        
-        if(!this.deviceDescriptor.runsBootloader) this.enterBootloader();
-        if(this.deviceDescriptor.onFlashUPythonFirmware){
-            return this.deviceDescriptor.onFlashUPythonFirmware(firmwareFile);
+
+        console.log(`🔥 Flashing firmware ...`);
+        if (this.deviceDescriptor.onFlashUPythonFirmware) {
+            await this.deviceDescriptor.onFlashUPythonFirmware(firmwareFile, this);
         }
-        return this.deviceDescriptor.onFlashFirmware(firmwareFile);
+        await this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
     }
 
-    enterBootloader() {
+    async enterBootloader() {
         console.log(`👢 Entering bootloader ...`);
-        if (!this.deviceDescriptor.runsMicroPython) {
+        if (!this.runsMicroPython()) {
             // Open the serial port with a baud rate of 1200
-            const serialport = new SerialPort({ path: this.serialPort, baudRate: 1200 });
-            if (serialport.isOpen) serialport.close();
-        } else {            
-            this.sendREPLCommand('import machine\r\nmachine.bootloader()\r\n');
+            const serialport = new SerialPort({ path: this.serialPort, baudRate: 1200, autoOpen: false });
+            serialport.on('open', function () {
+                serialport.close();
+            });
+
+            serialport.open(function (err) {
+                if (err) {
+                    return console.log('❌ Error opening port: ', err.message)
+                }
+            });
+        } else {
+            // FIXME doesnt seem to work
+            await this.sendREPLCommand('import machine; machine.bootloader()\r\n', false);
         }
     }
+
+    runsMicroPython() {
+        return this.productID === this.deviceDescriptor.productIDs.upythonPID;
+    }
+
+    runsBootloader() {
+        return this.productID === this.deviceDescriptor.productIDs.bootloaderPID;
+    }
+
+    // Function to convert the vendor /product ID to a hex string wihtout the 0x prefix.
+    // The number is padded with a 0 if it is less than 4 digits long.
+    convertNumberToHex(anID) {
+        return "0x" + anID.toString(16).padStart(4, '0');
+    }
+
+    getVendorIDHex() {
+        return this.convertNumberToHex(this.vendorID);
+    }
+
+    getProductIDHex() {
+        return this.convertNumberToHex(this.productID);
+    }
+
+    async getMicroPythonVersion() {
+        const versionData = await this.sendREPLCommand('import sys; print(sys.implementation.version)\r\n');
+        const lines = versionData.trim().split('\r\n');
+        // Find the line that starts with a '(' which contains the version string e.g. (1, 19, 1)
+        const versionStringLine = lines.find((line) => line.startsWith('('));
+        if (!versionStringLine) {
+            console.log(`❌ Could not find version string in response: ${versionData}`);
+            return null;
+        }
+        const versionString = versionStringLine.split(', ').join('.');
+        // Remove the parentheses from the version string
+        return versionString.substring(1, versionString.length - 1);
+    }
+
 }
 
 export default Device;

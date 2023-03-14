@@ -10,7 +10,7 @@ export class Flasher {
     runDfuUtil(firmwareFilepath, vendorId, productId, reset = true) {
         const binaryFolder = os.platform();
         const scriptDir = path.dirname(__filename);
-        const dfuUtilPath = path.join(scriptDir, "bin", binaryFolder, "dfu-util");
+        const dfuUtilPath = path.join(scriptDir, "..", "bin", binaryFolder, "dfu-util");
 
         // Specify the altsetting of the DFU interface via -a.
         let cmd = `${dfuUtilPath} -a 0 -d ${vendorId}:${productId} -D ${firmwareFilepath}`;
@@ -27,7 +27,7 @@ export class Flasher {
                 console.error(`Error running dfu-util: ${stderr}`);
                 return false;
             }
-            console.log(stdout);
+            // console.log(stdout);
             return true;
         });
     }
@@ -35,9 +35,11 @@ export class Flasher {
     runBossac(firmwareFilepath, port = null, offset = null) {
         const folder = os.platform();
         const scriptDir = path.dirname(__filename);
-        const bossacPath = path.join(scriptDir, "bin", folder, "bossac");
+        const bossacPath = path.join(scriptDir, "..", "bin", folder, "bossac");
 
         let cmd = `${bossacPath} -i -d -e -w -R`;
+        
+        // In theory, the port should be automatically detected, but it doesn't seem to work
         if (port) {
             cmd += ` -U --port=${port}`;
         }
