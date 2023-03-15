@@ -41,7 +41,7 @@ if(!selectedDevice.runsBootloader()) {
         await targetDevice.flashMicroPythonFirmware(true);
     } catch (error) {
         console.log(error);
-        console.log('❌ Failed to flash MicroPython firmware.');
+        console.log('🚨 Failed to flash MicroPython firmware.');
         process.exit(-1);
     }
 } else {
