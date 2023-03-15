@@ -15,10 +15,10 @@ export class Flasher {
         // Specify the altsetting of the DFU interface via -a.
         let cmd = `${dfuUtilPath} -a 0 -d ${vendorId}:${productId} -D ${firmwareFilepath}`;
         
-        // In theory, the reset should be automatic, but it doesn't seem to work
-        // The -s :leave is a workaround but requires the memory address to be specified
         if (reset) {
-            cmd += " -R";
+            // In theory, the reset should be automatic with -R, but it doesn't seem to work
+            //cmd += " -R";
+            cmd += " -s :leave";
         }
 
         return new Promise((resolve, reject) => {
