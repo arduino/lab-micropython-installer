@@ -14,6 +14,17 @@ arduinoGigaDescriptor.onFlashFirmware = async (firmware, device) => {
     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 
+const arduinoPortentaH7Identifiers = {
+    "default" : {
+        "vid" : 0x2341,
+        "pids" : {"arduino" : 0x025b, "bootloader" : 0x035b, "upython" : 0x055b, "omv" : 0x045b}
+    },
+};
+const arduinoPortentaH7Descriptor = new DeviceDescriptor(arduinoPortentaH7Identifiers, 'Portenta H7', 'Arduino', 'ARDUINO_PORTENTA_H7', 'dfu');
+arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device) => {
+    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
+};
+
 
 // NANO_RP2040_OMV_PID = "0x015e"
 // NANO_RP2040_ARDUINO_PID = "0x005e"
@@ -30,6 +41,6 @@ arduinoGigaDescriptor.onFlashFirmware = async (firmware, device) => {
 //     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
 // };
 
-const descriptors = [arduinoGigaDescriptor];
+const descriptors = [arduinoGigaDescriptor, arduinoPortentaH7Descriptor];
 
 export default descriptors;
