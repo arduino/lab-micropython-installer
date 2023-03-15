@@ -1,25 +1,16 @@
 import DeviceManager from './logic/DeviceManager.js';
 import { usb, getDeviceList } from 'usb';
 import Flasher from './logic/flasher.js';
-import DeviceDescriptor from './logic/DeviceDescriptor.js';
+import descriptors from './logic/descriptors.js';
 
 const SOFT_DEVICE_FIRMWARE_FILENAME = "Nano33_updateBLandSoftDevice.bin"
-const flasher = new Flasher();
 const deviceManager = new DeviceManager();
 
-const arduinoGigaDescriptor = new DeviceDescriptor(0x2341, {"arduinoPID" : 0x0266, "bootloaderPID" : 0x0366, "upythonPID" : 0x0566 }, 'Giga R1 WiFi', 'Arduino', 'ARDUINO_GIGA', 'dfu');
-arduinoGigaDescriptor.onFlashFirmware = async (firmware, device) => {
-    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
-};
 
-// const arduinoNiclaVisionDescriptor = new DeviceDescriptor(0x2341, {"arduinoPID" : 0x0000, "bootloaderPID" : 0x0000, "upythonPID" : 0x0000 }, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
-// arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device) => {
-//     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
-// };
+for (const descriptor of descriptors) {
+    deviceManager.addDeviceDescriptor(descriptor);
+}
 
-// deviceManager.addDeviceDescriptor(arduinoNiclaVisionDescriptor);
-
-deviceManager.addDeviceDescriptor(arduinoGigaDescriptor);
 const foundDevices = await deviceManager.getDeviceList();
 
 // function getSoftDevicePath(){
@@ -44,7 +35,7 @@ if(selectedDevice.runsMicroPython()) {
 
 if(!selectedDevice.runsBootloader()) {
     await selectedDevice.enterBootloader();
-    const targetDevice = await deviceManager.waitForDevice(selectedDevice.vendorID, selectedDevice.deviceDescriptor.productIDs.bootloaderPID);
+    const targetDevice = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
     console.log(`👍 Device is now in bootloader mode.`);
     await targetDevice.flashMicroPythonFirmware();
 } else {

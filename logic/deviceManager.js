@@ -63,9 +63,13 @@ class DeviceManager {
     // The vendor ID and product ID are hex strings without the 
     // 0x prefix padded with a 0 if they are less than 4 digits long.
     getDeviceDescriptor(vendorID, productID) {
-        return this.deviceDescriptors.find(
-                desc => desc.vendorID === vendorID && desc.getProductIDList().includes(productID)
+        const descriptor = this.deviceDescriptors.find(
+                desc => desc.getDefaultIDs().vid === vendorID && desc.getDefaultProductIDList().includes(productID)
             );
+        const altDescriptor = this.deviceDescriptors.find(
+                desc => desc.getAlternativeIDs()?.vid === vendorID && desc.getAlternativeProductIDList().includes(productID)
+            );
+        return descriptor || altDescriptor;
     }
 
     async getDeviceList() {

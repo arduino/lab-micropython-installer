@@ -133,11 +133,15 @@ export class Device {
     }
 
     runsMicroPython() {
-        return this.productID === this.deviceDescriptor.productIDs.upythonPID;
+        const upythonID = this.deviceDescriptor.getDefaultIDs().pids.upython;
+        const upythonIDAlt = this.deviceDescriptor.getAlternativeIDs()?.pids.upython;
+        return this.productID === upythonID || this.productID === upythonIDAlt;
     }
 
     runsBootloader() {
-        return this.productID === this.deviceDescriptor.productIDs.bootloaderPID;
+        const bootloaderID = this.deviceDescriptor.getDefaultIDs().pids.bootloader;
+        const bootloaderIDAlt = this.deviceDescriptor.getAlternativeIDs()?.pids.bootloader;
+        return this.productID === bootloaderID || this.productID === bootloaderIDAlt;
     }
 
     // Function to convert the vendor /product ID to a hex string wihtout the 0x prefix.
@@ -152,6 +156,15 @@ export class Device {
 
     getProductIDHex() {
         return this.convertNumberToHex(this.productID);
+    }
+
+
+    getBootloaderVID(){
+        return this.deviceDescriptor.getAlternativeIDs()?.vid || this.deviceDescriptor.getDefaultIDs().vid;
+    }
+    
+    getBootloaderPID(){
+        return this.deviceDescriptor.getAlternativeIDs()?.pids.bootloader || this.deviceDescriptor.getDefaultIDs().pids.bootloader;
     }
 
     async getMicroPythonVersion() {
