@@ -38,14 +38,14 @@ if(!selectedDevice.runsBootloader()) {
     try {
         const targetDevice = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
         console.log(`👍 Device is now in bootloader mode.`);
-        await targetDevice.flashMicroPythonFirmware();
+        await targetDevice.flashMicroPythonFirmware(true);
     } catch (error) {
         console.log(error);
         console.log('❌ Failed to flash MicroPython firmware.');
         process.exit(-1);
     }
 } else {
-    await selectedDevice.flashMicroPythonFirmware();
+    await selectedDevice.flashMicroPythonFirmware(true);
 }
 
 console.log('✅ MicroPython firmware flashed successfully. You may need to reset the device to run it.');

@@ -14,7 +14,7 @@ export class Device {
         this.mountPoint = mountPoint;
     }
 
-    async getUPythonFirmwareUrl() {
+    async getUPythonFirmwareUrl(useNightlyBuild = false) {
         const fileExtension = this.deviceDescriptor.firmwareExtension;
         const boardName = this.deviceDescriptor.firmwareID;
         console.log(`🔍 Finding latest firmware for board '${boardName}' ...`);
@@ -32,11 +32,25 @@ export class Device {
             const boardData = boards[0];
 
             // Find the first release that matches the desired file extension
-            const releaseData = boardData.releases.find((release) =>
+            const stableRelease = boardData.releases.find((release) =>
+                release.type.trim() === "(stable)" &&
                 release.url.endsWith("." + fileExtension)
             );
 
-            return "https://downloads.arduino.cc" + releaseData.url;
+            // Find the first release that matches the desired file extension
+            const nightlyRelease = boardData.releases.find((release) =>
+                release.type.trim() === "(nightly)" &&
+                release.url.endsWith("." + fileExtension)
+            );
+
+            // If we are using a nightly build, return the nightly release URL
+            // same if no stable release is available.
+            if (useNightlyBuild && nightlyRelease || !stableRelease) {
+                console.log("🌙 Using nightly build.");
+                return "https://downloads.arduino.cc" + nightlyRelease.url;
+            }
+
+            return "https://downloads.arduino.cc" + stableRelease.url;
         }
     }
 
@@ -101,8 +115,8 @@ export class Device {
         });
     }
 
-    async flashMicroPythonFirmware() {
-        const firmwareUrl = await this.getUPythonFirmwareUrl();
+    async flashMicroPythonFirmware(useNightlyBuild = false) {
+        const firmwareUrl = await this.getUPythonFirmwareUrl(useNightlyBuild);
         const firmwareFile = await this.downloadFirmware(firmwareUrl);
 
         console.log(`🔥 Flashing firmware ...`);
