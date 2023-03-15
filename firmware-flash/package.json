@@ -1,5 +1,5 @@
 {
-  "name": "upython-flasher",
+  "name": "firmware-flash",
   "version": "1.0.0",
   "type": "module",
   "description": "A tool to flash MicroPython onto supported Arduino boards.",
@@ -25,7 +25,6 @@
   "homepage": "https://github.com/sebromero/upython-flasher#readme",
   "dependencies": {
     "node-fetch": "^3.3.0",
-    "serialport": "^10.5.0",
-    "usb": "^2.8.3"
+    "serialport": "^10.5.0"
   }
 }
