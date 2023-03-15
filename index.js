@@ -1,23 +1,14 @@
 import DeviceManager from './logic/DeviceManager.js';
-import { usb, getDeviceList } from 'usb';
-import Flasher from './logic/flasher.js';
 import descriptors from './logic/descriptors.js';
+import Device from './logic/Device.js';
 
-const SOFT_DEVICE_FIRMWARE_FILENAME = "Nano33_updateBLandSoftDevice.bin"
 const deviceManager = new DeviceManager();
-
 
 for (const descriptor of descriptors) {
     deviceManager.addDeviceDescriptor(descriptor);
 }
 
 const foundDevices = await deviceManager.getDeviceList();
-
-// function getSoftDevicePath(){
-//     const scriptDir = path.dirname(__filename);
-//     const firmwarePath = path.join(scriptDir, "bin", "firmware", SOFT_DEVICE_FIRMWARE_FILENAME);
-//     return firmwarePath;  
-// }
 
 if(foundDevices.length === 0) {
     console.log('🤷 No compatible device detected.');
@@ -36,7 +27,18 @@ if(selectedDevice.runsMicroPython()) {
 if(!selectedDevice.runsBootloader()) {
     await selectedDevice.enterBootloader();
     try {
-        const targetDevice = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
+        let targetDevice;
+
+        // Some devices can't be detected in bootloader mode through their serial port.
+        // In this case, we wait a few seconds and then try to flash the device.
+        // An alternative could be to use the device's VID/PID with https://www.npmjs.com/package/usb
+        // or to use the device's mass storage volume with https://www.npmjs.com/package/drivelist
+        if(selectedDevice.deviceDescriptor.skipWaitForDevice) {
+            targetDevice = new Device(selectedDevice.getBootloaderVID(),selectedDevice.getBootloaderPID(), selectedDevice.deviceDescriptor);
+            await deviceManager.wait(3000);
+        } else {
+            targetDevice = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
+        }
         console.log(`👍 Device is now in bootloader mode.`);
         await targetDevice.flashMicroPythonFirmware(true);
     } catch (error) {

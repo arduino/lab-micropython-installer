@@ -67,6 +67,33 @@ export class Flasher {
         });
     }
 
+    async runPicotool(firmwareFilepath, reset = true) {
+        const binaryFolder = os.platform();
+        const scriptDir = path.dirname(__filename);
+        const picotoolPath = path.join(scriptDir, "..", "bin", binaryFolder, "picotool");
+        let params = ["-v"]; // Verify the firmware after flashing
+
+        if (reset) {
+            params.push("-x")
+        }
+
+        let cmd = `${picotoolPath} load ${params.join(" ")} ${firmwareFilepath}`;
+        
+        return new Promise((resolve, reject) => {
+            exec(cmd, (error, stdout, stderr) => {
+                if (error) {
+                    reject(`Error running picotool: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    reject(`Error running picotool: ${stderr}`);
+                    return;
+                }
+                resolve(stdout);
+            });
+        });
+    }
+
 }
 
 export default Flasher;

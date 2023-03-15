@@ -8,6 +8,9 @@ export class DeviceDescriptor {
         this.firmwareExtension = firmwareExtension;
         this.onFlashFirmware = null;
         this.onFlashUPythonFirmware = null;
+        // Currently used to skip the wait for device step when the device 
+        // cannot be detected via its serial port.
+        this.skipWaitForDevice = false;
     }
 
     // Returns all the product IDs as an array of numbers. The boards have multiple product IDs depending on the firmware they run.

@@ -3,6 +3,14 @@ import Flasher from './flasher.js';
 
 const flasher = new Flasher();
 
+// const SOFT_DEVICE_FIRMWARE_FILENAME = "Nano33_updateBLandSoftDevice.bin"
+
+// function getSoftDevicePath(){
+//     const scriptDir = path.dirname(__filename);
+//     const firmwarePath = path.join(scriptDir, "bin", "firmware", SOFT_DEVICE_FIRMWARE_FILENAME);
+//     return firmwarePath;  
+// }
+
 const arduinoGigaIdentifiers = {
     "default" : {
         "vid" : 0x2341,
@@ -26,21 +34,31 @@ arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device) => {
 };
 
 
-// NANO_RP2040_OMV_PID = "0x015e"
-// NANO_RP2040_ARDUINO_PID = "0x005e"
-// NANO_RP2040_MP_PID = "0x025e"
-// RP2040_BL_PID = "0x0003"
-
-// const arduinoNanoRP2040Descriptor = new DeviceDescriptor(0x2341, {"arduinoPID" : 0x005e, "bootloaderPID" : 0x0366, "upythonPID" : 0x0566 }, 'Giga R1 WiFi', 'Arduino', 'ARDUINO_GIGA', 'dfu');
-// arduinoNanoRP2040Descriptor.onFlashFirmware = async (firmware, device) => {
-//     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
-// };
+const arduinoNanoRP2040Identifiers = {
+    "default" : {
+        "vid" : 0x2341,
+        "pids" : { "arduino" : 0x005e, "upython" : 0x025e, "omv" : 0x015e }
+    },
+    "alternative" : {
+        "vid" : 0x2e8a,
+        "pids" : { "bootloader" : 0x0003 }
+    }
+};
+const arduinoNanoRP2040Descriptor = new DeviceDescriptor(arduinoNanoRP2040Identifiers, 'Nano RP2040 Connect', 'Arduino', 'ARDUINO_NANO_RP2040_CONNECT', 'uf2');
+arduinoNanoRP2040Descriptor.onFlashFirmware = async (firmware, device) => {
+    await flasher.runPicotool(firmware, device.getVendorIDHex(), device.getProductIDHex());
+};
+arduinoNanoRP2040Descriptor.skipWaitForDevice = true;
 
 // const arduinoNiclaVisionDescriptor = new DeviceDescriptor(0x2341, {"arduinoPID" : 0x0000, "bootloaderPID" : 0x0000, "upythonPID" : 0x0000 }, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
 // arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device) => {
 //     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
 // };
 
-const descriptors = [arduinoGigaDescriptor, arduinoPortentaH7Descriptor];
+const descriptors = [
+    arduinoGigaDescriptor, 
+    arduinoPortentaH7Descriptor, 
+    arduinoNanoRP2040Descriptor
+];
 
 export default descriptors;
