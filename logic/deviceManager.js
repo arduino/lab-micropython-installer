@@ -38,8 +38,14 @@ class DeviceManager {
                 if(foundDevice) {
                     clearInterval(interval);
                     resolve(foundDevice);
-                }
+                }                
             }, 1000);
+
+            // Set a timeout of 10 seconds.
+            setTimeout(() => {
+                clearInterval(interval);
+                reject("❌ Timeout waiting for the device to become available.");
+            }, 10000);
         });
     }    
 
