@@ -16,21 +16,27 @@
 </head>
 
 <body>
-    <div id="main-container">
-        <div id="header">
+    <div id="container">
+        <header>
             <h1>🐍 MicroPython Flasher</h1>
             <h2>Flash MicroPython on your Arduino board</h2>
-        </div>
-        <div id="controls">
-            <button id="install-button" class="primary">Install MicroPython</button>
-            <button id="flash-button" class="secondary">Flash Firmware</button>
-        </div>
-        <div id="output"></div>
-        <div id="status">
+        </header>
+        <main>
+            <div id="file-drop-area">
+                <div><img id="drop-area" src="iconForDragAndDrop.png" /></div>
+                <div>Drag &amp; drop your custom firmware here.</div>
+            </div>
+            <code id="output">&nbsp;</code>
+            <div id="controls">
+                <button id="install-button" class="primary">Install MicroPython</button>
+                <button id="flash-button" class="secondary">Flash Firmware</button>
+            </div>
+        </main>
+        <footer>
             Node.js <span id="node-version"></span> |
             Chromium <span id="chrome-version"></span> |
             Electron <span id="electron-version"></span>
-        </div>
+        </footer>
     </div>
     <script src="./renderer.js"></script>
 </body>

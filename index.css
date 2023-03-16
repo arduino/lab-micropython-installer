@@ -1,20 +1,32 @@
-html,
-body {
+* {
     margin: 0;
     padding: 0;
-    font-family: 'Open Sans', sans-serif;
-    /* font-family: 'Roboto Mono', monospace; */
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+    /* margin: 0;
+    padding: 0; */
     background-color: #F7F9F9;
+    color: #333333;
     font-size: 16px;
 }
 
-h1 {
-    color: #333333;
+body,
+button {
+    font-family: 'Open Sans', sans-serif;
+}
+
+code {
+    font-family: 'Roboto Mono', monospace;
 }
 
 h2 {
     color: #87898b;
     font-weight: 300;
+    font-size: 1.2rem;
 }
 
 
@@ -45,11 +57,11 @@ button.secondary {
     font-weight: 700;
     font-size: 1rem;
     justify-content: center;
-    
+
     color: #008184;
     background-color: transparent;
     border: 2px solid #008184;
-    
+
     cursor: pointer;
     letter-spacing: 1.28px;
     line-height: normal;
@@ -63,29 +75,73 @@ button.secondary {
 }
 
 button.secondary:hover {
-    background-color: rgba(0,92,95,.2);
+    background-color: rgba(0, 92, 95, .2);
 }
 
-div#main-container {
+div#container {
     height: 100%;
     padding: 50px;
     line-height: 1.5;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     row-gap: 20px;
     text-align: center;
 }
 
-div#controls {
+main {
+    flex: 1;
     display: flex;
-    flex-direction: row;
-    justify-content: center;
-    column-gap: 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
-div#status {
-    align-self: flex-end;
-    color: #87898b;
+header {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+div#file-drop-area {
+    flex: 1;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 1.25rem;
+    gap: 20px;
+
+    min-height: 100px;
+    margin: 0px 60px;    
+    background-color: rgb(241,246,254);
+    border-radius: 20px;
+    border: rgb(195,218,255) 2px dashed;
+}
+
+img#drop-area {
+    width: 100px;
+    height: 100px;
+    opacity: 0.75;
+}
+
+div#output {
+    font-family: roboto;
+}
+
+div#controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+}
+
+footer {
+    color: #a8a9ab;
     font-size: 0.75rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 25px;
 }
