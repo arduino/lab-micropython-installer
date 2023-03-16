@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/sebromero/upython-flasher#readme",
   "dependencies": {
+    "es-main": "^1.2.0",
     "node-fetch": "^3.3.0",
     "serialport": "^10.5.0"
   }
