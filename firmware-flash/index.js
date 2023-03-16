@@ -7,6 +7,7 @@ async function flashFirmware(firmwarePath){
     // TODO
     console.log('TODO: flashFirmware');
     logger.log('✅ Firmware flashed successfully!');
+    return true;
 }
 
 async function flashMicroPythonFirmware(){
