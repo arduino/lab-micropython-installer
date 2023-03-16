@@ -2,7 +2,7 @@ import DeviceManager from './logic/DeviceManager.js';
 import descriptors from './logic/descriptors.js';
 import Device from './logic/Device.js';
 
-async function flashFirmware(){
+async function flashFirmware(loggingCallback = null){
     const deviceManager = new DeviceManager();
     
     for (const descriptor of descriptors) {

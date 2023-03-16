@@ -18,24 +18,14 @@ const createWindow = () => {
     win.loadFile('index.html')
 }
 
+const forwardOutput = (message) => {
+    win.webContents.send("on-output", message);
+}
+
 app.whenReady().then(async () => {
     flash = await import('firmware-flash');
     createWindow()
-
-    // const CHANNEL_NAME = 'main';
-    // const MESSAGE = 'tick';
-
-    /** Send message every one second */
-    // setInterval(() => {
-    //     win.webContents.send(CHANNEL_NAME, MESSAGE);
-    // }, 1000);
 })
-
-ipcMain.on('dropped-file', (event, arg) => {
-    console.log('Dropped File(s):', arg);
-    event.returnValue = `Received ${arg.length} paths.`; // Synchronous reply
-})
-
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
@@ -49,9 +39,14 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.handle('on-install', async (event, arg) => {
-    return new Promise(async function (resolve, reject) {
-        if(await flash.flashFirmware()) {
+ipcMain.handle('on-file-dropped', (event, arg) => {
+    console.log('Dropped File(s):', arg);
+    event.returnValue = `Received ${arg.length} paths.`; // Synchronous reply
+})
+
+ipcMain.handle('on-install', async (event, arg) => {    
+    return new Promise(async function (resolve, reject) {                
+        if(await flash.flashFirmware(forwardOutput)) {
             resolve("✅ Firmware flashed successfully!");
         } else {
             reject("❌ Firmware flash failed!");

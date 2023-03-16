@@ -119,13 +119,15 @@ div#file-drop-area {
     background-color: rgb(252,252,252);
     border-radius: 20px;
     border: rgb(195,218,255) 2px dashed;
+    transition: all 0.3s ease-in-out;
 }
 
-div#file-drop-area:hover {
-    background-color: rgb(241,246,254);
+div.file-drop-hovered {
+    background-color: rgb(241,246,254) !important;
+    transform: scale(1.025);
 }
 
-div#file-drop-area:hover a, a:link, a:active, a:focus, a:visited {
+div#file-drop-area a, a:link, a:active, a:focus, a:visited {
     text-decoration: none;
     color: rgb(103,163,255);
 }

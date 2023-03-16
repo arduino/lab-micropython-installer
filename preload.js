@@ -1,7 +1,4 @@
-const {
-    contextBridge,
-    ipcRenderer
-} = require("electron");
+const { contextBridge, ipcRenderer } = require("electron");
 
 window.addEventListener('DOMContentLoaded', () => {
     const replaceText = (selector, text) => {
@@ -14,16 +11,20 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 })
 
-
 contextBridge.exposeInMainWorld(
     "api", {
-    invoke: (channel, data) => {
-        let validChannels = ["on-install", "onFileDrop"]; // list of ipcMain.handle channels you want access in frontend to
-        if (validChannels.includes(channel)) {
-            // ipcRenderer.invoke accesses ipcMain.handle channels like 'myfunc'
+        invoke: (channel, data = null) => {
+            let validChannels = ["on-install", "on-file-dropped"];
+            if(!validChannels.includes(channel)) return;
+            // ipcRenderer.invoke accesses ipcMain.handle channels like 'on-file-dropped'
             // make sure to include this return statement or you won't get your Promise back
             return ipcRenderer.invoke(channel, data);
+        },
+        on: (channel, func) => {
+            let validChannels = ["on-output"];
+            if(!validChannels.includes(channel)) return;
+            // Deliberately strip event as it includes `sender`
+            ipcRenderer.on(channel, (event, ...args) => func(...args));
         }
-    },
-}
+    }
 );
