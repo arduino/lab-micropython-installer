@@ -41,9 +41,15 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.handle('on-file-dropped', (event, filePath) => {
-    flash.flashFirmware(filePath);
-    event.returnValue = `Done`; // Synchronous reply
+ipcMain.handle('on-file-dropped', async (event, filePath) => {    
+    // event.returnValue = `Done`; // Synchronous reply
+    return new Promise(async function (resolve, reject) {
+       if(await flash.flashFirmware(filePath)) {
+           resolve("✅ Firmware flashed successfully!");
+       } else {
+           reject("❌ Failed to flash firmware!");
+       }
+    });
 })
 
 ipcMain.handle('on-install', async (event, arg) => {    

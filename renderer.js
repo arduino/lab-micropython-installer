@@ -10,11 +10,9 @@ button.addEventListener('click', () => {
     window.api.invoke('on-install')
         .then(function (res) {
             console.log(res);
-            // outputElement.innerText = res;
         })
         .catch(function (err) {
             console.error(err);
-            // outputElement.innerText = err;
         });
 });
 
@@ -47,5 +45,9 @@ fileDropElement.addEventListener('drop', (event) => {
         return;
     }
 
-    window.api.invoke('on-file-dropped', filePaths[0]);       
+    window.api.invoke('on-file-dropped', filePaths[0]).then(function (res) {
+        console.log(res);
+    }).catch(function (err) {
+        console.error(err);
+    });
 });
