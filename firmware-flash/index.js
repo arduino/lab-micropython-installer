@@ -3,7 +3,11 @@ import descriptors from './logic/descriptors.js';
 import Device from './logic/Device.js';
 import Logger from './logic/Logger.js';
 
-async function flashFirmware(){
+async function flashFirmware(firmwarePath){
+    // TODO
+}
+
+async function flashMicroPythonFirmware(){
     const deviceManager = new DeviceManager();
     
     for (const descriptor of descriptors) {
@@ -60,4 +64,4 @@ async function flashFirmware(){
 
 const logger = new Logger();
 
-export { flashFirmware, logger };
+export { flashFirmware, flashMicroPythonFirmware, logger };

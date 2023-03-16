@@ -48,7 +48,7 @@ ipcMain.handle('on-file-dropped', (event, arg) => {
 
 ipcMain.handle('on-install', async (event, arg) => {    
     return new Promise(async function (resolve, reject) {                
-        if(await flash.flashFirmware()) {
+        if(await flash.flashMicroPythonFirmware()) {
             resolve("✅ Firmware flashed successfully!");
         } else {
             reject("❌ Failed to flash firmware!");

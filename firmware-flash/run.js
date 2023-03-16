@@ -1,4 +1,4 @@
-import { run } from './index.js';
+import { flashMicroPythonFirmware } from './index.js';
 
-const result = await run();
+const result = await flashMicroPythonFirmware();
 process.exit(result ? 0 : -1);
