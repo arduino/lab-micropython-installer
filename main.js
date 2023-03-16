@@ -9,7 +9,9 @@ const createWindow = () => {
         height: 700,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
-        }
+        },
+        maximizable: false,
+        minWidth: 480
     })
 
     win.webContents.openDevTools();
