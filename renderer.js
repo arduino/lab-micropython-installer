@@ -3,7 +3,6 @@ const outputElement = document.querySelector('#output');
 const fileDropElement = document.querySelector('#file-drop-area');
 
 window.api.on('on-output', (message) => {
-    console.log(message);
     outputElement.innerText = message;
 });
 
@@ -48,6 +47,5 @@ fileDropElement.addEventListener('drop', (event) => {
         return;
     }
 
-    console.log(filePaths);
     window.api.invoke('on-file-dropped', filePaths[0]);       
 });

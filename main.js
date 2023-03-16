@@ -14,7 +14,7 @@ const createWindow = () => {
         minWidth: 480
     })
 
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
     win.loadFile('index.html')
 }
 
@@ -41,9 +41,9 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.handle('on-file-dropped', (event, arg) => {
-    console.log('Dropped File(s):', arg);
-    event.returnValue = `Received ${arg.length} paths.`; // Synchronous reply
+ipcMain.handle('on-file-dropped', (event, filePath) => {
+    flash.flashFirmware(filePath);
+    event.returnValue = `Done`; // Synchronous reply
 })
 
 ipcMain.handle('on-install', async (event, arg) => {    
