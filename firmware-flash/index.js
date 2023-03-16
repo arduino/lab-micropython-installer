@@ -1,9 +1,8 @@
 import DeviceManager from './logic/DeviceManager.js';
 import descriptors from './logic/descriptors.js';
 import Device from './logic/Device.js';
-import esMain from 'es-main';
 
-async function run(){
+async function flashFirmware(){
     const deviceManager = new DeviceManager();
     
     for (const descriptor of descriptors) {
@@ -14,7 +13,7 @@ async function run(){
     
     if(foundDevices.length === 0) {
         console.log('🤷 No compatible device detected.');
-        return -1;
+        return false;
     }
 
     // TODO - add support for multiple devices
@@ -46,19 +45,14 @@ async function run(){
         } catch (error) {
             console.log(error);
             console.log('🚨 Failed to flash MicroPython firmware.');
-            return -1;
+            return false;
         }
     } else {
         await selectedDevice.flashMicroPythonFirmware(true);
     }
     
     console.log('✅ MicroPython firmware flashed successfully. You may need to reset the device to run it.');
+    return true;
 }
 
-// Check if this file is being run directly
-if (esMain(import.meta)) {
-    const returnCode = await run();
-    process.exit(returnCode);
-}
-
-export { run };
+export { flashFirmware };
