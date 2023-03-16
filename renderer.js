@@ -4,11 +4,11 @@ const outputElement = document.querySelector('#output');
 button.addEventListener('click', () => {
     window.api.invoke('on-install', [1, 2, 3])
         .then(function (res) {
-            console.log(res); // will print "This worked!" to the browser console
+            console.log(res);
             outputElement.innerText = res;
         })
         .catch(function (err) {
-            console.error(err); // will print "This didn't work!" to the browser console.
+            console.error(err);
             outputElement.innerText = err;
         });
 });
