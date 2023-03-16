@@ -28,16 +28,14 @@ class DeviceManager {
     }
 
     // Function to wait for the specified number of milliseconds.
-    wait(ms) {
-        console.log(`⌛️ Waiting ${ms}ms for the device to become available...`)
+    wait(ms) {        
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     // Wait for a USB device to become available.
     waitForDevice(vendorID, productID) {
         return new Promise((resolve, reject) => {
-            const interval = setInterval(async () => {
-                console.log("⌛️ Waiting for the device to become available...")
+            const interval = setInterval(async () => {                
                 await this.refreshDevices();
                 const foundDevice = this.devices.find((device) => device.vendorID === vendorID && device.productID === productID);
 
