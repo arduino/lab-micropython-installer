@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, nativeImage, NativeImage } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 let flash;
 
@@ -41,7 +41,8 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.handle('on-file-dropped', async (event, filePath) => {    
+ipcMain.handle('on-file-dropped', async (event, filePath) => {  
+    // Alternative to returning a promise:  
     // event.returnValue = `Done`; // Synchronous reply
     return new Promise(async function (resolve, reject) {
        if(await flash.flashFirmware(filePath)) {
