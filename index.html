@@ -4,19 +4,33 @@
 <head>
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Arduino MicroPython Flasher</title>   
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; font-src https://fonts.gstatic.com;style-src 'self' https://fonts.googleapis.com;style-src-elem 'self' https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700&family=Roboto+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <title>Arduino MicroPython Flasher</title>
 </head>
 
 <body>
-    <div>
-        <h1>Arduino MicroPython Flasher</h1>
-        We are using Node.js <span id="node-version"></span>,
-        Chromium <span id="chrome-version"></span>,
-        and Electron <span id="electron-version"></span>.
-    </div>
-    <div>
-        <button id="install-button">Install MicroPython</button>
+    <div id="main-container">
+        <div id="header">
+            <h1>🐍 MicroPython Flasher</h1>
+            <h2>Flash MicroPython on your Arduino board</h2>
+        </div>
+        <div id="controls">
+            <button id="install-button" class="primary">Install MicroPython</button>
+            <button id="flash-button" class="secondary">Flash Firmware</button>
+        </div>
+        <div id="output"></div>
+        <div id="status">
+            Node.js <span id="node-version"></span> |
+            Chromium <span id="chrome-version"></span> |
+            Electron <span id="electron-version"></span>
+        </div>
     </div>
     <script src="./renderer.js"></script>
 </body>

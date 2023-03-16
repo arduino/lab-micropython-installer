@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain, nativeImage, NativeImage } = require('electron')
 const path = require('path')
-// const flash = require('firmware-flash');
+let flash;
 
 let win;
 const createWindow = () => {
@@ -16,17 +16,17 @@ const createWindow = () => {
     win.loadFile('index.html')
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+    flash = await import('firmware-flash');
     createWindow()
 
-    /** Define channel name and message */
-    const CHANNEL_NAME = 'main';
-    const MESSAGE = 'tick';
+    // const CHANNEL_NAME = 'main';
+    // const MESSAGE = 'tick';
 
     /** Send message every one second */
-    setInterval(() => {
-        win.webContents.send(CHANNEL_NAME, MESSAGE);
-    }, 1000);
+    // setInterval(() => {
+    //     win.webContents.send(CHANNEL_NAME, MESSAGE);
+    // }, 1000);
 })
 
 ipcMain.on('dropped-file', (event, arg) => {
@@ -47,15 +47,12 @@ app.on('activate', () => {
     }
 })
 
-
-
-ipcMain.handle('onInstall', async (event, arg) => {
-    return new Promise(function (resolve, reject) {
-        // do stuff
-        if (true) {
-            resolve("this worked!");
+ipcMain.handle('on-install', async (event, arg) => {
+    return new Promise(async function (resolve, reject) {
+        if(await flash.flashFirmware()) {
+            resolve("Firmware flashed successfully!");
         } else {
-            reject("this didn't work!");
+            reject("Firmware flash failed!");
         }
     });
 });
