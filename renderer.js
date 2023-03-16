@@ -11,11 +11,11 @@ button.addEventListener('click', () => {
     window.api.invoke('on-install')
         .then(function (res) {
             console.log(res);
-            outputElement.innerText = res;
+            // outputElement.innerText = res;
         })
         .catch(function (err) {
             console.error(err);
-            outputElement.innerText = err;
+            // outputElement.innerText = err;
         });
 });
 

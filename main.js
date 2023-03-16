@@ -24,6 +24,8 @@ const forwardOutput = (message) => {
 
 app.whenReady().then(async () => {
     flash = await import('firmware-flash');
+    flash.logger.printToConsole = true;
+    flash.logger.onLog = forwardOutput;
     createWindow()
 })
 
@@ -46,10 +48,10 @@ ipcMain.handle('on-file-dropped', (event, arg) => {
 
 ipcMain.handle('on-install', async (event, arg) => {    
     return new Promise(async function (resolve, reject) {                
-        if(await flash.flashFirmware(forwardOutput)) {
+        if(await flash.flashFirmware()) {
             resolve("✅ Firmware flashed successfully!");
         } else {
-            reject("❌ Firmware flash failed!");
+            reject("❌ Failed to flash firmware!");
         }
     });
 });
