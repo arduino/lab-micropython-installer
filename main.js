@@ -1,8 +1,8 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 let flash;
-
 let win;
+
 const createWindow = () => {
     win = new BrowserWindow({
         width: 665,

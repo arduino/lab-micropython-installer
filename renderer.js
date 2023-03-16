@@ -2,6 +2,12 @@ const button = document.querySelector('#install-button');
 const outputElement = document.querySelector('#output');
 const fileDropElement = document.querySelector('#file-drop-area');
 
+const clearOutput = () => {
+    setTimeout(() => {
+        outputElement.textContent = '\u00a0';
+    }, 5000);
+}
+
 window.api.on('on-output', (message) => {
     outputElement.innerText = message;
 });
@@ -10,9 +16,11 @@ button.addEventListener('click', () => {
     window.api.invoke('on-install')
         .then(function (res) {
             console.log(res);
+            clearOutput();
         })
         .catch(function (err) {
             console.error(err);
+            clearOutput();
         });
 });
 
@@ -47,7 +55,9 @@ fileDropElement.addEventListener('drop', (event) => {
 
     window.api.invoke('on-file-dropped', filePaths[0]).then(function (res) {
         console.log(res);
+        clearOutput();
     }).catch(function (err) {
         console.error(err);
+        clearOutput();
     });
 });
