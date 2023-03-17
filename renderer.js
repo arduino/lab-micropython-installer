@@ -4,6 +4,8 @@ const outputElement = document.querySelector('#output');
 const fileDropElement = document.querySelector('#file-drop-area');
 
 const flashFirmwareFromFile = (filePath) => {
+    disableUserInteraction();
+
     window.api.invoke('on-file-selected', filePath).then(function (result) {
         console.log(result);
         showStatusText(result, outputElement, 5000);
@@ -12,6 +14,8 @@ const flashFirmwareFromFile = (filePath) => {
         setTimeout(() => {
             showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
         }, 2000);
+    }).finally(() => {
+        enableUserInteraction();
     });
 };
 
@@ -71,6 +75,16 @@ function showStatusText(text, target, duration = null, speed = 50) {
   }, speed);
 }
 
+function enableUserInteraction() {
+    button.disabled = false;
+    button.style.opacity = 1;
+}
+
+function disableUserInteraction() {
+    button.disabled = true;
+    button.style.opacity = 0.25;
+}
+
 window.api.on('on-output', (message) => {
     showStatusText(message, outputElement);
 });
@@ -89,6 +103,8 @@ chooseFileLink.addEventListener('click', () => {
       
 
 button.addEventListener('click', () => {
+    disableUserInteraction();
+    
     window.api.invoke('on-install')
         .then((result) => {
             console.log(result);
@@ -99,6 +115,8 @@ button.addEventListener('click', () => {
             setTimeout(() => {
                 showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
             }, 2000);
+        }).finally(() => {
+            enableUserInteraction();
         });
 });
 
