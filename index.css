@@ -103,6 +103,12 @@ header {
     margin-bottom: 25px;
 }
 
+#install-button-container {
+    display: flex;
+    gap: 20px;
+    position: relative; /* Allos children to use position absolute */
+}
+
 div#file-drop-area {
     flex: 1;
     align-self: stretch;
@@ -156,3 +162,48 @@ footer {
     align-items: center;
     margin-top: 25px;
 }
+
+/* Spinner animation */
+
+#activity-indicator {
+    display: none;
+    position: absolute;
+    right: -60px;
+}
+
+.loader-ring {
+    display: inline-block;    
+    position: relative;
+    width: 40px;
+    height: 40px;
+  }
+  .loader-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    margin: 4px;
+    border: 4px solid #e0e0e0;
+    border-radius: 50%;
+    animation: loader-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #e0e0e0 transparent transparent transparent;
+  }
+  .loader-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+  }
+  .loader-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+  .loader-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+  }
+  @keyframes loader-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  

@@ -2,6 +2,7 @@ const button = document.querySelector('#install-button');
 const chooseFileLink = document.querySelector('#choose-file-link');
 const outputElement = document.querySelector('#output');
 const fileDropElement = document.querySelector('#file-drop-area');
+const loaderElement = document.querySelector('.loader-ring');
 
 const flashFirmwareFromFile = (filePath) => {
     disableUserInteraction();
@@ -78,11 +79,13 @@ function showStatusText(text, target, duration = null, speed = 50) {
 function enableUserInteraction() {
     button.disabled = false;
     button.style.opacity = 1;
+    loaderElement.style.display = 'none';
 }
 
 function disableUserInteraction() {
     button.disabled = true;
     button.style.opacity = 0.25;
+    loaderElement.style.display = 'inline-block';
 }
 
 window.api.on('on-output', (message) => {
