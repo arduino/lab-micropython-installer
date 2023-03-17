@@ -51,7 +51,7 @@ ipcMain.handle('on-file-selected', async (event, filePath) => {
             // Due to a bug in Electron the error message is reformatted.
             // Therefore the error message is created in the renderer process
             // See: https://github.com/electron/electron/issues/24427
-            reject();
+            reject("Error");
         }
     });
 })
@@ -64,7 +64,7 @@ ipcMain.handle('on-install', async (event, arg) => {
             // Due to a bug in Electron the error message is reformatted.
             // Therefore the error message is created in the renderer process
             // See: https://github.com/electron/electron/issues/24427
-            reject();
+            reject("Error");
         }
     });
 });
