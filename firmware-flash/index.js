@@ -10,13 +10,11 @@ async function flashFirmware(firmwarePath){
     return true;
 }
 
+async function getDeviceList(){
+    return deviceManager.getDeviceList();
+}
+
 async function flashMicroPythonFirmware(){
-    const deviceManager = new DeviceManager();
-    
-    for (const descriptor of descriptors) {
-        deviceManager.addDeviceDescriptor(descriptor);
-    }
-    
     const foundDevices = await deviceManager.getDeviceList();
     
     if(foundDevices.length === 0) {
@@ -65,5 +63,10 @@ async function flashMicroPythonFirmware(){
 }
 
 const logger = new Logger();
+const deviceManager = new DeviceManager();
+    
+for (const descriptor of descriptors) {
+    deviceManager.addDeviceDescriptor(descriptor);
+}
 
-export { flashFirmware, flashMicroPythonFirmware, logger };
+export { flashFirmware, flashMicroPythonFirmware, getDeviceList, logger };
