@@ -5,11 +5,11 @@ const fileDropElement = document.querySelector('#file-drop-area');
 const clearOutput = () => {
     setTimeout(() => {
         outputElement.textContent = '\u00a0';
-    }, 5000);
+    }, 10000);
 }
 
 window.api.on('on-output', (message) => {
-    outputElement.innerText = message;
+    outputElement.textContent = message;
 });
 
 button.addEventListener('click', () => {

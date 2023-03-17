@@ -7,20 +7,19 @@
 html,
 body {
     height: 100%;
-    /* margin: 0;
-    padding: 0; */
     background-color: #fff;
     color: #333333;
     font-size: 16px;
 }
 
-body,
+html, body,
 button {
     font-family: 'Open Sans', sans-serif;
 }
 
 code {
     font-family: 'Roboto Mono', monospace;
+    font-size: 1rem;
 }
 
 h2 {
@@ -136,10 +135,6 @@ img#drop-area {
     width: 100px;
     height: 100px;
     opacity: 0.65;
-}
-
-div#output {
-    font-family: roboto;
 }
 
 div#controls {

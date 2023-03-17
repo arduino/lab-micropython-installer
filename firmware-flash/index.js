@@ -26,6 +26,7 @@ async function flashMicroPythonFirmware(){
 
     // TODO - add support for multiple devices
     const selectedDevice = foundDevices[0];
+    selectedDevice.logger = logger;
     logger.log('👀 Device detected: ' + selectedDevice.deviceDescriptor.name);
     
     if(selectedDevice.runsMicroPython()) {
@@ -50,6 +51,7 @@ async function flashMicroPythonFirmware(){
                 logger.log("⌛️ Waiting for the device to become available...");
                 targetDevice = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
             }
+            targetDevice.logger = logger;
             logger.log(`👍 Device is now in bootloader mode.`);
             await targetDevice.flashMicroPythonFirmware(true);
         } catch (error) {

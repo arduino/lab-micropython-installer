@@ -17,7 +17,7 @@ export class Device {
     async getUPythonFirmwareUrl(useNightlyBuild = false) {
         const fileExtension = this.deviceDescriptor.firmwareExtension;
         const boardName = this.deviceDescriptor.firmwareID;
-        console.log(`🔍 Finding latest firmware for board '${boardName}' ...`);
+        this.logger?.log(`🔍 Finding latest firmware for board '${boardName}' ...`);
 
         const jsonUrl = "https://downloads.arduino.cc/micropython/index.json";
         const response = await fetch(jsonUrl);
@@ -46,7 +46,7 @@ export class Device {
             // If we are using a nightly build, return the nightly release URL
             // same if no stable release is available.
             if (useNightlyBuild && nightlyRelease || !stableRelease) {
-                console.log("🌙 Using nightly build.");
+                this.logger?.log("🌙 Using nightly build.");
                 return "https://downloads.arduino.cc" + nightlyRelease.url;
             }
 
@@ -55,8 +55,8 @@ export class Device {
     }
 
     async downloadFirmware(firmwareUrl) {
-        console.log(`🔗 Firmware URL: ${firmwareUrl}`);
-        console.log(`🌐 Downloading firmware ...`);
+        this.logger?.log(`🔗 Firmware URL: ${firmwareUrl}`);
+        this.logger?.log(`🌐 Downloading firmware ...`);
 
         // Extract the file name from the URL
         const fileName = firmwareUrl.split("/").pop();
@@ -71,12 +71,12 @@ export class Device {
     }
 
     async flashFirmware(firmwareFile) {
-        console.log(`🔥 Flashing firmware ...`);
+        this.logger?.log(`🔥 Flashing firmware ...`);
         return this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
     }
 
     async sendREPLCommand(command, awaitResponse = true) {
-        // console.log(`📤 Sending REPL command: ${command}`);
+        // this.logger?.log(`📤 Sending REPL command: ${command}`);
         
         return new Promise((resolve, reject) => {
             let responseData = "";
@@ -85,12 +85,12 @@ export class Device {
             
             serialport.open(function (err) {
                 if (err) {
-                    return console.log('❌ Error opening port: ', err.message)
+                    return this.logger?.log('❌ Error opening port: ', err.message)
                 }
                 
                 serialport.write(command, function (err) {
                     if (err) {
-                        return console.log('❌ Error on write: ', err.message)
+                        return this.logger?.log('❌ Error on write: ', err.message)
                     }
                 });
     
@@ -119,7 +119,7 @@ export class Device {
         const firmwareUrl = await this.getUPythonFirmwareUrl(useNightlyBuild);
         const firmwareFile = await this.downloadFirmware(firmwareUrl);
 
-        console.log(`🔥 Flashing firmware ...`);
+        this.logger?.log(`🔥 Flashing firmware ...`);
         if (this.deviceDescriptor.onFlashUPythonFirmware) {
             await this.deviceDescriptor.onFlashUPythonFirmware(firmwareFile, this);
         }
@@ -127,7 +127,7 @@ export class Device {
     }
 
     async enterBootloader() {
-        console.log(`👢 Entering bootloader ...`);
+        this.logger?.log(`👢 Entering bootloader ...`);
         if (!this.runsMicroPython()) {
             // Open the serial port with a baud rate of 1200
             const serialport = new SerialPort({ path: this.serialPort, baudRate: 1200, autoOpen: false });
@@ -137,7 +137,7 @@ export class Device {
 
             serialport.open(function (err) {
                 if (err) {
-                    return console.log('❌ Error opening port: ', err.message)
+                    return this.logger?.log('❌ Error opening port: ', err.message)
                 }
             });
         } else {
@@ -187,7 +187,7 @@ export class Device {
         // Find the line that starts with a '(' which contains the version string e.g. (1, 19, 1)
         const versionStringLine = lines.find((line) => line.startsWith('('));
         if (!versionStringLine) {
-            console.log(`❌ Could not find version string in response: ${versionData}`);
+            this.logger?.log(`❌ Could not find version string in response: ${versionData}`);
             return null;
         }
         const versionString = versionStringLine.split(', ').join('.');
