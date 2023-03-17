@@ -4,61 +4,61 @@ const outputElement = document.querySelector('#output');
 const fileDropElement = document.querySelector('#file-drop-area');
 let fadeInTimeout, fadeOutTimeout;
 
-const clearOutput = () => {
-    showStatusText('\u00a0', outputElement); // Non-breaking space
-};
-
 const flashFirmwareFromFile = (filePath) => {
-    window.api.invoke('on-file-selected', filePath).then(function (res) {
-        console.log(res);
-        clearOutput();
+    window.api.invoke('on-file-selected', filePath).then(function (result) {
+        console.log(result);
+        showStatusText(result, outputElement, 5000);
     }).catch(function (err) {
         console.error(err);
-        clearOutput();
+        setTimeout(() => {
+            showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
+        }, 1000);
     });
 };
 
-const showStatusText = (text, targetElement, duration = 20000, speed = 40) => {
-  targetElement.textContent = text;
-
-  if (fadeOutTimeout) {
-    // If a fade-out animation is already running, clear it and hide the status text immediately
-    clearTimeout(fadeOutTimeout);
-    targetElement.style.opacity = 0;
-    targetElement.style.visibility = 'none';
-  }
-
-  if (fadeInTimeout) {
-    // If a fade-in animation is already running, update the text and return
+const showStatusText = (text, targetElement, duration = null, speed = 40) => {
     targetElement.textContent = text;
-    return;
-  }
 
-  // If no animation is running, start the fade-in animation
-  targetElement.style.opacity = 0;
-  targetElement.style.visibility = 'visible';
-
-  let opacity = 0;
-  fadeInTimeout = setInterval(() => {
-    opacity += 0.1;
-    targetElement.style.opacity = opacity;
-    if (opacity >= 1) {
-      clearInterval(fadeInTimeout);
-      fadeInTimeout = null;
-      fadeOutTimeout = setTimeout(() => {
-        let opacity = 1;
-        fadeOutTimeout = setInterval(() => {
-          opacity -= 0.1;
-          targetElement.style.opacity = opacity;
-          if (opacity <= 0) {
-            clearInterval(fadeOutTimeout);
-            fadeOutTimeout = null;
-            targetElement.style.visibility = 'hidden';
-          }
-        }, speed);
-      }, duration);
+    if (fadeOutTimeout) {
+        // If a fade-out animation is already running, clear it and hide the status text immediately
+        clearTimeout(fadeOutTimeout);
+        targetElement.style.opacity = 0;
+        targetElement.style.visibility = 'none';
     }
-  }, speed);
+
+    if (fadeInTimeout) {
+        // If a fade-in animation is already running, update the text and return
+        targetElement.textContent = text;
+        return;
+    }
+
+    // If no animation is running, start the fade-in animation
+    targetElement.style.opacity = 0;
+    targetElement.style.visibility = 'visible';
+
+    let opacity = 0;
+    fadeInTimeout = setInterval(() => {
+        opacity += 0.1;
+        targetElement.style.opacity = opacity;
+        if (opacity >= 1) {
+            clearInterval(fadeInTimeout);
+            fadeInTimeout = null;
+            if(duration){
+                fadeOutTimeout = setTimeout(() => {
+                    let opacity = 1;
+                    fadeOutTimeout = setInterval(() => {
+                        opacity -= 0.1;
+                        targetElement.style.opacity = opacity;
+                        if (opacity <= 0) {
+                            clearInterval(fadeOutTimeout);
+                            fadeOutTimeout = null;
+                            targetElement.style.visibility = 'hidden';
+                        }
+                    }, speed);
+                }, duration);
+            }
+        }
+    }, speed);
 }
 
 window.api.on('on-output', (message) => {
@@ -79,12 +79,20 @@ chooseFileLink.addEventListener('click', () => {
       
 
 button.addEventListener('click', () => {
+    // showStatusText("Test 1", outputElement);
+    // showStatusText("Test 2", outputElement);
+    // showStatusText("Test 3", outputElement, 2000);
+    // return;
     window.api.invoke('on-install')
-        .then(function (res) {
-            console.log(res);
+        .then((result) => {
+            console.log(result);
+            showStatusText(result, outputElement, 5000);
         })
-        .catch(function (err) {
+        .catch((err) => {
             console.error(err);
+            setTimeout(() => {
+                showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
+            }, 1000);
         });
 });
 

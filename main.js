@@ -41,24 +41,30 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.handle('on-file-selected', async (event, filePath) => {  
+ipcMain.handle('on-file-selected', async (event, filePath) => {
     // Alternative to returning a promise:  
     // event.returnValue = `Done`; // Synchronous reply
     return new Promise(async function (resolve, reject) {
-       if(await flash.flashFirmware(filePath)) {
-           resolve("✅ Firmware flashed successfully!");
-       } else {
-           reject("❌ Failed to flash firmware!");
-       }
+        if (await flash.flashFirmware(filePath)) {
+            resolve("✅ Firmware flashed successfully! You may need to reset the device.");
+        } else {
+            // Due to a bug in Electron the error message is reformatted.
+            // Therefore the error message is created in the renderer process
+            // See: https://github.com/electron/electron/issues/24427
+            reject();
+        }
     });
 })
 
-ipcMain.handle('on-install', async (event, arg) => {    
-    return new Promise(async function (resolve, reject) {                
-        if(await flash.flashMicroPythonFirmware()) {
-            resolve("✅ Firmware flashed successfully!");
+ipcMain.handle('on-install', async (event, arg) => {
+    return new Promise(async function (resolve, reject) {
+        if (await flash.flashMicroPythonFirmware()) {
+            resolve("✅ Firmware flashed successfully! You may need to reset the device.");
         } else {
-            reject("❌ Failed to flash firmware!");
+            // Due to a bug in Electron the error message is reformatted.
+            // Therefore the error message is created in the renderer process
+            // See: https://github.com/electron/electron/issues/24427
+            reject();
         }
     });
 });

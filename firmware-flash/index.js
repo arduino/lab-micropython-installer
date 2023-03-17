@@ -56,14 +56,11 @@ async function flashMicroPythonFirmware(){
             await targetDevice.flashMicroPythonFirmware(true);
         } catch (error) {
             logger.log(error);
-            logger.log('🚨 Failed to flash MicroPython firmware.');
             return false;
         }
     } else {
         await selectedDevice.flashMicroPythonFirmware(true);
-    }
-    
-    logger.log('✅ MicroPython firmware flashed successfully. You may need to reset the device to run it.');
+    }    
     return true;
 }
 
