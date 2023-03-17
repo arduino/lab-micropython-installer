@@ -5,7 +5,7 @@ import Logger from './logic/Logger.js';
 
 async function flashFirmware(firmwarePath){
     // TODO
-    console.log('TODO: flashFirmware');
+    console.log('TODO: flashFirmware ' + firmwarePath);
     logger.log('✅ Firmware flashed successfully!');
     return true;
 }

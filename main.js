@@ -41,7 +41,7 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.handle('on-file-dropped', async (event, filePath) => {  
+ipcMain.handle('on-file-selected', async (event, filePath) => {  
     // Alternative to returning a promise:  
     // event.returnValue = `Done`; // Synchronous reply
     return new Promise(async function (resolve, reject) {

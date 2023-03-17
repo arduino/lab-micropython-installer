@@ -132,9 +132,13 @@ div#file-drop-area a, a:link, a:active, a:focus, a:visited {
 }
 
 img#drop-area {
-    width: 100px;
-    height: 100px;
+    width: 75px;
+    height: 75px;
     opacity: 0.65;
+}
+
+a#choose-file-link {
+    cursor: pointer;
 }
 
 div#controls {
