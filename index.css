@@ -28,6 +28,9 @@ h2 {
     font-size: 1.2rem;
 }
 
+button {
+    transition: opacity 0.5s ease-in-out;
+}
 
 button.primary {
     font-weight: 700;
