@@ -124,14 +124,17 @@ div#file-drop-area {
 
     min-height: 100px;
     margin: 0px 60px;    
-    background-color: rgb(252,252,252);
+    /* background-color: #fcfcfc;
+    border: #c3daff 2px dashed; */
     border-radius: 20px;
-    border: rgb(195,218,255) 2px dashed;
+    /* Generated with: https://kovart.github.io/dashed-border-generator/ */
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='%23fcfcfc' rx='20' ry='20' stroke='%23c3daff' stroke-width='3' stroke-dasharray='4%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e");
     transition: all 0.3s ease-in-out;
 }
 
 div.file-drop-hovered {
-    background-color: rgb(241,246,254) !important;
+    /* background-color: #f1f6fe !important; */
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='%23f1f6fe' rx='20' ry='20' stroke='%23c3daff' stroke-width='3' stroke-dasharray='4%2c 8' stroke-dashoffset='0' stroke-linecap='square'/%3e%3c/svg%3e") !important;
     transform: scale(1.025);
 }
 
