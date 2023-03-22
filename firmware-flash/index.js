@@ -3,33 +3,36 @@ import descriptors from './logic/descriptors.js';
 import Device from './logic/Device.js';
 import Logger from './logic/Logger.js';
 
-async function flashFirmware(firmwarePath){
+async function flashFirmware(firmwarePath, selectedDevice){
     // TODO
     console.log('TODO: flashFirmware ' + firmwarePath);
+    console.log("SelectedDevice ", selectedDevice);
     logger.log('✅ Firmware flashed successfully!');
     return true;
 }
 
 async function getDeviceList(){
-    return deviceManager.getDeviceList();
+    return await deviceManager.getDeviceList();
 }
 
-async function flashMicroPythonFirmware(){
-    const foundDevices = await deviceManager.getDeviceList();
+async function getFirstFoundDevice(){
+    const foundDevices = await this.getDeviceList();
     
     if(foundDevices.length === 0) {
         logger.log('🤷 No compatible device detected.');
-        return false;
+        return null;
     }
 
-    // TODO - add support for multiple devices
-    const selectedDevice = foundDevices[0];
+    return foundDevices[0];
+}
+
+async function flashMicroPythonFirmware(selectedDevice){    
     selectedDevice.logger = logger;
     logger.log('👀 Device detected: ' + selectedDevice.deviceDescriptor.name);
     
     if(selectedDevice.runsMicroPython()) {
         let version = await selectedDevice.getMicroPythonVersion();
-        logger.log('🐍 Device is already running MicroPython version:', version);
+        logger.log('🐍 Device is running MicroPython version:', version);
     }
     
     if(!selectedDevice.runsBootloader()) {
@@ -69,4 +72,4 @@ for (const descriptor of descriptors) {
     deviceManager.addDeviceDescriptor(descriptor);
 }
 
-export { flashFirmware, flashMicroPythonFirmware, getDeviceList, logger };
+export { flashFirmware, flashMicroPythonFirmware, getDeviceList, getFirstFoundDevice, logger };

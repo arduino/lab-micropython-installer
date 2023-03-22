@@ -70,6 +70,11 @@ export class Device {
         return targetFile;
     }
 
+    async downloadMicroPythonFirmware(useNightlyBuild = false) {
+        const firmwareUrl = await this.getUPythonFirmwareUrl(useNightlyBuild);
+        return await this.downloadFirmware(firmwareUrl);
+    }
+
     async flashFirmware(firmwareFile) {
         this.logger?.log(`🔥 Flashing firmware ...`);
         return this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
@@ -115,9 +120,10 @@ export class Device {
         });
     }
 
-    async flashMicroPythonFirmware(useNightlyBuild = false) {
-        const firmwareUrl = await this.getUPythonFirmwareUrl(useNightlyBuild);
-        const firmwareFile = await this.downloadFirmware(firmwareUrl);
+    async flashMicroPythonFirmware(firmwareFile = null, useNightlyBuild = false) {
+        if(!firmwareFile){
+            firmwareFile = await this.downloadMicroPythonFirmware(useNightlyBuild);
+        }
 
         this.logger?.log(`🔥 Flashing firmware ...`);
         if (this.deviceDescriptor.onFlashUPythonFirmware) {

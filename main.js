@@ -45,7 +45,9 @@ ipcMain.handle('on-file-selected', async (event, filePath) => {
     // Alternative to returning a promise:  
     // event.returnValue = `Done`; // Synchronous reply
     return new Promise(async function (resolve, reject) {
-        if (await flash.flashFirmware(filePath)) {
+        const selectedDevice = await flash.getFirstFoundDevice();
+
+        if (selectedDevice && await flash.flashFirmware(filePath, selectedDevice)) {
             resolve("✅ Firmware flashed successfully! You may need to reset the device.");
         } else {
             // Due to a bug in Electron the error message is reformatted.
@@ -58,7 +60,9 @@ ipcMain.handle('on-file-selected', async (event, filePath) => {
 
 ipcMain.handle('on-install', async (event, arg) => {
     return new Promise(async function (resolve, reject) {
-        if (await flash.flashMicroPythonFirmware()) {
+        const selectedDevice = await flash.getFirstFoundDevice();
+
+        if (selectedDevice && await flash.flashMicroPythonFirmware(selectedDevice)) {
             resolve("✅ Firmware flashed successfully! You may need to reset the device.");
         } else {
             // Due to a bug in Electron the error message is reformatted.
