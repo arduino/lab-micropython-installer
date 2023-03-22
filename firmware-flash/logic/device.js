@@ -126,9 +126,6 @@ export class Device {
         }
 
         this.logger?.log(`🔥 Flashing firmware ...`);
-        if (this.deviceDescriptor.onFlashUPythonFirmware) {
-            await this.deviceDescriptor.onFlashUPythonFirmware(firmwareFile, this);
-        }
         await this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
     }
 
