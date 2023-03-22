@@ -14,7 +14,7 @@ const flashFirmwareFromFile = (filePath) => {
         console.error(err);
         setTimeout(() => {
             showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
-        }, 2000);
+        }, 4000);
     }).finally(() => {
         enableUserInteraction();
     });
@@ -121,7 +121,7 @@ button.addEventListener('click', () => {
             console.error(err);
             setTimeout(() => {
                 showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
-            }, 2000);
+            }, 4000);
         }).finally(() => {
             enableUserInteraction();
         });

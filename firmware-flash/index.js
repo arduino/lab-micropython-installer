@@ -4,30 +4,9 @@ import Device from './logic/Device.js';
 import Logger from './logic/Logger.js';
 
 async function flashFirmware(firmwarePath, selectedDevice){
-    // TODO
-    console.log('TODO: flashFirmware ' + firmwarePath);
-    console.log("SelectedDevice ", selectedDevice);
-    logger.log('✅ Firmware flashed successfully!');
-    return true;
-}
-
-async function getDeviceList(){
-    return await deviceManager.getDeviceList();
-}
-
-async function getFirstFoundDevice(){
-    const foundDevices = await this.getDeviceList();
-    
-    if(foundDevices.length === 0) {
-        logger.log('🤷 No compatible device detected.');
-        return null;
+    if(!selectedDevice.logger){
+        selectedDevice.logger = logger;
     }
-
-    return foundDevices[0];
-}
-
-async function flashMicroPythonFirmware(selectedDevice){    
-    selectedDevice.logger = logger;
     logger.log('👀 Device detected: ' + selectedDevice.deviceDescriptor.name);
     
     if(selectedDevice.runsMicroPython()) {
@@ -54,15 +33,39 @@ async function flashMicroPythonFirmware(selectedDevice){
             }
             targetDevice.logger = logger;
             logger.log(`👍 Device is now in bootloader mode.`);
-            await targetDevice.flashMicroPythonFirmware(true);
+            await targetDevice.flashFirmware(firmwarePath);
         } catch (error) {
             logger.log(error);
+            logger.log('❌ Put the device in bootloader mode manually and try again.');
             return false;
         }
     } else {
-        await selectedDevice.flashMicroPythonFirmware(true);
+        await selectedDevice.flashFirmware(firmwarePath);
     }    
     return true;
+}
+
+async function flashMicroPythonFirmware(selectedDevice){
+    if(!selectedDevice.logger){
+        selectedDevice.logger = logger;
+    }
+    const firmwareFile = await selectedDevice.downloadMicroPythonFirmware();
+    return await flashFirmware(firmwareFile, selectedDevice);
+}
+
+async function getDeviceList(){
+    return await deviceManager.getDeviceList();
+}
+
+async function getFirstFoundDevice(){
+    const foundDevices = await deviceManager.getDeviceList();
+    
+    if(foundDevices.length === 0) {
+        logger.log('🤷 No compatible device detected.');
+        return null;
+    }
+
+    return foundDevices[0];
 }
 
 const logger = new Logger();

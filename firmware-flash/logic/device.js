@@ -76,7 +76,7 @@ export class Device {
     }
 
     async flashFirmware(firmwareFile) {
-        this.logger?.log(`🔥 Flashing firmware ...`);
+        this.logger?.log(`🔥 Flashing firmware '${path.basename(firmwareFile)}' ...`);
         return this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
     }
 
@@ -120,14 +120,15 @@ export class Device {
         });
     }
 
-    async flashMicroPythonFirmware(firmwareFile = null, useNightlyBuild = false) {
-        if(!firmwareFile){
-            firmwareFile = await this.downloadMicroPythonFirmware(useNightlyBuild);
-        }
+    // TODO delete this
+    // async flashMicroPythonFirmware(firmwareFile = null, useNightlyBuild = false) {
+    //     if(!firmwareFile){
+    //         firmwareFile = await this.downloadMicroPythonFirmware(useNightlyBuild);
+    //     }
 
-        this.logger?.log(`🔥 Flashing firmware ...`);
-        await this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
-    }
+    //     this.logger?.log(`🔥 Flashing firmware ...`);
+    //     await this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
+    // }
 
     async enterBootloader() {
         this.logger?.log(`👢 Entering bootloader ...`);

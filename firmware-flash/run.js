@@ -1,11 +1,12 @@
-import { flashMicroPythonFirmware, logger } from './index.js';
+import { flashMicroPythonFirmware, getFirstFoundDevice, logger } from './index.js';
 
 logger.printToConsole = true;
-const result = await flashMicroPythonFirmware();
+const selectedDevice = await getFirstFoundDevice();
 
-if (result) {
+if (selectedDevice && await flashMicroPythonFirmware(selectedDevice)) {
     console.log('✅ MicroPython firmware flashed successfully. You may need to reset the device to run it.');
+    process.exit(0);
 } else {
     console.log('❌ Failed to flash MicroPython firmware.');
+    process.exit(-1);
 }
-process.exit(result ? 0 : -1);
