@@ -120,16 +120,6 @@ export class Device {
         });
     }
 
-    // TODO delete this
-    // async flashMicroPythonFirmware(firmwareFile = null, useNightlyBuild = false) {
-    //     if(!firmwareFile){
-    //         firmwareFile = await this.downloadMicroPythonFirmware(useNightlyBuild);
-    //     }
-
-    //     this.logger?.log(`🔥 Flashing firmware ...`);
-    //     await this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
-    // }
-
     async enterBootloader() {
         this.logger?.log(`👢 Entering bootloader ...`);
         if (!this.runsMicroPython()) {
