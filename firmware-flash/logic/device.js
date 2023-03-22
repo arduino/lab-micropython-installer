@@ -80,8 +80,10 @@ export class Device {
         return this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
     }
 
-    async sendREPLCommand(command, awaitResponse = true) {
-        // this.logger?.log(`📤 Sending REPL command: ${command}`);
+    async sendREPLCommand(command, awaitResponse = true, debug = false) {
+        if(debug){
+            this.logger?.log(`📤 Sending REPL command: ${command}`);
+        }
         
         return new Promise((resolve, reject) => {
             let responseData = "";
@@ -114,6 +116,9 @@ export class Device {
                 
                 if(lastLine === ">>> ") {
                     serialport.close();
+                    if(debug){
+                        this.logger?.log(`📥 Received REPL response: ${responseData}`);
+                    }
                     resolve(responseData);
                 }
             });
