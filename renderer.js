@@ -79,12 +79,16 @@ function showStatusText(text, target, duration = null, speed = 50) {
 function enableUserInteraction() {
     button.disabled = false;
     button.style.opacity = 1;
+    fileDropElement.style.opacity = 1;
+    fileDropElement.style.pointerEvents = 'auto';
     loaderElement.style.display = 'none';
 }
 
 function disableUserInteraction() {
     button.disabled = true;
     button.style.opacity = 0.25;
+    fileDropElement.style.opacity = 0.25;
+    fileDropElement.style.pointerEvents = 'none';
     loaderElement.style.display = 'inline-block';
 }
 
