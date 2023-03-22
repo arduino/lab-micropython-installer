@@ -11,7 +11,7 @@ async function flashFirmware(firmwarePath, selectedDevice){
     
     if(selectedDevice.runsMicroPython()) {
         let version = await selectedDevice.getMicroPythonVersion();
-        logger.log('🐍 Device is running MicroPython version:', version);
+        logger.log(`🐍 Device is running MicroPython version: ${version}`);
     }
     
     if(!selectedDevice.runsBootloader()) {
@@ -45,11 +45,11 @@ async function flashFirmware(firmwarePath, selectedDevice){
     return true;
 }
 
-async function flashMicroPythonFirmware(selectedDevice){
+async function flashMicroPythonFirmware(selectedDevice, useNightlyBuild = false){
     if(!selectedDevice.logger){
         selectedDevice.logger = logger;
     }
-    const firmwareFile = await selectedDevice.downloadMicroPythonFirmware();
+    const firmwareFile = await selectedDevice.downloadMicroPythonFirmware(useNightlyBuild);
     return await flashFirmware(firmwareFile, selectedDevice);
 }
 

@@ -61,8 +61,9 @@ ipcMain.handle('on-file-selected', async (event, filePath) => {
 ipcMain.handle('on-install', async (event, arg) => {
     return new Promise(async function (resolve, reject) {
         const selectedDevice = await flash.getFirstFoundDevice();
+        const useNightlyBuild = true; // TODO: Add a checkbox to the UI
 
-        if (selectedDevice && await flash.flashMicroPythonFirmware(selectedDevice)) {
+        if (selectedDevice && await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
             resolve("✅ Firmware flashed successfully! You may need to reset the device.");
         } else {
             // Due to a bug in Electron the error message is reformatted.
