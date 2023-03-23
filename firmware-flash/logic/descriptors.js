@@ -50,15 +50,22 @@ arduinoNanoRP2040Descriptor.onFlashFirmware = async (firmware, device) => {
 };
 arduinoNanoRP2040Descriptor.skipWaitForDevice = true;
 
-// const arduinoNiclaVisionDescriptor = new DeviceDescriptor(0x2341, {"arduinoPID" : 0x0000, "bootloaderPID" : 0x0000, "upythonPID" : 0x0000 }, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
-// arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device) => {
-//     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
-// };
+const arduinoNiclaVisionIdentifiers = {
+    "default" : {
+        "vid" : 0x2341,
+        "pids" : { "arduino" : 0x025f, "bootloader" : 0x035f, "upython" : 0x055f, "omv" : 0x045f }
+    }
+};
+const arduinoNiclaVisionDescriptor = new DeviceDescriptor(arduinoNiclaVisionIdentifiers, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
+arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device) => {
+    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
+};
 
 const descriptors = [
     arduinoGigaDescriptor, 
     arduinoPortentaH7Descriptor, 
-    arduinoNanoRP2040Descriptor
+    arduinoNanoRP2040Descriptor,
+    arduinoNiclaVisionDescriptor
 ];
 
 export default descriptors;
