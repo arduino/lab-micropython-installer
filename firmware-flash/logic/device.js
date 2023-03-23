@@ -80,6 +80,10 @@ export class Device {
     }
 
     async flashFirmware(firmwareFile) {
+        if(this.deviceDescriptor.onPreFlashFirmware){
+            this.logger?.log(`🔥 Running pre-flash step ...`);
+            await this.deviceDescriptor.onPreFlashFirmware(this);
+        };
         this.logger?.log(`🔥 Flashing firmware '${path.basename(firmwareFile)}' ...`);
         return this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
     }

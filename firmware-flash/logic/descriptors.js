@@ -1,15 +1,18 @@
 import DeviceDescriptor from './DeviceDescriptor.js';
 import Flasher from './flasher.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const flasher = new Flasher();
 
-// const SOFT_DEVICE_FIRMWARE_FILENAME = "Nano33_updateBLandSoftDevice.bin"
+const softDeviceFirmwareFilename = "Nano33_updateBLandSoftDevice.bin";
+const __filename = fileURLToPath(import.meta.url);
 
-// function getSoftDevicePath(){
-//     const scriptDir = path.dirname(__filename);
-//     const firmwarePath = path.join(scriptDir, "bin", "firmware", SOFT_DEVICE_FIRMWARE_FILENAME);
-//     return firmwarePath;  
-// }
+function getSoftDevicePath(){
+    const scriptDir = path.dirname(__filename);
+    const firmwarePath = path.join(scriptDir, ".." , "bin", "firmware", softDeviceFirmwareFilename);
+    return firmwarePath;  
+}
 
 const arduinoGigaIdentifiers = {
     "default" : {
@@ -61,11 +64,36 @@ arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device) => {
     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 
+const arduinoNano33BLEIdentifiers = {
+    "default" : {
+        "vid" : 0x2341,
+        "pids" : { "arduino" : 0x805a, "bootloader" : 0x005a, "omv" : 0x015a }
+    },
+    "alternative" : {
+        "vid" : 0xf055,
+        "pids" : { "upython" : 0x9802 }
+    }
+};
+const arduinoNano33BLEUPythonOffset = "0x16000"
+const arduinoNano33BLEDescriptor = new DeviceDescriptor(arduinoNano33BLEIdentifiers, 'Nano 33 BLE', 'Arduino', 'arduino_nano_33_ble_sense', 'bin');
+arduinoNano33BLEDescriptor.onPreFlashFirmware = async (device) => {
+    await flasher.runBossac(getSoftDevicePath(), device.serialPort);
+    console.log("Press reset button on the board...");
+    // Wait 10 seconds for the soft device to be flashed
+    await new Promise(resolve => setTimeout(resolve, 20000)); // 10 should be enough
+    await device.enterBootloader();
+    //await deviceManager.waitForDevice(); // Fixme: this is not working. Reference to deviceManager is not available here
+};
+arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device) => {
+    await flasher.runBossac(firmware,device.serialPort, arduinoNano33BLEUPythonOffset);
+};
+
 const descriptors = [
     arduinoGigaDescriptor, 
     arduinoPortentaH7Descriptor, 
     arduinoNanoRP2040Descriptor,
-    arduinoNiclaVisionDescriptor
+    arduinoNiclaVisionDescriptor,
+    arduinoNano33BLEDescriptor
 ];
 
 export default descriptors;
