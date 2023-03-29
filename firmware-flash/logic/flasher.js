@@ -49,10 +49,8 @@ export class Flasher {
         }
         if (reset) {
             // In theory, the reset should be automatic with -R, but it doesn't seem to work
-            //cmd += " -R";
-            cmd += " -R -x";
+            cmd += " -R";
         }
-        cmd += " -R";
 
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
