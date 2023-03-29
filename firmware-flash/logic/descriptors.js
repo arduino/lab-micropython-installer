@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const flasher = new Flasher();
 
 // Get from https://www.nordicsemi.com/Products/Development-software/nRF5-SDK/Download
-const softDeviceFirmwareFilename = "Nano33_updateBLandSoftDevice.bin";
+const softDeviceFirmwareFilename = "s140_nrf52_7.2.0_softdevice.bin";
 const __filename = fileURLToPath(import.meta.url);
 
 function getSoftDevicePath(){
@@ -76,25 +76,24 @@ const arduinoNano33BLEIdentifiers = {
     }
 };
 const arduinoNano33BLEUPythonOffset = "0x16000"
+const arduinoNano33BLESoftDeviceOffset = "0xA0000";
+const arduinoNano33BLEMinimumBootloaderVersion = 3;
+
 const arduinoNano33BLEDescriptor = new DeviceDescriptor(arduinoNano33BLEIdentifiers, 'Nano 33 BLE', 'Arduino', 'arduino_nano_33_ble_sense', 'bin');
 arduinoNano33BLEDescriptor.onPreFlashFirmware = async (device) => {
     const bootloaderVersion = await flasher.getBootloaderVersionWithBossac(device.serialPort);
     const majorVersion = parseInt(bootloaderVersion.split(".")[0]);
-    console.log("👢 Bootloader version: " + bootloaderVersion);
+    // console.log("👢 Bootloader version: " + bootloaderVersion);
     
-    if(majorVersion < 3){
+    if(majorVersion < arduinoNano33BLEMinimumBootloaderVersion){
         throw new Error("Bootloader version is too old. Please update it to version 3.0 or higher.");
     }
 
-    // await flasher.runBossac(getSoftDevicePath(), device.serialPort);
-    console.log("Press reset button on the board...");
-    // Wait 10 seconds for the soft device to be flashed
-    // await new Promise(resolve => setTimeout(resolve, 20000)); // 10 should be enough
-    // await device.enterBootloader();
-    //await deviceManager.waitForDevice(); // Fixme: this is not working. Reference to deviceManager is not available here
+    // Don't reset the device after flashing the softdevice so that we can flash the upython firmware directly afterwards.
+    await flasher.runBossac(getSoftDevicePath(), device.serialPort, arduinoNano33BLESoftDeviceOffset, false);
 };
 arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device) => {
-    // await flasher.runBossac(firmware,device.serialPort, arduinoNano33BLEUPythonOffset);
+    await flasher.runBossac(firmware,device.serialPort, arduinoNano33BLEUPythonOffset);
 };
 
 const descriptors = [
