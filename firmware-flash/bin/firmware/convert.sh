@@ -1,0 +1,2 @@
+#!/bin/bash
+~/Library/Arduino15/packages/arduino/tools/arm-none-eabi-gcc/7-2017q4/bin/arm-none-eabi-objcopy --input-target=ihex --output-target=binary --gap-fill 0xff s140_nrf52_7.2.0_softdevice.hex SoftDevice.bin
