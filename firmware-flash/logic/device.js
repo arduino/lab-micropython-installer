@@ -177,7 +177,8 @@ export class Device {
 
 
     getBootloaderVID(){
-        return this.deviceDescriptor.getAlternativeIDs()?.vid || this.deviceDescriptor.getDefaultIDs().vid;
+        const hasAlternativeBootloaderPID = !!this.deviceDescriptor.getAlternativeIDs()?.pids.bootloader;
+        return hasAlternativeBootloaderPID ? this.deviceDescriptor.getAlternativeIDs()?.vid : this.deviceDescriptor.getDefaultIDs().vid;
     }
     
     getBootloaderPID(){
