@@ -78,15 +78,23 @@ const arduinoNano33BLEIdentifiers = {
 const arduinoNano33BLEUPythonOffset = "0x16000"
 const arduinoNano33BLEDescriptor = new DeviceDescriptor(arduinoNano33BLEIdentifiers, 'Nano 33 BLE', 'Arduino', 'arduino_nano_33_ble_sense', 'bin');
 arduinoNano33BLEDescriptor.onPreFlashFirmware = async (device) => {
-    await flasher.runBossac(getSoftDevicePath(), device.serialPort);
+    const bootloaderVersion = await flasher.getBootloaderVersionWithBossac(device.serialPort);
+    const majorVersion = parseInt(bootloaderVersion.split(".")[0]);
+    console.log("👢 Bootloader version: " + bootloaderVersion);
+    
+    if(majorVersion < 3){
+        throw new Error("Bootloader version is too old. Please update it to version 3.0 or higher.");
+    }
+
+    // await flasher.runBossac(getSoftDevicePath(), device.serialPort);
     console.log("Press reset button on the board...");
     // Wait 10 seconds for the soft device to be flashed
-    await new Promise(resolve => setTimeout(resolve, 20000)); // 10 should be enough
-    await device.enterBootloader();
+    // await new Promise(resolve => setTimeout(resolve, 20000)); // 10 should be enough
+    // await device.enterBootloader();
     //await deviceManager.waitForDevice(); // Fixme: this is not working. Reference to deviceManager is not available here
 };
 arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device) => {
-    await flasher.runBossac(firmware,device.serialPort, arduinoNano33BLEUPythonOffset);
+    // await flasher.runBossac(firmware,device.serialPort, arduinoNano33BLEUPythonOffset);
 };
 
 const descriptors = [
