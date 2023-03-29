@@ -66,6 +66,37 @@ export class Flasher {
             });
         });
     }
+    
+    async getBootloaderVersionWithBossac(port) {
+        const folder = os.platform();
+        const scriptDir = path.dirname(__filename);
+        const bossacPath = path.join(scriptDir, "..", "bin", folder, "bossac");
+        const regex = /Version\s+:\s+Arduino Bootloader(?: \(.+\))? (\d+\.\d+)/;
+        let cmd = `${bossacPath} -U --port=${port} -i`;
+
+        return new Promise((resolve, reject) => {
+            exec(cmd, (error, stdout, stderr) => {
+                if (error) {
+                    reject(`Error running bossac: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    reject(`Error running bossac: ${stderr}`);
+                    return;
+                }                
+                const match = stdout.match(regex);
+
+                if (match) {
+                    const versionNumber = match[1];
+                    resolve(versionNumber);
+                } else {
+                    reject('Version number not found');
+                }
+            });
+        });
+    }
+
+
 
     async runPicotool(firmwareFilepath, reset = true) {
         const binaryFolder = os.platform();
