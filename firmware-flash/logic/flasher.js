@@ -96,6 +96,47 @@ export class Flasher {
         });
     }
 
+    async runEsptool(firmwareFilepath, port, reset = true) {
+        const binaryFolder = os.platform();
+        const scriptDir = path.dirname(__filename);
+        const espToolPath = path.join(scriptDir, "..", "bin", binaryFolder, "esptool");
+        let params = ["--chip esp32", `--port ${port}`];
+        let eraseCmd = `${espToolPath} ${params.join(" ")} --after no_reset erase_flash`;
+        
+        if (!reset) {
+            params.push("--after no_reset")
+        }
+        let flashCmd = `${espToolPath} ${params.join(" ")} --baud 460800 write_flash -z 0x1000 ${firmwareFilepath}`;
+        
+        await new Promise((resolve, reject) => {
+            exec(eraseCmd, (error, stdout, stderr) => {
+                if (error) {
+                    reject(`Error running esptool: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    reject(`Error running esptool: ${stderr}`);
+                    return;
+                }
+                resolve(stdout);
+            });
+        });
+
+        return new Promise((resolve, reject) => {
+            exec(flashCmd, (error, stdout, stderr) => {
+                if (error) {
+                    reject(`Error running esptool: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    reject(`Error running esptool: ${stderr}`);
+                    return;
+                }
+                resolve(stdout);
+            });
+        });
+    }
+
 }
 
 export default Flasher;
