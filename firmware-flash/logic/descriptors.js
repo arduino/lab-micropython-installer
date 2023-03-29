@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 
 const flasher = new Flasher();
 
+// Get from https://www.nordicsemi.com/Products/Development-software/nRF5-SDK/Download
 const softDeviceFirmwareFilename = "Nano33_updateBLandSoftDevice.bin";
 const __filename = fileURLToPath(import.meta.url);
 
