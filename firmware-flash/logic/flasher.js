@@ -36,21 +36,23 @@ export class Flasher {
         });
     }
 
-    async runBossac(firmwareFilepath, port = null, offset = null) {
+    async runBossac(firmwareFilepath, port, offset = null, reset = true) {
         const folder = os.platform();
         const scriptDir = path.dirname(__filename);
         const bossacPath = path.join(scriptDir, "..", "bin", folder, "bossac");
 
-        let cmd = `${bossacPath} -i -d -e -w -R`;
-        
         // In theory, the port should be automatically detected, but it doesn't seem to work
-        if (port) {
-            cmd += ` -U --port=${port}`;
-        }
+        let cmd = `${bossacPath} -d  --port=${port} -U -i -e -w ${firmwareFilepath}`;
+        
         if (offset) {
             cmd += ` --offset=${offset}`;
         }
-        cmd += ` ${firmwareFilepath}`;
+        if (reset) {
+            // In theory, the reset should be automatic with -R, but it doesn't seem to work
+            //cmd += " -R";
+            cmd += " -R -x";
+        }
+        cmd += " -R";
 
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
