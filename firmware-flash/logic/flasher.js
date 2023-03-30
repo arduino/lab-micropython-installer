@@ -7,10 +7,33 @@ const __filename = fileURLToPath(import.meta.url);
 
 export class Flasher {
 
-    async runDfuUtil(firmwareFilepath, vendorId, productId, reset = true) {
+    /**
+     * Get binary folder based on the operating system and the architecture.
+     * @param {String} binaryName the name of the command line tool to run
+     * @returns The absolute path to the binary.
+     */
+    getBinaryPath(binaryName) {
         const binaryFolder = os.platform();
         const scriptDir = path.dirname(__filename);
-        const dfuUtilPath = path.join(scriptDir, "..", "bin", binaryFolder, "dfu-util");
+        const platform = os.platform();
+        const arch = os.arch();
+        const osBinaryFolder = path.join(scriptDir, "..", "bin", binaryFolder);
+
+        if (platform === 'darwin') {
+            // If the platform is darwin then don't use the architecture.
+            return path.join(osBinaryFolder, binaryName);
+        }
+        const binaryPath = path.join(osBinaryFolder, arch, binaryName);
+
+        // Check if the 64 bit version of the binary exists. If not use the 32 bit version.
+        if (arch === 'x64' && !fs.existsSync(binaryPath)) {
+            return path.join(osBinaryFolder, "ia32", binaryName);
+        } 
+        return binaryPath;
+    }
+
+    async runDfuUtil(firmwareFilepath, vendorId, productId, reset = true) {
+        const dfuUtilPath = this.getBinaryPath("dfu-util");
 
         // Specify the altsetting of the DFU interface via -a.
         let cmd = `${dfuUtilPath} -a 0 -d ${vendorId}:${productId} -D ${firmwareFilepath}`;
@@ -37,9 +60,7 @@ export class Flasher {
     }
 
     async runBossac(firmwareFilepath, port, offset = null, reset = true) {
-        const folder = os.platform();
-        const scriptDir = path.dirname(__filename);
-        const bossacPath = path.join(scriptDir, "..", "bin", folder, "bossac");
+        const bossacPath = this.getBinaryPath("bossac");
 
         // In theory, the port should be automatically detected, but it doesn't seem to work
         let cmd = `${bossacPath} -d  --port=${port} -U -i -e -w ${firmwareFilepath}`;
@@ -68,9 +89,7 @@ export class Flasher {
     }
     
     async getBootloaderVersionWithBossac(port) {
-        const folder = os.platform();
-        const scriptDir = path.dirname(__filename);
-        const bossacPath = path.join(scriptDir, "..", "bin", folder, "bossac");
+        const bossacPath = this.getBinaryPath("bossac");
         const regex = /Version\s+:\s+Arduino Bootloader(?: \(.+\))? (\d+\.\d+)/;
         let cmd = `${bossacPath} -U --port=${port} -i`;
 
@@ -99,9 +118,7 @@ export class Flasher {
 
 
     async runPicotool(firmwareFilepath, reset = true) {
-        const binaryFolder = os.platform();
-        const scriptDir = path.dirname(__filename);
-        const picotoolPath = path.join(scriptDir, "..", "bin", binaryFolder, "picotool");
+        const picotoolPath = this.getBinaryPath("picotool");
         let params = ["-v"]; // Verify the firmware after flashing
 
         if (reset) {
