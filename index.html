@@ -24,10 +24,12 @@
         <main class="container">
             <div class="container" id="device-selection">
                 <div id="device-selection-title"><h3>Detected Boards</h3></div>
+                <div id="device-loading-indicator" class="loader-ring"><div></div><div></div><div></div><div></div></div>
                 <div class="container" id="device-selection-list"></div>
+                <div id="reload-link-container"><a id="reload-link">Reload</a></div>
             </div>
             <code id="output">&nbsp;</code>
-            <div id="controls" class="container">
+            <div id="installation-controls" class="container">
                 <div id="install-button-container" class="container">
                     <button id="install-button" class="primary">Install MicroPython</button>
                     <div id="activity-indicator" class="loader-ring"><div></div><div></div><div></div><div></div></div>

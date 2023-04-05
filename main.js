@@ -79,7 +79,11 @@ ipcMain.handle('on-get-devices', async (event, arg) => {
     return new Promise(async function (resolve, reject) {
         await flash.deviceManager.refreshDeviceList();
         const devices = await flash.getDeviceList();
-        const pojos = devices.map(device => device.toPlainObject());
-        resolve(pojos);
+        if (devices.length === 0) {
+            reject("No devices found.");
+        } else {
+            const pojos = devices.map(device => device.toPlainObject());
+            resolve(pojos);
+        }
     });
 });

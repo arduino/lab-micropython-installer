@@ -4,6 +4,7 @@ const outputElement = document.getElementById('output');
 const fileDropElement = document.getElementById('file-drop-area');
 const loaderElement = document.querySelector('.loader-ring');
 const deviceSelectionList = document.getElementById("device-selection-list");
+const reloadDeviceListLink = document.getElementById("reload-link");
 
 const flashFirmwareFromFile = (filePath) => {
     disableUserInteraction();
@@ -85,6 +86,8 @@ function enableUserInteraction() {
     installButton.style.opacity = 1;
     fileDropElement.style.opacity = 1;
     fileDropElement.style.pointerEvents = 'auto';
+    reloadDeviceListLink.style.pointerEvents = 'auto';
+    reloadDeviceListLink.style.opacity = 1;
 
     // Enable all buttons in the device selection list
     const deviceItems = deviceSelectionList.querySelectorAll(".device-item");
@@ -98,6 +101,8 @@ function disableUserInteraction() {
     installButton.style.opacity = 0.25;
     fileDropElement.style.opacity = 0.25;
     fileDropElement.style.pointerEvents = 'none';
+    reloadDeviceListLink.style.pointerEvents = 'none';
+    reloadDeviceListLink.style.opacity = 0.25;
     
     // Disable all buttons in the device selection list
     const deviceItems = deviceSelectionList.querySelectorAll(".device-item");
@@ -116,6 +121,10 @@ function hideLoadingIndicator() {
 
 window.api.on('on-output', (message) => {
     showStatusText(message, outputElement);
+});
+
+reloadDeviceListLink.addEventListener('click', () => {
+    refreshDeviceList();
 });
 
 chooseFileLink.addEventListener('click', () => {
@@ -236,10 +245,17 @@ function createDeviceSelectorItem(device) {
 }
 
 function refreshDeviceList() {
+  // Clear the device list
+  listDevices([], deviceSelectionList);
+  document.getElementById("device-loading-indicator").style.display = 'block';
+
   window.api.invoke('on-get-devices').then((result) => {
     listDevices(result, deviceSelectionList);
+    document.getElementById("device-loading-indicator").style.display = 'none';
   }).catch((err) => {
     console.error(err);
+    // Try again in 4 seconds
+    setTimeout(refreshDeviceList, 4000);
   });
 }
 
@@ -255,14 +271,18 @@ function listDevices(deviceList, container) {
   // Clear the device list
   container.innerHTML = "";
 
+  document.getElementById("reload-link-container").style.display = deviceList.length > 0 ? 'block' : 'none';
+
   for (const device of deviceList) {
     container.appendChild(createDeviceSelectorItem(device));
   }
     
+
   // If there is only one device, select it
   if(deviceList.length == 1) {
     selectDevice(container.firstElementChild);
   }
+
 }
 
 window.addEventListener('DOMContentLoaded', () => {

@@ -39,7 +39,7 @@ h3 {
     color: #434F54;
 }
 
-button {
+button, a {
     transition: opacity 0.5s ease-in-out;
 }
 
@@ -117,6 +117,10 @@ header {
     margin-bottom: 25px;
 }
 
+#reload-link-container {
+    display: none;
+}
+
 #install-button-container {
     gap: var(--main-flexbox-gap);
     position: relative;
@@ -149,11 +153,12 @@ div.file-drop-hovered {
     transform: scale(1.025);
 }
 
-div#file-drop-area a,
+a,
 a:link,
 a:active,
 a:focus,
 a:visited {
+    cursor: pointer;
     text-decoration: none;
     color: rgb(103, 163, 255);
 }
@@ -164,11 +169,7 @@ img#drop-area {
     opacity: 0.65;
 }
 
-a#choose-file-link {
-    cursor: pointer;
-}
-
-div#controls {
+div#installation-controls {
     flex-direction: column;
     gap: var(--main-flexbox-gap);
 }
