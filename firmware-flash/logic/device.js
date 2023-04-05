@@ -202,6 +202,17 @@ export class Device {
         return versionString.substring(1, versionString.length - 1);
     }
 
+    toPlainObject() {
+        return {
+            manufacturer: this.deviceDescriptor.manufacturer,
+            name: this.deviceDescriptor.name,
+            vendorID: this.vendorID,
+            productID: this.productID,
+            serialNumber: this.serialNumber,
+            serialPort: this.serialPort,
+        };
+    }
+
 }
 
 export default Device;
