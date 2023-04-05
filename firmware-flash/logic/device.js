@@ -5,13 +5,12 @@ import os from 'os';
 import path from 'path';
 
 export class Device {
-    constructor(vendorID, productID, deviceDescriptor, serialPort = null, serialNumber = null, mountPoint = null) {
+    constructor(vendorID, productID, deviceDescriptor, serialPort = null, serialNumber = null) {
         this.vendorID = vendorID;
         this.productID = productID;
         this.deviceDescriptor = deviceDescriptor;
         this.serialNumber = serialNumber;
         this.serialPort = serialPort;
-        this.mountPoint = mountPoint;
     }
 
     async getUPythonFirmwareUrl(useNightlyBuild = false) {
