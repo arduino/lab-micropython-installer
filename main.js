@@ -11,7 +11,8 @@ const createWindow = () => {
             preload: path.join(__dirname, 'preload.js')
         },
         maximizable: false,
-        minWidth: 480
+        minWidth: 550,
+        minHeight: 640,
     })
 
     // win.webContents.openDevTools();
