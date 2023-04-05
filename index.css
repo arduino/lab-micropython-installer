@@ -129,7 +129,7 @@ div#file-drop-area {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     gap: var(--main-flexbox-gap);
     padding: 25px;
 
