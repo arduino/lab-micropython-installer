@@ -12,6 +12,7 @@ const flashFirmwareFromFile = (filePath) => {
     window.api.invoke('on-file-selected', filePath).then(function (result) {
         console.log(result);
         showStatusText(result, outputElement, 5000);
+        refreshDeviceList();
     }).catch(function (err) {
         console.error(err);
         setTimeout(() => {
@@ -138,6 +139,7 @@ installButton.addEventListener('click', () => {
         .then((result) => {
             console.log(result);
             showStatusText(result, outputElement, 5000);
+            refreshDeviceList();
         })
         .catch((err) => {
             console.error(err);
@@ -233,7 +235,26 @@ function createDeviceSelectorItem(device) {
   return deviceItem;
 }
 
+function refreshDeviceList() {
+  window.api.invoke('on-get-devices').then((result) => {
+    listDevices(result, deviceSelectionList);
+  }).catch((err) => {
+    console.error(err);
+  });
+}
+
 function listDevices(deviceList, container) {
+  
+  // Sort the device list by manufacturer name and device name
+  deviceList.sort((deviceA, deviceB) => {
+    const deviceAName = deviceA.manufacturer + deviceA.name;
+    const deviceBName = deviceB.manufacturer + deviceB.name;
+    return deviceAName.localeCompare(deviceBName);
+  });
+
+  // Clear the device list
+  container.innerHTML = "";
+
   for (const device of deviceList) {
     container.appendChild(createDeviceSelectorItem(device));
   }
@@ -252,10 +273,5 @@ window.addEventListener('DOMContentLoaded', () => {
     enableUserInteraction();
   });
 
-  window.api.invoke('on-get-devices').then((result) => {
-    listDevices(result, deviceSelectionList);
-  }).catch((err) => {
-    console.error(err);
-  });
-  
+  refreshDeviceList();
 });
