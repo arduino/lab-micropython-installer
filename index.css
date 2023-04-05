@@ -241,10 +241,10 @@ div#device-selection-list {
     width: 32px;
     height: 32px;
     margin: 4px;
-    border: 4px solid #cacaca;
+    border: 4px solid var(--main-control-color);
     border-radius: 50%;
     animation: loader-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: #cacaca transparent transparent transparent;
+    border-color: var(--main-control-color) transparent transparent transparent;
 }
 
 .loader-ring div:nth-child(1) {
