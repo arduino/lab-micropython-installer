@@ -1,11 +1,13 @@
-const button = document.querySelector('#install-button');
-const chooseFileLink = document.querySelector('#choose-file-link');
-const outputElement = document.querySelector('#output');
-const fileDropElement = document.querySelector('#file-drop-area');
+const installButton = document.getElementById('install-button');
+const chooseFileLink = document.getElementById('choose-file-link');
+const outputElement = document.getElementById('output');
+const fileDropElement = document.getElementById('file-drop-area');
 const loaderElement = document.querySelector('.loader-ring');
+const deviceSelectionList = document.getElementById("device-selection-list");
 
 const flashFirmwareFromFile = (filePath) => {
     disableUserInteraction();
+    showLoadingIndicator();
 
     window.api.invoke('on-file-selected', filePath).then(function (result) {
         console.log(result);
@@ -17,6 +19,7 @@ const flashFirmwareFromFile = (filePath) => {
         }, 4000);
     }).finally(() => {
         enableUserInteraction();
+        hideLoadingIndicator();
     });
 };
 
@@ -77,19 +80,37 @@ function showStatusText(text, target, duration = null, speed = 50) {
 }
 
 function enableUserInteraction() {
-    button.disabled = false;
-    button.style.opacity = 1;
+    installButton.disabled = false;
+    installButton.style.opacity = 1;
     fileDropElement.style.opacity = 1;
     fileDropElement.style.pointerEvents = 'auto';
-    loaderElement.style.display = 'none';
+
+    // Enable all buttons in the device selection list
+    const deviceItems = deviceSelectionList.querySelectorAll(".device-item");
+    deviceItems.forEach((item) => {
+        item.disabled = false;
+    });
 }
 
 function disableUserInteraction() {
-    button.disabled = true;
-    button.style.opacity = 0.25;
+    installButton.disabled = true;
+    installButton.style.opacity = 0.25;
     fileDropElement.style.opacity = 0.25;
     fileDropElement.style.pointerEvents = 'none';
-    loaderElement.style.display = 'inline-block';
+    
+    // Disable all buttons in the device selection list
+    const deviceItems = deviceSelectionList.querySelectorAll(".device-item");
+    deviceItems.forEach((item) => {
+      item.disabled = true;
+    });
+  }
+  
+function showLoadingIndicator() {
+  loaderElement.style.display = 'inline-block';
+}
+
+function hideLoadingIndicator() {
+  loaderElement.style.display = 'none';
 }
 
 window.api.on('on-output', (message) => {
@@ -109,8 +130,9 @@ chooseFileLink.addEventListener('click', () => {
 });
       
 
-button.addEventListener('click', () => {
+installButton.addEventListener('click', () => {
     disableUserInteraction();
+    showLoadingIndicator();
     
     window.api.invoke('on-install')
         .then((result) => {
@@ -124,6 +146,7 @@ button.addEventListener('click', () => {
             }, 4000);
         }).finally(() => {
             enableUserInteraction();
+            hideLoadingIndicator();
         });
 });
 
@@ -157,4 +180,88 @@ fileDropElement.addEventListener('drop', (event) => {
     }
 
     flashFirmwareFromFile(filePaths[0]);
+});
+
+
+function selectDevice(deviceItem) {
+  const container = deviceItem.parentElement;
+  const previousSelectedElement = container.querySelector(".selected");
+
+  if (previousSelectedElement !== null) {
+      previousSelectedElement.classList.remove("selected");
+  }
+
+  deviceItem.classList.add("selected");
+}
+
+function getSelectedDevice(container) {
+  return container.querySelector(".selected");
+}
+
+function createDeviceSelectorItem(id, label, imageSrc) {
+  const deviceItem = document.createElement("button");
+  deviceItem.classList.add("device-item");
+  deviceItem.setAttribute("id", id);
+  deviceItem.setAttribute("data-label", label);
+  deviceItem.addEventListener("click", () => {
+    selectDevice(deviceItem);
+    deviceItem.dispatchEvent(new Event("device-selected", { bubbles: true }));
+  });
+
+  const btnImage = document.createElement("img");
+  btnImage.classList.add("device-image");
+  btnImage.setAttribute("src", "./assets/boards/" + imageSrc);
+  deviceItem.appendChild(btnImage);
+
+  const deviceLabel = document.createElement("span");
+  deviceLabel.classList.add("device-label");
+  deviceLabel.textContent = label;
+  deviceItem.appendChild(deviceLabel);
+
+  return deviceItem;
+}
+
+function listDevices(data, container) {
+  data.forEach(({ id, label, imageSrc }) => {
+      container.appendChild(createDeviceSelectorItem(id, label, imageSrc));
+  });
+}
+
+const deviceData = [
+  {
+      id: "btn1",
+      label: "Arduino Nano RP2040 Connect",
+      imageSrc: "arduino-nano-rp2040-connect.svg"
+  },
+  {
+      id: "btn2",
+      label: "Arduino Nicla Vision",
+      imageSrc: "arduino-nicla-vision.svg"
+  },
+  {
+      id: "btn3",
+      label: "Arduino Portenta H7",
+      imageSrc: "arduino-portenta-h7.svg"
+  },
+  {
+      id: "btn4",
+      label: "Arduino Nano 33 BLE",
+      imageSrc: "arduino-nano-33-ble.svg"
+  },
+  {
+      id: "btn5",
+      label: "Arduino Giga R1",
+      imageSrc: "arduino-giga-r1.svg"
+  },
+];
+
+window.addEventListener('DOMContentLoaded', () => {
+  
+  disableUserInteraction();
+  listDevices(deviceData, deviceSelectionList);
+  
+  deviceSelectionList.addEventListener("device-selected", (event) => {
+    console.log(event.target.dataset.label);
+    enableUserInteraction();
+  });
 });

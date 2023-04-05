@@ -16,15 +16,19 @@
 </head>
 
 <body>
-    <div id="container">
-        <header>
+    <div id="main-container" class="container">
+        <header class="container">
             <h1>🐍 MicroPython Installer</h1>
             <h2>Install MicroPython on your Arduino board</h2>
         </header>
-        <main>
+        <main class="container">
+            <div class="container" id="device-selection">
+                <div id="device-selection-title"><h3>Detected Boards</h3></div>
+                <div class="container" id="device-selection-list"></div>
+            </div>
             <code id="output">&nbsp;</code>
-            <div id="controls">
-                <div id="install-button-container">
+            <div id="controls" class="container">
+                <div id="install-button-container" class="container">
                     <button id="install-button" class="primary">Install MicroPython</button>
                     <div id="activity-indicator" class="loader-ring"><div></div><div></div><div></div><div></div></div>
                 </div>
@@ -32,11 +36,11 @@
             </div>
             <div>OR</div>
             <div id="file-drop-area">
-                <div><img id="drop-area" src="iconForDragAndDrop.png" /></div>
+                <div><img id="drop-area" src="./assets/iconForDragAndDrop.png" /></div>
                 <div>Drag &amp; drop your custom firmware here or <a id="choose-file-link">choose file</a></div>
             </div>
         </main>
-        <footer>
+        <footer class="container">
             Node.js&nbsp;<span id="node-version"></span> | 
             Chromium&nbsp;<span id="chrome-version"></span> | 
             Electron&nbsp;<span id="electron-version"></span>

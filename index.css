@@ -1,3 +1,9 @@
+:root {
+    --main-control-color: #008184;
+    --main-control-color-hover: #005c5f;
+    --main-flexbox-gap: 20px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -12,7 +18,8 @@ body {
     font-size: 16px;
 }
 
-html, body,
+html,
+body,
 button {
     font-family: 'Open Sans', sans-serif;
 }
@@ -28,6 +35,10 @@ h2 {
     font-size: 1.2rem;
 }
 
+h3 {
+    color: #434F54;
+}
+
 button {
     transition: opacity 0.5s ease-in-out;
 }
@@ -36,7 +47,7 @@ button.primary {
     font-weight: 700;
     font-size: 1rem;
     justify-content: center;
-    background-color: #008184;
+    background-color: var(--main-control-color);
     color: #fff;
     cursor: pointer;
     letter-spacing: 1.28px;
@@ -52,7 +63,7 @@ button.primary {
 }
 
 button.primary:hover {
-    background-color: #005c5f;
+    background-color: var(--main-control-color-hover);
 }
 
 button.secondary {
@@ -60,9 +71,9 @@ button.secondary {
     font-size: 1rem;
     justify-content: center;
 
-    color: #008184;
+    color: var(--main-control-color);
     background-color: transparent;
-    border: 2px solid #008184;
+    border: 2px solid var(--main-control-color);
 
     cursor: pointer;
     letter-spacing: 1.28px;
@@ -80,36 +91,36 @@ button.secondary:hover {
     background-color: rgba(0, 92, 95, .2);
 }
 
-div#container {
-    height: 100%;
-    padding: 50px;
-    line-height: 1.5;
+.container {
     display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+div#main-container {
+    height: 100%;
+    padding: 30px;
+    line-height: 1.5;
     flex-direction: column;
-    row-gap: 20px;
+    row-gap: var(--main-flexbox-gap);
     text-align: center;
 }
 
 main {
     flex: 1;
-    display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    gap: var(--main-flexbox-gap);
 }
 
 header {
-    display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
     margin-bottom: 25px;
 }
 
 #install-button-container {
-    display: flex;
-    gap: 20px;
-    position: relative; /* Allos children to use position absolute */
+    gap: var(--main-flexbox-gap);
+    position: relative;
+    /* Allows children to use position absolute */
 }
 
 div#file-drop-area {
@@ -119,11 +130,11 @@ div#file-drop-area {
     flex-direction: column;
     justify-content: center;
     font-size: 1.25rem;
-    gap: 20px;
+    gap: var(--main-flexbox-gap);
     padding: 25px;
 
     min-height: 100px;
-    margin: 0px 60px;    
+    margin: 0px 60px;
     /* background-color: #fcfcfc;
     border: #c3daff 2px dashed; */
     border-radius: 20px;
@@ -138,9 +149,13 @@ div.file-drop-hovered {
     transform: scale(1.025);
 }
 
-div#file-drop-area a, a:link, a:active, a:focus, a:visited {
+div#file-drop-area a,
+a:link,
+a:active,
+a:focus,
+a:visited {
     text-decoration: none;
-    color: rgb(103,163,255);
+    color: rgb(103, 163, 255);
 }
 
 img#drop-area {
@@ -154,19 +169,53 @@ a#choose-file-link {
 }
 
 div#controls {
-    display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 20px;
+    gap: var(--main-flexbox-gap);
 }
 
 footer {
     color: #a8a9ab;
     font-size: 0.75rem;
+    margin-top: 10px;
+}
+
+/* Device Selection */
+
+div#device-selection {
+    flex-direction: column;
+    gap: var(--main-flexbox-gap);
+}
+
+div#device-selection-list {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--main-flexbox-gap);
+    align-items: center;
+}
+
+.device-item {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-top: 25px;
+    padding: 10px;
+    border: 2px solid #D3D3D3;
+    border-radius: 20px;
+    background-color: #F8F8F8;
+    width: 165px;
+    height: 150px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.device-item.selected {
+    border: 3px solid #73A3F8;
+    background-color: #F2F6FD;
+}
+
+.device-label {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
 }
 
 /* Spinner animation */
@@ -178,12 +227,13 @@ footer {
 }
 
 .loader-ring {
-    display: inline-block;    
+    display: inline-block;
     position: relative;
     width: 40px;
     height: 40px;
-  }
-  .loader-ring div {
+}
+
+.loader-ring div {
     box-sizing: border-box;
     display: block;
     position: absolute;
@@ -194,22 +244,26 @@ footer {
     border-radius: 50%;
     animation: loader-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
     border-color: #cacaca transparent transparent transparent;
-  }
-  .loader-ring div:nth-child(1) {
+}
+
+.loader-ring div:nth-child(1) {
     animation-delay: -0.45s;
-  }
-  .loader-ring div:nth-child(2) {
+}
+
+.loader-ring div:nth-child(2) {
     animation-delay: -0.3s;
-  }
-  .loader-ring div:nth-child(3) {
+}
+
+.loader-ring div:nth-child(3) {
     animation-delay: -0.15s;
-  }
-  @keyframes loader-ring {
+}
+
+@keyframes loader-ring {
     0% {
-      transform: rotate(0deg);
+        transform: rotate(0deg);
     }
+
     100% {
-      transform: rotate(360deg);
+        transform: rotate(360deg);
     }
-  }
-  
+}
