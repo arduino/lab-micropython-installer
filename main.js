@@ -6,13 +6,13 @@ let win;
 const createWindow = () => {
     win = new BrowserWindow({
         width: 665,
-        height: 700,
+        height: 850,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         },
         maximizable: false,
         minWidth: 550,
-        minHeight: 640,
+        minHeight: 800,
     })
 
     // win.webContents.openDevTools();
