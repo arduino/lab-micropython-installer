@@ -246,11 +246,11 @@ function createDeviceSelectorItem(device) {
 
 function refreshDeviceList() {
   // Clear the device list
-  listDevices([], deviceSelectionList);
+  displayDevices([], deviceSelectionList);
   document.getElementById("device-loading-indicator").style.display = 'block';
 
   window.api.invoke('on-get-devices').then((result) => {
-    listDevices(result, deviceSelectionList);
+    displayDevices(result, deviceSelectionList);
     document.getElementById("device-loading-indicator").style.display = 'none';
   }).catch((err) => {
     console.error(err);
@@ -259,7 +259,7 @@ function refreshDeviceList() {
   });
 }
 
-function listDevices(deviceList, container) {
+function displayDevices(deviceList, container) {
   
   // Sort the device list by manufacturer name and device name
   deviceList.sort((deviceA, deviceB) => {
