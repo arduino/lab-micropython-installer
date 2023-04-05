@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path')
 let flash;
 let win;
@@ -61,7 +61,7 @@ ipcMain.handle('on-file-selected', async (event, filePath) => {
 
 ipcMain.handle('on-install', async (event, arg) => {
     return new Promise(async function (resolve, reject) {
-        const selectedDevice = await flash.getFirstFoundDevice();
+        const selectedDevice = flash.deviceManager.getDevice(arg.vendorID, arg.productID);
         const useNightlyBuild = true; // TODO: Add a checkbox to the UI
 
         if (selectedDevice && await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
@@ -77,8 +77,9 @@ ipcMain.handle('on-install', async (event, arg) => {
 
 ipcMain.handle('on-get-devices', async (event, arg) => {
     return new Promise(async function (resolve, reject) {
+        await flash.deviceManager.refreshDeviceList();
         const devices = await flash.getDeviceList();
-        const pojo = devices.map(device => device.toPlainObject());
-        resolve(pojo);
+        const pojos = devices.map(device => device.toPlainObject());
+        resolve(pojos);
     });
 });

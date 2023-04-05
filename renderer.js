@@ -133,8 +133,8 @@ chooseFileLink.addEventListener('click', () => {
 installButton.addEventListener('click', () => {
     disableUserInteraction();
     showLoadingIndicator();
-    
-    window.api.invoke('on-install')
+
+    window.api.invoke('on-install', getSelectedDeviceData(deviceSelectionList))
         .then((result) => {
             console.log(result);
             showStatusText(result, outputElement, 5000);
@@ -195,15 +195,28 @@ function selectDevice(deviceItem) {
   deviceItem.dispatchEvent(new Event("device-selected", { bubbles: true }));
 }
 
-function getSelectedDevice(container) {
-  return container.querySelector(".selected");
+function getSelectedDeviceData(container) {
+  const selectedElement = container.querySelector(".selected");
+  
+  if(!selectedElement) {
+    return null;
+  }
+
+  return {
+    vendorID: parseInt(selectedElement.dataset.vid),
+    productID: parseInt(selectedElement.dataset.pid)
+  };
 }
 
 function createDeviceSelectorItem(device) {
   const fullDeviceName = device.manufacturer + " " + device.name;
   const deviceItem = document.createElement("button");
   deviceItem.classList.add("device-item");
-  deviceItem.setAttribute("data-label", fullDeviceName);
+
+  // Populate the device item with data attributes so that we can easily access them later
+  // when the user selects a device and we need to flash the firmware
+  deviceItem.setAttribute("data-vid", device.vendorID);
+  deviceItem.setAttribute("data-pid", device.productID);
   deviceItem.addEventListener("click", () => {
     selectDevice(deviceItem);    
   });
@@ -220,13 +233,13 @@ function createDeviceSelectorItem(device) {
   return deviceItem;
 }
 
-function listDevices(data, container) {
-  for (const device of data) {
+function listDevices(deviceList, container) {
+  for (const device of deviceList) {
     container.appendChild(createDeviceSelectorItem(device));
   }
     
   // If there is only one device, select it
-  if(data.length == 1) {
+  if(deviceList.length == 1) {
     selectDevice(container.firstElementChild);
   }
 }
@@ -235,12 +248,11 @@ window.addEventListener('DOMContentLoaded', () => {
   disableUserInteraction();
   
   deviceSelectionList.addEventListener("device-selected", (event) => {
-    console.log(event.target.dataset.label + " selected.");
+    console.log(event.target.dataset.name + " selected.");
     enableUserInteraction();
   });
 
   window.api.invoke('on-get-devices').then((result) => {
-    console.log(result);
     listDevices(result, deviceSelectionList);
   }).catch((err) => {
     console.error(err);

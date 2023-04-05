@@ -3,7 +3,7 @@ import Device from './Device.js';
 
 class DeviceManager {
     constructor() {
-      this.devices = [];
+      this.devices = null;
       this.deviceDescriptors = [];
     }
 
@@ -36,7 +36,7 @@ class DeviceManager {
     waitForDevice(vendorID, productID) {
         return new Promise((resolve, reject) => {
             const interval = setInterval(async () => {                
-                await this.refreshDevices();
+                await this.refreshDeviceList();
                 const foundDevice = this.devices.find((device) => device.vendorID === vendorID && device.productID === productID);
 
                 if(foundDevice) {
@@ -53,7 +53,7 @@ class DeviceManager {
         });
     }    
 
-    async refreshDevices() {
+    async refreshDeviceList() {
         this.devices = [];
         const ports = await SerialPort.list();
   
@@ -70,8 +70,6 @@ class DeviceManager {
         }
     }
   
-    // The vendor ID and product ID are hex strings without the 
-    // 0x prefix padded with a 0 if they are less than 4 digits long.
     getDeviceDescriptor(vendorID, productID) {
         const descriptor = this.deviceDescriptors.find(
                 desc => desc.getDefaultIDs().vid === vendorID && desc.getDefaultProductIDList().includes(productID)
@@ -82,9 +80,26 @@ class DeviceManager {
         return descriptor || altDescriptor;
     }
 
+    /**
+     * Returns a list of devices. The list of devices is cached and refreshed when calling refreshDeviceList().
+     * @returns The list of devices as an array. of Device objects.
+     **/
     async getDeviceList() {
-        await this.refreshDevices();
+        if(this.devices === null){
+            await this.refreshDeviceList();
+        }
         return this.devices;
+    }
+
+    /**
+     * Finds a device by vendorID and productID in the list of devices.
+     * The list of devices is cached and refreshed when calling refreshDeviceList().
+     * @param {Number} vendorID 
+     * @param {Number} productID 
+     * @returns 
+     */
+    getDevice(vendorID, productID) {
+        return this.devices.find((device) => device.vendorID === vendorID && device.productID === productID);
     }
     
   }

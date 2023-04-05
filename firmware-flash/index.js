@@ -75,4 +75,4 @@ for (const descriptor of descriptors) {
     deviceManager.addDeviceDescriptor(descriptor);
 }
 
-export { flashFirmware, flashMicroPythonFirmware, getDeviceList, getFirstFoundDevice, logger };
+export { Device, flashFirmware, flashMicroPythonFirmware, getDeviceList, getFirstFoundDevice, logger, deviceManager };
