@@ -192,76 +192,58 @@ function selectDevice(deviceItem) {
   }
 
   deviceItem.classList.add("selected");
+  deviceItem.dispatchEvent(new Event("device-selected", { bubbles: true }));
 }
 
 function getSelectedDevice(container) {
   return container.querySelector(".selected");
 }
 
-function createDeviceSelectorItem(id, label, imageSrc) {
+function createDeviceSelectorItem(device) {
+  const fullDeviceName = device.manufacturer + " " + device.name;
   const deviceItem = document.createElement("button");
   deviceItem.classList.add("device-item");
-  deviceItem.setAttribute("id", id);
-  deviceItem.setAttribute("data-label", label);
+  deviceItem.setAttribute("data-label", fullDeviceName);
   deviceItem.addEventListener("click", () => {
-    selectDevice(deviceItem);
-    deviceItem.dispatchEvent(new Event("device-selected", { bubbles: true }));
+    selectDevice(deviceItem);    
   });
 
-  const btnImage = document.createElement("img");
-  btnImage.classList.add("device-image");
-  btnImage.setAttribute("src", "./assets/boards/" + imageSrc);
-  deviceItem.appendChild(btnImage);
+  const deviceImage = document.createElement("img");
+  deviceImage.setAttribute("src", "./assets/boards/" + fullDeviceName + ".svg");
+  deviceItem.appendChild(deviceImage);
 
   const deviceLabel = document.createElement("span");
   deviceLabel.classList.add("device-label");
-  deviceLabel.textContent = label;
+  deviceLabel.textContent = fullDeviceName;
   deviceItem.appendChild(deviceLabel);
 
   return deviceItem;
 }
 
 function listDevices(data, container) {
-  data.forEach(({ id, label, imageSrc }) => {
-      container.appendChild(createDeviceSelectorItem(id, label, imageSrc));
-  });
+  for (const device of data) {
+    container.appendChild(createDeviceSelectorItem(device));
+  }
+    
+  // If there is only one device, select it
+  if(data.length == 1) {
+    selectDevice(container.firstElementChild);
+  }
 }
 
-const deviceData = [
-  {
-      id: "btn1",
-      label: "Arduino Nano RP2040 Connect",
-      imageSrc: "arduino-nano-rp2040-connect.svg"
-  },
-  {
-      id: "btn2",
-      label: "Arduino Nicla Vision",
-      imageSrc: "arduino-nicla-vision.svg"
-  },
-  {
-      id: "btn3",
-      label: "Arduino Portenta H7",
-      imageSrc: "arduino-portenta-h7.svg"
-  },
-  {
-      id: "btn4",
-      label: "Arduino Nano 33 BLE",
-      imageSrc: "arduino-nano-33-ble.svg"
-  },
-  {
-      id: "btn5",
-      label: "Arduino Giga R1",
-      imageSrc: "arduino-giga-r1.svg"
-  },
-];
-
 window.addEventListener('DOMContentLoaded', () => {
-  
   disableUserInteraction();
-  listDevices(deviceData, deviceSelectionList);
   
   deviceSelectionList.addEventListener("device-selected", (event) => {
-    console.log(event.target.dataset.label);
+    console.log(event.target.dataset.label + " selected.");
     enableUserInteraction();
   });
+
+  window.api.invoke('on-get-devices').then((result) => {
+    console.log(result);
+    listDevices(result, deviceSelectionList);
+  }).catch((err) => {
+    console.error(err);
+  });
+  
 });

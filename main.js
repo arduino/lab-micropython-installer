@@ -74,3 +74,11 @@ ipcMain.handle('on-install', async (event, arg) => {
         }
     });
 });
+
+ipcMain.handle('on-get-devices', async (event, arg) => {
+    return new Promise(async function (resolve, reject) {
+        const devices = await flash.getDeviceList();
+        const pojo = devices.map(device => device.toPlainObject());
+        resolve(pojo);
+    });
+});
