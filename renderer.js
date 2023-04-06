@@ -7,7 +7,8 @@ const deviceSelectionList = document.getElementById("device-selection-list");
 const reloadDeviceListLink = document.getElementById("reload-link");
 
 const flashFirmwareFromFile = (filePath) => {
-    disableUserInteraction();
+    disableFlashingInteractions();
+    disableDeviceListInteractions();
     showLoadingIndicator();
 
     window.api.invoke('on-file-selected', filePath).then(function (result) {
@@ -20,7 +21,8 @@ const flashFirmwareFromFile = (filePath) => {
             showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
         }, 4000);
     }).finally(() => {
-        enableUserInteraction();
+        enableFlashingInteractions();
+        enableDeviceListInteractions();
         hideLoadingIndicator();
     });
 };
@@ -81,35 +83,42 @@ function showStatusText(text, target, duration = null, speed = 50) {
   }, speed);
 }
 
-function enableUserInteraction() {
+
+function disableDeviceListInteractions() {
+  reloadDeviceListLink.style.pointerEvents = 'none';
+  reloadDeviceListLink.style.opacity = 0.25;
+
+  // Disable all buttons in the device selection list
+  const deviceItems = deviceSelectionList.querySelectorAll(".device-item");
+  deviceItems.forEach((item) => {
+    item.disabled = true;
+  });
+}
+
+function enableDeviceListInteractions() {
+  reloadDeviceListLink.style.pointerEvents = 'auto';
+  reloadDeviceListLink.style.opacity = 1;
+
+   // Enable all buttons in the device selection list
+   const deviceItems = deviceSelectionList.querySelectorAll(".device-item");
+   deviceItems.forEach((item) => {
+       item.disabled = false;
+   });
+}
+
+function enableFlashingInteractions() {
     installButton.disabled = false;
     installButton.style.opacity = 1;
     fileDropElement.style.opacity = 1;
     fileDropElement.style.pointerEvents = 'auto';
-    reloadDeviceListLink.style.pointerEvents = 'auto';
-    reloadDeviceListLink.style.opacity = 1;
-
-    // Enable all buttons in the device selection list
-    const deviceItems = deviceSelectionList.querySelectorAll(".device-item");
-    deviceItems.forEach((item) => {
-        item.disabled = false;
-    });
 }
 
-function disableUserInteraction() {
+function disableFlashingInteractions() {
     installButton.disabled = true;
     installButton.style.opacity = 0.25;
     fileDropElement.style.opacity = 0.25;
     fileDropElement.style.pointerEvents = 'none';
-    reloadDeviceListLink.style.pointerEvents = 'none';
-    reloadDeviceListLink.style.opacity = 0.25;
-    
-    // Disable all buttons in the device selection list
-    const deviceItems = deviceSelectionList.querySelectorAll(".device-item");
-    deviceItems.forEach((item) => {
-      item.disabled = true;
-    });
-  }
+}
   
 function showLoadingIndicator() {
   loaderElement.style.display = 'inline-block';
@@ -124,6 +133,7 @@ window.api.on('on-output', (message) => {
 });
 
 reloadDeviceListLink.addEventListener('click', () => {
+    disableFlashingInteractions();
     refreshDeviceList();
 });
 
@@ -141,7 +151,8 @@ chooseFileLink.addEventListener('click', () => {
       
 
 installButton.addEventListener('click', () => {
-    disableUserInteraction();
+    disableFlashingInteractions();
+    disableDeviceListInteractions();
     showLoadingIndicator();
 
     window.api.invoke('on-install', getSelectedDeviceData(deviceSelectionList))
@@ -156,7 +167,8 @@ installButton.addEventListener('click', () => {
                 showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
             }, 4000);
         }).finally(() => {
-            enableUserInteraction();
+            enableFlashingInteractions();
+            enableDeviceListInteractions();
             hideLoadingIndicator();
         });
 });
@@ -286,11 +298,11 @@ function displayDevices(deviceList, container) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  disableUserInteraction();
+  disableFlashingInteractions();
   
   deviceSelectionList.addEventListener("device-selected", (event) => {
     console.log(event.target.dataset.name + " selected.");
-    enableUserInteraction();
+    enableFlashingInteractions();
   });
 
   refreshDeviceList();
