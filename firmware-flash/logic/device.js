@@ -132,6 +132,23 @@ export class Device {
         });
     }
 
+    // Function to read a few bytes from the serial port. Returns after the first burst of data.
+    async readFromSerialPort(baudRate = 115200) {
+        return new Promise((resolve, reject) => {
+            const serialport = new SerialPort({ path: this.serialPort, baudRate: baudRate, autoOpen : false } );
+            serialport.open(function (err) {
+                if (err) {
+                    this.logger?.log('❌ Error opening port: ', err.message)
+                    reject(err);
+                }
+            });
+            serialport.on('data', function (data) {
+                serialport.close();
+                resolve(data);
+            });
+        });
+    };
+
     async enterBootloader() {
         this.logger?.log(`👢 Entering bootloader ...`);
         if (!this.runsMicroPython()) {
