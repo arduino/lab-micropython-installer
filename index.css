@@ -1,7 +1,7 @@
 :root {
     --main-control-color: #008184;
     --main-control-color-hover: #005c5f;
-    --main-flexbox-gap: 20px;
+    --main-flexbox-gap: 16px;
 }
 
 * {
@@ -43,54 +43,6 @@ button, a {
     transition: opacity 0.5s ease-in-out;
 }
 
-button.primary {
-    font-weight: 700;
-    font-size: 1rem;
-    justify-content: center;
-    background-color: var(--main-control-color);
-    color: #fff;
-    cursor: pointer;
-    letter-spacing: 1.28px;
-    line-height: normal;
-    outline: none;
-    padding: 8px 18px;
-    text-align: center;
-    text-decoration: none;
-    border: 2px solid transparent;
-    border-radius: 32px;
-    text-transform: uppercase;
-    box-sizing: border-box;
-}
-
-button.primary:hover {
-    background-color: var(--main-control-color-hover);
-}
-
-button.secondary {
-    font-weight: 700;
-    font-size: 1rem;
-    justify-content: center;
-
-    color: var(--main-control-color);
-    background-color: transparent;
-    border: 2px solid var(--main-control-color);
-
-    cursor: pointer;
-    letter-spacing: 1.28px;
-    line-height: normal;
-    outline: none;
-    padding: 8px 18px;
-    position: relative;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 32px;
-    text-transform: uppercase;
-}
-
-button.secondary:hover {
-    background-color: rgba(0, 92, 95, .2);
-}
-
 .container {
     display: flex;
     justify-content: center;
@@ -114,7 +66,12 @@ main {
 
 header {
     flex-direction: column;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
+}
+
+footer {
+    color: #a8a9ab;
+    font-size: 0.75rem;
 }
 
 #reload-link-container {
@@ -174,50 +131,11 @@ div#installation-controls {
     gap: var(--main-flexbox-gap);
 }
 
-footer {
-    color: #a8a9ab;
-    font-size: 0.75rem;
-    margin-top: 10px;
-}
-
 /* Device Selection */
 
 div#device-selection {
     flex-direction: column;
     gap: var(--main-flexbox-gap);
-}
-
-div#device-selection-list {
-    flex-direction: row;
-    justify-content: center;
-    gap: var(--main-flexbox-gap);
-    align-items: center;
-}
-
-.device-item {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 10px;
-    outline: 2px solid #D3D3D3;
-    border-radius: 20px;
-    border: none;
-    background-color: #F8F8F8;
-    width: 165px;
-    height: 150px;
-    cursor: pointer;
-    user-select: none;
-}
-
-.device-item.selected {
-    outline: 3px solid #73A3F8;
-    background-color: #F2F6FD;
-}
-
-.device-label {
-    font-size: 0.9rem;
-    margin-top: 0.5rem;
 }
 
 /* Spinner animation */
@@ -226,46 +144,4 @@ div#device-selection-list {
     display: none;
     position: absolute;
     right: -60px;
-}
-
-.loader-ring {
-    display: inline-block;
-    position: relative;
-    width: 40px;
-    height: 40px;
-}
-
-.loader-ring div {
-    box-sizing: border-box;
-    display: block;
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    margin: 4px;
-    border: 4px solid var(--main-control-color);
-    border-radius: 50%;
-    animation: loader-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: var(--main-control-color) transparent transparent transparent;
-}
-
-.loader-ring div:nth-child(1) {
-    animation-delay: -0.45s;
-}
-
-.loader-ring div:nth-child(2) {
-    animation-delay: -0.3s;
-}
-
-.loader-ring div:nth-child(3) {
-    animation-delay: -0.15s;
-}
-
-@keyframes loader-ring {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
 }

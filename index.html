@@ -12,6 +12,9 @@
         href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;700&family=Roboto+Mono:wght@400;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="index.css">
+    <link rel="stylesheet" type="text/css" href="loader.css">
+    <link rel="stylesheet" type="text/css" href="buttons.css">
+    <link rel="stylesheet" type="text/css" href="item-selection.css">
     <title>Arduino MicroPython Flasher</title>
 </head>
 
@@ -25,7 +28,7 @@
             <div class="container" id="device-selection">
                 <div id="device-selection-title"><h3>Detected Boards</h3></div>
                 <div id="device-loading-indicator" class="loader-ring"><div></div><div></div><div></div><div></div></div>
-                <div class="container" id="device-selection-list"></div>
+                <div class="item-selection-list"></div>
                 <div id="reload-link-container"><a id="reload-link">Reload</a></div>
             </div>
             <code id="output">&nbsp;</code>
@@ -39,7 +42,7 @@
             <div>OR</div>
             <div id="file-drop-area">
                 <div><img id="drop-area" src="./assets/iconForDragAndDrop.png" /></div>
-                <div>Drag &amp; drop your custom firmware here or <a id="choose-file-link">choose file</a></div>
+                <div>Drag &amp; drop custom firmware here or <a id="choose-file-link">choose file</a></div>
             </div>
         </main>
         <footer class="container">

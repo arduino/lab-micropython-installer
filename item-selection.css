@@ -1,0 +1,33 @@
+.item-selection-list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    gap: var(--main-flexbox-gap);
+}
+
+.selection-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    outline: 2px solid #D3D3D3;
+    border-radius: 20px;
+    border: none;
+    background-color: #F8F8F8;
+    width: 165px;
+    height: 150px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.selection-item.selected {
+    outline: 3px solid #73A3F8;
+    background-color: #F2F6FD;
+}
+
+.selection-item-label {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}

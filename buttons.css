@@ -1,0 +1,47 @@
+button.primary {
+    font-weight: 700;
+    font-size: 1rem;
+    justify-content: center;
+    background-color: var(--main-control-color);
+    color: #fff;
+    cursor: pointer;
+    letter-spacing: 1.28px;
+    line-height: normal;
+    outline: none;
+    padding: 8px 18px;
+    text-align: center;
+    text-decoration: none;
+    border: 2px solid transparent;
+    border-radius: 32px;
+    text-transform: uppercase;
+    box-sizing: border-box;
+}
+
+button.primary:hover {
+    background-color: var(--main-control-color-hover);
+}
+
+button.secondary {
+    font-weight: 700;
+    font-size: 1rem;
+    justify-content: center;
+
+    color: var(--main-control-color);
+    background-color: transparent;
+    border: 2px solid var(--main-control-color);
+
+    cursor: pointer;
+    letter-spacing: 1.28px;
+    line-height: normal;
+    outline: none;
+    padding: 8px 18px;
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 32px;
+    text-transform: uppercase;
+}
+
+button.secondary:hover {
+    background-color: rgba(0, 92, 95, .2);
+}

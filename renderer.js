@@ -3,7 +3,7 @@ const chooseFileLink = document.getElementById('choose-file-link');
 const outputElement = document.getElementById('output');
 const fileDropElement = document.getElementById('file-drop-area');
 const loaderElement = document.querySelector('.loader-ring');
-const deviceSelectionList = document.getElementById("device-selection-list");
+const deviceSelectionList = document.querySelector(".item-selection-list");
 const reloadDeviceListLink = document.getElementById("reload-link");
 
 const flashFirmwareFromFile = (filePath) => {
@@ -89,7 +89,7 @@ function disableDeviceListInteractions() {
   reloadDeviceListLink.style.opacity = 0.25;
 
   // Disable all buttons in the device selection list
-  const deviceItems = deviceSelectionList.querySelectorAll(".device-item");
+  const deviceItems = deviceSelectionList.querySelectorAll(".selection-item");
   deviceItems.forEach((item) => {
     item.disabled = true;
   });
@@ -100,7 +100,7 @@ function enableDeviceListInteractions() {
   reloadDeviceListLink.style.opacity = 1;
 
    // Enable all buttons in the device selection list
-   const deviceItems = deviceSelectionList.querySelectorAll(".device-item");
+   const deviceItems = deviceSelectionList.querySelectorAll(".selection-item");
    deviceItems.forEach((item) => {
        item.disabled = false;
    });
@@ -234,7 +234,7 @@ function getSelectedDeviceData(container) {
 function createDeviceSelectorItem(device) {
   const fullDeviceName = device.manufacturer + " " + device.name;
   const deviceItem = document.createElement("button");
-  deviceItem.classList.add("device-item");
+  deviceItem.classList.add("selection-item");
 
   // Populate the device item with data attributes so that we can easily access them later
   // when the user selects a device and we need to flash the firmware
@@ -249,7 +249,7 @@ function createDeviceSelectorItem(device) {
   deviceItem.appendChild(deviceImage);
 
   const deviceLabel = document.createElement("span");
-  deviceLabel.classList.add("device-label");
+  deviceLabel.classList.add("selection-item-label");
   deviceLabel.textContent = fullDeviceName;
   deviceItem.appendChild(deviceLabel);
 
