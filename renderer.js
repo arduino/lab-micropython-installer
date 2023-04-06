@@ -2,7 +2,9 @@ const installButton = document.getElementById('install-button');
 const chooseFileLink = document.getElementById('choose-file-link');
 const outputElement = document.getElementById('output');
 const fileDropElement = document.getElementById('file-drop-area');
-const loaderElement = document.querySelector('.loader-ring');
+const flashActivityIndicator = document.getElementById('activity-indicator');
+const deviceLoadingActivityIndicator = document.getElementById("device-loading-indicator");
+const reloadLinkContainer = document.getElementById("reload-link-container");
 const deviceSelectionList = document.querySelector(".item-selection-list");
 const reloadDeviceListLink = document.getElementById("reload-link");
 
@@ -121,11 +123,11 @@ function disableFlashingInteractions() {
 }
   
 function showLoadingIndicator() {
-  loaderElement.style.display = 'inline-block';
+  flashActivityIndicator.style.display = 'inline-block';
 }
 
 function hideLoadingIndicator() {
-  loaderElement.style.display = 'none';
+  flashActivityIndicator.style.display = 'none';
 }
 
 window.api.on('on-output', (message) => {
@@ -259,11 +261,11 @@ function createDeviceSelectorItem(device) {
 function refreshDeviceList() {
   // Clear the device list
   displayDevices([], deviceSelectionList);
-  document.getElementById("device-loading-indicator").style.display = 'block';
+  deviceLoadingActivityIndicator.style.display = 'block';
 
   window.api.invoke('on-get-devices').then((result) => {
     displayDevices(result, deviceSelectionList);
-    document.getElementById("device-loading-indicator").style.display = 'none';
+    deviceLoadingActivityIndicator.style.display = 'none';
   }).catch((err) => {
     console.error(err);
     // Try again in 4 seconds
@@ -283,7 +285,7 @@ function displayDevices(deviceList, container) {
   // Clear the device list
   container.innerHTML = "";
 
-  document.getElementById("reload-link-container").style.display = deviceList.length > 0 ? 'block' : 'none';
+  reloadLinkContainer.style.display = deviceList.length > 0 ? 'block' : 'none';
 
   for (const device of deviceList) {
     container.appendChild(createDeviceSelectorItem(device));
@@ -301,7 +303,6 @@ window.addEventListener('DOMContentLoaded', () => {
   disableFlashingInteractions();
   
   deviceSelectionList.addEventListener("device-selected", (event) => {
-    console.log(event.target.dataset.name + " selected.");
     enableFlashingInteractions();
   });
 
