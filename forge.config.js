@@ -1,5 +1,7 @@
 module.exports = {
-  packagerConfig: {},
+  packagerConfig: {
+    icon: './assets/app-icon',
+    name: 'MicroPython Installer',
   rebuildConfig: {},
   makers: [
     {
