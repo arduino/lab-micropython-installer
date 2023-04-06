@@ -2,6 +2,12 @@ module.exports = {
   packagerConfig: {
     icon: './assets/app-icon',
     name: 'MicroPython Installer',
+    ignore: [
+      "^(\/firmware-flash\/bin\/firmware$)",
+      "^(\/firmware-flash\/bin\/linux$)",
+      "^(\/firmware-flash\/bin\/win32$)",
+    ]
+  },
   rebuildConfig: {},
   makers: [
     {
