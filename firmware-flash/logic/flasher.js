@@ -36,7 +36,7 @@ export class Flasher {
         const dfuUtilPath = this.getBinaryPath("dfu-util");
 
         // Specify the altsetting of the DFU interface via -a.
-        let cmd = `${dfuUtilPath} -a 0 -d ${vendorId}:${productId} -D ${firmwareFilepath}`;
+        let cmd = `'${dfuUtilPath}' -a 0 -d ${vendorId}:${productId} -D '${firmwareFilepath}'`;
         
         if (reset) {
             // In theory, the reset should be automatic with -R, but it doesn't seem to work
@@ -63,7 +63,7 @@ export class Flasher {
         const bossacPath = this.getBinaryPath("bossac");
 
         // In theory, the port should be automatically detected, but it doesn't seem to work
-        let cmd = `${bossacPath} -d  --port=${port} -U -i -e -w ${firmwareFilepath}`;
+        let cmd = `'${bossacPath}' -d  --port=${port} -U -i -e -w '${firmwareFilepath}'`;
         
         if (offset) {
             cmd += ` --offset=${offset}`;
@@ -125,7 +125,7 @@ export class Flasher {
             params.push("-x")
         }
 
-        let cmd = `${picotoolPath} load ${params.join(" ")} ${firmwareFilepath}`;
+        let cmd = `'${picotoolPath}' load ${params.join(" ")} '${firmwareFilepath}'`;
         
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
