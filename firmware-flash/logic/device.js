@@ -143,11 +143,10 @@ export class Device {
 
             serialport.open(function (err) {
                 if (err) {
-                    return this.logger?.log('❌ Error opening port: ', err.message)
+                    this.logger?.log('❌ Error opening port: ', err.message);
                 }
             });
         } else {
-            // FIXME doesnt seem to work
             await this.sendREPLCommand('import machine; machine.bootloader()\r\n', false);
         }
     }
