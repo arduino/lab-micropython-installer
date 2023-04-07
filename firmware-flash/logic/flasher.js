@@ -106,7 +106,7 @@ export class Flasher {
         if (!reset) {
             params.push("--after no_reset")
         }
-        let flashCmd = `${espToolPath} ${params.join(" ")} --baud 460800 write_flash -z 0x1000 ${firmwareFilepath}`;
+        let flashCmd = `'${espToolPath}' ${params.join(" ")} --baud 460800 write_flash -z 0x1000 '${firmwareFilepath}'`;
         
         await new Promise((resolve, reject) => {
             exec(eraseCmd, (error, stdout, stderr) => {
