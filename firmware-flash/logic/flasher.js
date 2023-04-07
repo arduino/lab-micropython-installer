@@ -143,9 +143,7 @@ export class Flasher {
     }
 
     async runEsptool(firmwareFilepath, port, reset = true) {
-        const binaryFolder = os.platform();
-        const scriptDir = path.dirname(__filename);
-        const espToolPath = path.join(scriptDir, "..", "bin", binaryFolder, "esptool");
+        const espToolPath = this.getBinaryPath("esptool");
         let params = ["--chip esp32", `--port ${port}`];
         let eraseCmd = `${espToolPath} ${params.join(" ")} --after no_reset erase_flash`;
         
