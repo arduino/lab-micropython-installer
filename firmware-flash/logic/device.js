@@ -99,12 +99,14 @@ export class Device {
             
             serialport.open(function (err) {
                 if (err) {
-                    return this.logger?.log('❌ Error opening port: ', err.message)
+                    this.logger?.log('❌ Error opening port: ', err.message);
+                    reject(err);
                 }
                 
                 serialport.write(command, function (err) {
                     if (err) {
-                        return this.logger?.log('❌ Error on write: ', err.message)
+                        this.logger?.log('❌ Error on write: ', err.message);
+                        reject(err);
                     }
                 });
     
