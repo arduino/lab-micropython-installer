@@ -2,6 +2,7 @@ import DeviceManager from './logic/DeviceManager.js';
 import descriptors from './logic/descriptors.js';
 import Device from './logic/Device.js';
 import Logger from './logic/Logger.js';
+import Flasher from './logic/flasher.js';
 
 /// The amount of time to wait for the device to become available in bootloader mode.
 /// This is only used for devices that can't be detected in bootloader mode through their serial port.
@@ -38,14 +39,28 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             }
             targetDevice.logger = logger;
             logger.log(`👍 Device is now in bootloader mode.`);
-            await targetDevice.flashFirmware(firmwarePath, isMicroPython);
-            logger.log('✅ Firmware flashed successfully.');
+            
+            const flasher = new Flasher();
+            console.log("Flashing updater");
+            await flasher.runBossac('/Users/sebastianhunkeler/Repositories/sebromero/upython-flasher/firmware-flash/bin/firmware/SoftDeviceUpdater.bin', targetDevice.serialPort);
+            console.log("Waiting for device");
+            await deviceManager.waitForDevice(selectedDevice.vendorID, selectedDevice.productID);
+            console.log("Writing to serial port");
+            // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
+            await selectedDevice.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
+            const data = await selectedDevice.readFromSerialPort(); // Wait for the device to finish flashing the bootloader / softdevice.
+            console.log("Data: " + data);
+            if(data != 1) throw new Error("Failed to flash bootloader / softdevice.");
+
+            // await targetDevice.flashFirmware(firmwarePath);
         } catch (error) {
             logger.log(error);
             logger.log('❌ Put the device in bootloader mode manually and try again.');
             return false;
         }
     } else {
+        //TODO pre flash also here
+        await selectedDevice.flashFirmware(firmwarePath);
         await selectedDevice.flashFirmware(firmwarePath, isMicroPython);
         logger.log('✅ Firmware flashed successfully.');
     }    

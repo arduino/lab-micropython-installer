@@ -105,12 +105,14 @@ export class Device {
                 if (err) {
                     this.logger?.log('❌ Error opening port: ', err.message);
                     reject(err);
+                    return;
                 }
                 
                 serialport.write(command, function (err) {
                     if (err) {
                         this.logger?.log('❌ Error on write: ', err.message);
                         reject(err);
+                        return;
                     }
                 });
     
@@ -154,6 +156,27 @@ export class Device {
             serialport.on('data', function (data) {
                 serialport.close();
                 resolve(data);
+            });
+        });
+    };
+
+    // Function to write a byte to the serial port.
+    async writeToSerialPort(byte, baudRate = 115200) {
+        return new Promise((resolve, reject) => {
+            const serialport = new SerialPort({ path: this.serialPort, baudRate: baudRate, autoOpen : false } );
+            serialport.open(function (err) {
+                if (err) {
+                    this.logger?.log('❌ Error opening port: ', err.message)
+                    reject(err);
+                }
+            });
+            serialport.write(byte, function (err) {
+                if (err) {
+                    this.logger?.log('❌ Error on write: ', err.message)
+                    reject(err);
+                }
+                serialport.close();
+                resolve();
             });
         });
     };

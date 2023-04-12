@@ -6,7 +6,8 @@ import { fileURLToPath } from 'url';
 const flasher = new Flasher();
 
 // Get from https://www.nordicsemi.com/Products/Development-software/nRF5-SDK/Download
-const softDeviceFirmwareFilename = "s140_nrf52_7.2.0_softdevice.bin";
+// const softDeviceFirmwareFilename = "s140_nrf52_7.2.0_softdevice.bin";
+const softDeviceFirmwareFilename = "SoftDeviceUpdater.bin";
 const __filename = fileURLToPath(import.meta.url);
 
 function getSoftDevicePath(){
@@ -107,6 +108,15 @@ arduinoNano33BLEDescriptor.onPreFlashFirmware = async (device) => {
     // Don't reset the device after flashing the softdevice so that we can flash the upython firmware directly afterwards.
     await flasher.runBossac(getSoftDevicePath(), device.getSerialPort(), arduinoNano33BLESoftDeviceOffset, false);
     */
+//    console.log("Flashing updater");
+//    //await flasher.runBossac(getSoftDevicePath(), device.serialPort);
+//    console.log("Writing to serial port");
+//    // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
+   
+//    await device.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
+//    const data = await device.readFromSerialPort(); // Wait for the device to finish flashing the bootloader / softdevice.
+//    console.log("Data: " + data);
+//    if(data != 1) throw new Error("Failed to flash bootloader / softdevice.");
 };
 arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     if(isMicroPython){
