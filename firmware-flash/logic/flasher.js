@@ -115,7 +115,24 @@ export class Flasher {
         });
     }
 
-
+    async resetBoardWithBossac(port) {
+        const bossacPath = this.getBinaryPath("bossac");
+        let cmd = `${bossacPath} -U --port=${port} -R`;
+        return new Promise((resolve, reject) => {
+            exec(cmd, (error, stdout, stderr) => {
+                if (error) {
+                    reject(`Error running bossac: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    reject(`Error running bossac: ${stderr}`);
+                    return;
+                }
+                resolve(stdout);
+            });
+        });
+    }
+        
 
     async runPicotool(firmwareFilepath, reset = true) {
         const picotoolPath = this.getBinaryPath("picotool");
