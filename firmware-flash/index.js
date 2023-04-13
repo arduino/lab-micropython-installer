@@ -3,6 +3,11 @@ import descriptors from './logic/descriptors.js';
 import Device from './logic/Device.js';
 import Logger from './logic/Logger.js';
 
+/// The amount of time to wait for the device to become available in bootloader mode.
+/// This is only used for devices that can't be detected in bootloader mode through their serial port.
+/// An alternative could be to use the device's VID/PID with https://www.npmjs.com/package/usb
+const DEVICE_AWAIT_TIMEOUT = 3000;
+
 async function flashFirmware(firmwarePath, selectedDevice){
     if(!selectedDevice.logger){
         selectedDevice.logger = logger;
@@ -25,8 +30,8 @@ async function flashFirmware(firmwarePath, selectedDevice){
             // or to use the device's mass storage volume with https://www.npmjs.com/package/drivelist
             if(selectedDevice.deviceDescriptor.skipWaitForDevice) {
                 targetDevice = new Device(selectedDevice.getBootloaderVID(),selectedDevice.getBootloaderPID(), selectedDevice.deviceDescriptor);
-                logger.log(`⌛️ Waiting ${ms}ms for the device to become available...`);
-                await deviceManager.wait(3000);
+                logger.log(`⌛️ Waiting ${DEVICE_AWAIT_TIMEOUT}ms for the device to become available...`);
+                await deviceManager.wait(DEVICE_AWAIT_TIMEOUT);
             } else {
                 logger.log("⌛️ Waiting for the device to become available...");
                 targetDevice = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
@@ -41,6 +46,7 @@ async function flashFirmware(firmwarePath, selectedDevice){
         }
     } else {
         await selectedDevice.flashFirmware(firmwarePath);
+        logger.log('✅ Firmware flashed successfully.');
     }    
     return true;
 }

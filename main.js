@@ -47,7 +47,7 @@ ipcMain.handle('on-file-selected', async (event, filePath) => {
         const selectedDevice = await flash.getFirstFoundDevice();
 
         if (selectedDevice && await flash.flashFirmware(filePath, selectedDevice)) {
-            resolve("✅ Firmware flashed successfully! You may need to reset the device.");
+            resolve("🎉 Done! You may need to reboot the device.");
         } else {
             // Due to a bug in Electron the error message is reformatted.
             // Therefore the error message is created in the renderer process
@@ -63,7 +63,7 @@ ipcMain.handle('on-install', async (event, arg) => {
         const useNightlyBuild = true; // TODO: Add a checkbox to the UI
 
         if (selectedDevice && await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
-            resolve("✅ Firmware flashed successfully! You may need to reset the device.");
+            resolve("🎉 Done! You may need to reboot the device.");
         } else {
             // Due to a bug in Electron the error message is reformatted.
             // Therefore the error message is created in the renderer process
