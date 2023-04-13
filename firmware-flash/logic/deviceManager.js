@@ -33,7 +33,7 @@ class DeviceManager {
     }
 
     // Wait for a USB device to become available.
-    waitForDevice(vendorID, productID) {
+    waitForDevice(vendorID, productID, timeout = 10000) {
         return new Promise((resolve, reject) => {
             const interval = setInterval(async () => {                
                 await this.refreshDeviceList();
@@ -45,11 +45,11 @@ class DeviceManager {
                 }                
             }, 1000);
 
-            // Set a timeout of 10 seconds.
+            // Set a timeout of specified seconds.
             setTimeout(() => {
                 clearInterval(interval);
                 reject("❌ Timeout waiting for the device to become available.");
-            }, 10000);
+            }, timeout);
         });
     }    
 
