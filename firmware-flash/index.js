@@ -41,18 +41,30 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             logger.log(`👍 Device is now in bootloader mode.`);
             
             const flasher = new Flasher();
-            console.log("Flashing updater");
+            logger.log("🔥 Flashing SoftDevice updater...");
             await flasher.runBossac('/Users/sebastianhunkeler/Repositories/sebromero/upython-flasher/firmware-flash/bin/firmware/SoftDeviceUpdater.bin', targetDevice.serialPort);
-            console.log("Waiting for device");
+            console.log("Waiting for device to run sketch...");
+            // TODO: Reset the device programmatically 
+            //TODO: Get Arduino PID for the case that we started in bootloader
             await deviceManager.waitForDevice(selectedDevice.vendorID, selectedDevice.productID);
-            console.log("Writing to serial port");
+            // await deviceManager.waitForDevice(selectedDevice);
+            logger.log("🪄 Sending magic number to device...");
             // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
             await selectedDevice.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
             const data = await selectedDevice.readFromSerialPort(); // Wait for the device to finish flashing the bootloader / softdevice.
-            console.log("Data: " + data);
-            if(data != 1) throw new Error("Failed to flash bootloader / softdevice.");
-
-            // await targetDevice.flashFirmware(firmwarePath);
+            const magicNumber = Buffer.from(data).readUint8();
+            if(magicNumber != 1) throw new Error("❌ Failed to flash SoftDevice.");
+            // Device enters bootloader automatically
+            // Give the bootloader some time to relocate the SoftDevice.
+            logger.log("⌛️ Waiting for the device to relocate the SoftDevice...");
+            await deviceManager.wait(7000);
+            targetDevice = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
+            if(!targetDevice){
+                throw new Error("❌ Failed to flash SoftDevice.");
+            }
+            targetDevice.logger = logger;
+            await targetDevice.flashFirmware(firmwarePath);
+            logger.log('✅ Firmware flashed successfully.');
         } catch (error) {
             logger.log(error);
             logger.log('❌ Put the device in bootloader mode manually and try again.');
