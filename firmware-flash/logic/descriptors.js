@@ -75,7 +75,11 @@ const arduinoNano33BLEIdentifiers = {
         "pids" : { "upython" : 0x9802 }
     }
 };
-const arduinoNano33BLEUPythonOffset = "0x16000"
+/*
+The default offset of bossac is always 0x10000 (a mistake from the initial implementation that we can't change without breaking a good half of the boards), 
+so the softdevice-based image should be flashed with --offset=0x16000 (since it ends up at 0x26000).
+*/
+const arduinoNano33BLEUPythonOffset = "0x16000";
 // const arduinoNano33BLESoftDeviceOffset = "0xA0000";
 // const arduinoNano33BLEMinimumBootloaderVersion = 3;
 
