@@ -16,7 +16,8 @@ const flashFirmwareFromFile = (filePath) => {
     window.api.invoke('on-file-selected', filePath).then(function (result) {
         console.log(result);
         showStatusText(result, outputElement, 5000);
-        refreshDeviceList();
+        // Give the device some time to reboot
+        refreshDeviceList(2000);
     }).catch(function (err) {
         console.error(err);
         setTimeout(() => {
@@ -161,7 +162,8 @@ installButton.addEventListener('click', () => {
         .then((result) => {
             console.log(result);
             showStatusText(result, outputElement, 5000);
-            refreshDeviceList();
+            // Give the device some time to reboot
+            refreshDeviceList(2000);
         })
         .catch((err) => {
             console.error(err);
@@ -258,9 +260,16 @@ function createDeviceSelectorItem(device) {
   return deviceItem;
 }
 
-function refreshDeviceList() {
+function refreshDeviceList(delay = 0) {
   // Clear the device list
   displayDevices([], deviceSelectionList);
+
+  if(delay > 0) {
+    // Calls itself after a delay while passing 0 as the delay.
+    setTimeout(refreshDeviceList, delay);
+    return;
+  }
+
   deviceLoadingActivityIndicator.style.display = 'block';
 
   window.api.invoke('on-get-devices').then((result) => {
