@@ -13,7 +13,7 @@ const flashFirmwareFromFile = (filePath) => {
     disableDeviceListInteractions();
     showLoadingIndicator();
 
-    window.api.invoke('on-file-selected', filePath).then(function (result) {
+    window.api.invoke('on-file-selected', getSelectedDeviceData(deviceSelectionList), filePath).then(function (result) {
         console.log(result);
         showStatusText(result, outputElement, 5000);
         // Give the device some time to reboot

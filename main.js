@@ -40,11 +40,11 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.handle('on-file-selected', async (event, filePath) => {
+ipcMain.handle('on-file-selected', async (event, deviceData, filePath) => {
     // Alternative to returning a promise:  
     // event.returnValue = `Done`; // Synchronous reply
     return new Promise(async function (resolve, reject) {
-        const selectedDevice = await flash.getFirstFoundDevice();
+        const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
 
         if (selectedDevice && await flash.flashFirmware(filePath, selectedDevice)) {
             resolve("🎉 Done! You may need to reboot the device.");
@@ -57,9 +57,9 @@ ipcMain.handle('on-file-selected', async (event, filePath) => {
     });
 })
 
-ipcMain.handle('on-install', async (event, arg) => {
+ipcMain.handle('on-install', async (event, deviceData) => {
     return new Promise(async function (resolve, reject) {
-        const selectedDevice = flash.deviceManager.getDevice(arg.vendorID, arg.productID);
+        const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
         const useNightlyBuild = true; // TODO: Add a checkbox to the UI
 
         if (selectedDevice && await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
