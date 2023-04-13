@@ -44,10 +44,26 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             logger.log("🔥 Flashing SoftDevice updater...");
             await flasher.runBossac('/Users/sebastianhunkeler/Repositories/sebromero/upython-flasher/firmware-flash/bin/firmware/SoftDeviceUpdater.bin', targetDevice.serialPort);
             console.log("Waiting for device to run sketch...");
-            // TODO: Reset the device programmatically 
+            
             //TODO: Get Arduino PID for the case that we started in bootloader
-            await deviceManager.waitForDevice(selectedDevice.vendorID, selectedDevice.productID);
-            // await deviceManager.waitForDevice(selectedDevice);
+            // Try to wait for the device 10 times then give up.
+            for(let i = 0; i < 10; i++){
+                try {
+                    await deviceManager.waitForDevice(selectedDevice.vendorID, selectedDevice.productID, 1000);
+                    break;
+                } catch (error) {
+                    console.log(error);
+                    console.log("Retrying...");
+                    try {
+                        flasher.resetBoardWithBossac(targetDevice.serialPort);
+                    } catch (error) {
+                        console.log(error);
+                        console.log("Retrying...");
+                    }
+                }
+                if(i === 9) throw new Error("❌ Failed to flash SoftDevice.");
+            }
+
             logger.log("🪄 Sending magic number to device...");
             // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
             await selectedDevice.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
