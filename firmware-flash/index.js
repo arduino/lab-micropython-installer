@@ -39,6 +39,7 @@ async function flashFirmware(firmwarePath, selectedDevice){
             targetDevice.logger = logger;
             logger.log(`👍 Device is now in bootloader mode.`);
             await targetDevice.flashFirmware(firmwarePath);
+            logger.log('✅ Firmware flashed successfully.');
         } catch (error) {
             logger.log(error);
             logger.log('❌ Put the device in bootloader mode manually and try again.');
