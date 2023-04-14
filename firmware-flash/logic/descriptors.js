@@ -15,28 +15,36 @@ function getSoftDevicePath(){
     return firmwarePath;  
 }
 
-const arduinoGigaIdentifiers = {
-    "default" : {
-        "vid" : 0x2341,
-        "pids" : {"arduino" : 0x0266, "bootloader" : 0x0366, "upython" : 0x0566 }
-    },
-};
-const arduinoGigaDescriptor = new DeviceDescriptor(arduinoGigaIdentifiers, 'Giga R1 WiFi', 'Arduino', 'ARDUINO_GIGA', 'dfu');
-arduinoGigaDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
-    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
-};
-
 const arduinoPortentaH7Identifiers = {
     "default" : {
         "vid" : 0x2341,
         "pids" : {"arduino" : 0x025b, "bootloader" : 0x035b, "upython" : 0x055b, "omv" : 0x045b}
     },
 };
+
 const arduinoPortentaH7Descriptor = new DeviceDescriptor(arduinoPortentaH7Identifiers, 'Portenta H7', 'Arduino', 'ARDUINO_PORTENTA_H7', 'dfu');
 arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
-    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
+    // Check if firmware is a DFU file
+    if(firmware.endsWith(".dfu")){
+        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
+        return;
+    }
+    // Check if firmware is a binary file
+    if(firmware.endsWith(".bin")){
+        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true, "0x08040000");
+        return;
+    }
 };
 
+const arduinoGigaIdentifiers = {
+    "default" : {
+        "vid" : 0x2341,
+        "pids" : {"arduino" : 0x0266, "bootloader" : 0x0366, "upython" : 0x0566 }
+    },
+};
+
+const arduinoGigaDescriptor = new DeviceDescriptor(arduinoGigaIdentifiers, 'Giga R1 WiFi', 'Arduino', 'ARDUINO_GIGA', 'dfu');
+arduinoGigaDescriptor.onFlashFirmware = arduinoPortentaH7Descriptor.onFlashFirmware;
 
 const arduinoNanoRP2040Identifiers = {
     "default" : {

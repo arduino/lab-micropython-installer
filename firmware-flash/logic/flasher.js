@@ -54,11 +54,16 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    reject(`Error running dfu-util: ${error.message}`);
+                    reject(`Error running dfu-util: '${error.message}'`);
                     return;
                 }
                 if (stderr) {
-                    reject(`Error running dfu-util: ${stderr}`);
+                    // HACK to ignore the warning about the DFU suffix signature
+                    if(stderr.trim() == "dfu-util: Warning: Invalid DFU suffix signature\ndfu-util: A valid DFU suffix will be required in a future dfu-util release"){
+                        resolve(stdout);
+                        return;
+                    }
+                    reject(`Error running dfu-util (stderr): '${stderr}'`);
                     return;
                 }
                 resolve(stdout);
