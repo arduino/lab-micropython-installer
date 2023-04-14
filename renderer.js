@@ -22,6 +22,7 @@ const flashFirmwareFromFile = (filePath) => {
     window.api.invoke('on-file-selected', data).then(function (result) {
         console.log(result);
         showStatusText(result, outputElement, 5000);
+        disableFlashingInteractions();
         // Give the device some time to reboot
         refreshDeviceList(2000);
     }).catch(function (err) {
@@ -116,6 +117,7 @@ function enableDeviceListInteractions() {
 }
 
 function enableFlashingInteractions() {
+    useNightlyBuildCheckbox.disabled = false;
     installButton.disabled = false;
     installButton.style.opacity = 1;
     fileDropElement.style.opacity = 1;
@@ -123,6 +125,7 @@ function enableFlashingInteractions() {
 }
 
 function disableFlashingInteractions() {
+    useNightlyBuildCheckbox.disabled = true;
     installButton.disabled = true;
     installButton.style.opacity = 0.25;
     fileDropElement.style.opacity = 0.25;
@@ -172,6 +175,7 @@ installButton.addEventListener('click', () => {
         .then((result) => {
             console.log(result);
             showStatusText(result, outputElement, 5000);
+            disableFlashingInteractions();
             // Give the device some time to reboot
             refreshDeviceList(2000);
         })
@@ -287,7 +291,7 @@ function refreshDeviceList(delay = 0) {
     deviceLoadingActivityIndicator.style.display = 'none';
   }).catch((err) => {
     console.error(err);
-    // Try again in 4 seconds
+    // Try again in 4 seconds if no devices were found
     setTimeout(refreshDeviceList, 4000);
   });
 }
@@ -319,11 +323,10 @@ function displayDevices(deviceList, container) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  disableFlashingInteractions();
-  
   deviceSelectionList.addEventListener("device-selected", (event) => {
     enableFlashingInteractions();
   });
-
+  
+  disableFlashingInteractions();
   refreshDeviceList();
 });
