@@ -35,6 +35,10 @@ export class Device {
                 release.type.trim() === "(stable)" &&
                 release.url.endsWith("." + fileExtension)
             );
+            
+            if(!stableRelease){
+                this.logger?.log("🙅 No stable release found.");
+            }
 
             // Find the first release that matches the desired file extension
             const nightlyRelease = boardData.releases.find((release) =>
