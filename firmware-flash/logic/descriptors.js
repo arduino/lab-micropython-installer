@@ -22,7 +22,7 @@ const arduinoGigaIdentifiers = {
     },
 };
 const arduinoGigaDescriptor = new DeviceDescriptor(arduinoGigaIdentifiers, 'Giga R1 WiFi', 'Arduino', 'ARDUINO_GIGA', 'dfu');
-arduinoGigaDescriptor.onFlashFirmware = async (firmware, device) => {
+arduinoGigaDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 
@@ -33,7 +33,7 @@ const arduinoPortentaH7Identifiers = {
     },
 };
 const arduinoPortentaH7Descriptor = new DeviceDescriptor(arduinoPortentaH7Identifiers, 'Portenta H7', 'Arduino', 'ARDUINO_PORTENTA_H7', 'dfu');
-arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device) => {
+arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 
@@ -49,7 +49,7 @@ const arduinoNanoRP2040Identifiers = {
     }
 };
 const arduinoNanoRP2040Descriptor = new DeviceDescriptor(arduinoNanoRP2040Identifiers, 'Nano RP2040 Connect', 'Arduino', 'ARDUINO_NANO_RP2040_CONNECT', 'uf2');
-arduinoNanoRP2040Descriptor.onFlashFirmware = async (firmware, device) => {
+arduinoNanoRP2040Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     await flasher.runPicotool(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 arduinoNanoRP2040Descriptor.skipWaitForDevice = true;
@@ -61,7 +61,7 @@ const arduinoNiclaVisionIdentifiers = {
     }
 };
 const arduinoNiclaVisionDescriptor = new DeviceDescriptor(arduinoNiclaVisionIdentifiers, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
-arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device) => {
+arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 
@@ -98,8 +98,13 @@ arduinoNano33BLEDescriptor.onPreFlashFirmware = async (device) => {
     await flasher.runBossac(getSoftDevicePath(), device.serialPort, arduinoNano33BLESoftDeviceOffset, false);
     */
 };
-arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device) => {
-    await flasher.runBossac(firmware,device.serialPort, arduinoNano33BLEUPythonOffset);
+arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
+    if(isMicroPython){
+        await flasher.runBossac(firmware,device.serialPort, arduinoNano33BLEUPythonOffset);
+    } else {
+        await flasher.runBossac(firmware,device.serialPort);
+    }
+        
 };
 
 const descriptors = [

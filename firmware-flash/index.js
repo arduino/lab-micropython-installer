@@ -8,7 +8,7 @@ import Logger from './logic/Logger.js';
 /// An alternative could be to use the device's VID/PID with https://www.npmjs.com/package/usb
 const DEVICE_AWAIT_TIMEOUT = 3000;
 
-async function flashFirmware(firmwarePath, selectedDevice){
+async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false){
     if(!selectedDevice.logger){
         selectedDevice.logger = logger;
     }
@@ -38,7 +38,7 @@ async function flashFirmware(firmwarePath, selectedDevice){
             }
             targetDevice.logger = logger;
             logger.log(`👍 Device is now in bootloader mode.`);
-            await targetDevice.flashFirmware(firmwarePath);
+            await targetDevice.flashFirmware(firmwarePath, isMicroPython);
             logger.log('✅ Firmware flashed successfully.');
         } catch (error) {
             logger.log(error);
@@ -46,7 +46,7 @@ async function flashFirmware(firmwarePath, selectedDevice){
             return false;
         }
     } else {
-        await selectedDevice.flashFirmware(firmwarePath);
+        await selectedDevice.flashFirmware(firmwarePath, isMicroPython);
         logger.log('✅ Firmware flashed successfully.');
     }    
     return true;
@@ -57,7 +57,7 @@ async function flashMicroPythonFirmware(selectedDevice, useNightlyBuild = false)
         selectedDevice.logger = logger;
     }
     const firmwareFile = await selectedDevice.downloadMicroPythonFirmware(useNightlyBuild);
-    return await flashFirmware(firmwareFile, selectedDevice);
+    return await flashFirmware(firmwareFile, selectedDevice, true);
 }
 
 async function getDeviceList(){

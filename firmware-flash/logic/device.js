@@ -35,7 +35,7 @@ export class Device {
                 release.type.trim() === "(stable)" &&
                 release.url.endsWith("." + fileExtension)
             );
-            
+
             if(!stableRelease){
                 this.logger?.log("🙅 No stable release found.");
             }
@@ -82,13 +82,13 @@ export class Device {
         return await this.downloadFirmware(firmwareUrl);
     }
 
-    async flashFirmware(firmwareFile) {
+    async flashFirmware(firmwareFile, isMicroPython = false) {
         if(this.deviceDescriptor.onPreFlashFirmware){
             this.logger?.log(`🔥 Running pre-flash step ...`);
             await this.deviceDescriptor.onPreFlashFirmware(this);
         };
         this.logger?.log(`🔥 Flashing firmware '${path.basename(firmwareFile)}' ...`);
-        return this.deviceDescriptor.onFlashFirmware(firmwareFile, this);
+        return this.deviceDescriptor.onFlashFirmware(firmwareFile, this, isMicroPython);
     }
 
     async sendREPLCommand(command, awaitResponse = true, debug = false) {
