@@ -3,6 +3,7 @@ const chooseFileLink = document.getElementById('choose-file-link');
 const outputElement = document.getElementById('output');
 const fileDropElement = document.getElementById('file-drop-area');
 const flashActivityIndicator = document.getElementById('activity-indicator');
+const useNightlyBuildCheckbox = document.getElementById('nightly-builds-enabled');
 const deviceLoadingActivityIndicator = document.getElementById("device-loading-indicator");
 const reloadLinkContainer = document.getElementById("reload-link-container");
 const deviceSelectionList = document.querySelector(".item-selection-list");
@@ -13,7 +14,12 @@ const flashFirmwareFromFile = (filePath) => {
     disableDeviceListInteractions();
     showLoadingIndicator();
 
-    window.api.invoke('on-file-selected', getSelectedDeviceData(deviceSelectionList), filePath).then(function (result) {
+    const data = {
+      deviceData : getSelectedDeviceData(deviceSelectionList),
+      filePath : filePath
+    };
+
+    window.api.invoke('on-file-selected', data).then(function (result) {
         console.log(result);
         showStatusText(result, outputElement, 5000);
         // Give the device some time to reboot
@@ -157,8 +163,12 @@ installButton.addEventListener('click', () => {
     disableFlashingInteractions();
     disableDeviceListInteractions();
     showLoadingIndicator();
+    const data = {
+      deviceData : getSelectedDeviceData(deviceSelectionList),
+      useNightlyBuild : useNightlyBuildCheckbox.checked
+    };
 
-    window.api.invoke('on-install', getSelectedDeviceData(deviceSelectionList))
+    window.api.invoke('on-install', data)
         .then((result) => {
             console.log(result);
             showStatusText(result, outputElement, 5000);
