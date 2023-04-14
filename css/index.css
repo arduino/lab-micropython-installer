@@ -84,6 +84,7 @@ header {
 }
 
 footer {
+    display: none !important;
     color: #a8a9ab;
     font-size: 0.75rem;
 }
@@ -109,7 +110,7 @@ div#file-drop-area {
     padding: 25px;
 
     min-height: 100px;
-    margin: 0px 60px;
+    margin: 0px 60px 25px 60px;
     /* background-color: #fcfcfc;
     border: #c3daff 2px dashed; */
     border-radius: 20px;
