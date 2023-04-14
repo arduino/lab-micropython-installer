@@ -31,7 +31,6 @@ const flashFirmwareFromFile = (filePath) => {
             showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
         }, 4000);
     }).finally(() => {
-        enableFlashingInteractions();
         enableDeviceListInteractions();
         hideLoadingIndicator();
     });
@@ -185,7 +184,6 @@ installButton.addEventListener('click', () => {
                 showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
             }, 4000);
         }).finally(() => {
-            enableFlashingInteractions();
             enableDeviceListInteractions();
             hideLoadingIndicator();
         });
