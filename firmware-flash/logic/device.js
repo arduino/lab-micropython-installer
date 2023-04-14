@@ -118,6 +118,7 @@ export class Device {
             });
     
             // Read response
+            // TODO: Use https://serialport.io/docs/api-parser-readline instead
             serialport.on('data', function (data) {
                 responseData += data.toString();
                 let lines = responseData.split('\r\n');
@@ -135,6 +136,8 @@ export class Device {
     }
 
     // Function to read a few bytes from the serial port. Returns after the first burst of data.
+    // TODO: Use ready parser instead https://serialport.io/docs/api-parser-ready
+    // OR: https://serialport.io/docs/api-parser-packet-length
     async readFromSerialPort(baudRate = 115200) {
         return new Promise((resolve, reject) => {
             const serialport = new SerialPort({ path: this.serialPort, baudRate: baudRate, autoOpen : false } );
