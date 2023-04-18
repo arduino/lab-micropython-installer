@@ -34,23 +34,22 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
                 logger.log(`⌛️ Waiting ${DEVICE_AWAIT_TIMEOUT}ms for the device to become available...`);
                 await deviceManager.wait(DEVICE_AWAIT_TIMEOUT);
             } else {
-                logger.log("⌛️ Waiting for the device to become available...");
+                logger.log("⌛️ Waiting for bootloader to become available...");
                 targetDevice = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
             }
             targetDevice.logger = logger;
             logger.log(`👍 Device is now in bootloader mode.`);
-            
             const flasher = new Flasher();
-            logger.log("🔥 Flashing SoftDevice updater...");
-            await flasher.runBossac('/Users/sebastianhunkeler/Repositories/sebromero/upython-flasher/firmware-flash/bin/firmware/SoftDeviceUpdater.bin', targetDevice.serialPort);
-            console.log("Waiting for device to run sketch...");
+            // logger.log("🔥 Flashing SoftDevice updater...");
+            // await flasher.runBossac('/Users/sebastianhunkeler/Repositories/sebromero/upython-flasher/firmware-flash/bin/firmware/SoftDeviceUpdater.bin', targetDevice.serialPort);
+            // console.log("Waiting for device to run sketch...");
             
             //TODO: Get Arduino PID for the case that we started in bootloader
             // Try to wait for the device 10 times then give up.
             for(let i = 0; i < 10; i++){
                 try {
                     await deviceManager.waitForDevice(selectedDevice.vendorID, selectedDevice.productID, 1000);
-                    break;
+                    break; // Exit the loop if the device is found.
                 } catch (error) {
                     console.log(error);
                     console.log("Retrying...");
@@ -65,6 +64,7 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             }
 
             logger.log("🪄 Sending magic number to device...");
+            return true;
             // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
             await selectedDevice.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
             const data = await selectedDevice.readFromSerialPort(); // Wait for the device to finish flashing the bootloader / softdevice.
