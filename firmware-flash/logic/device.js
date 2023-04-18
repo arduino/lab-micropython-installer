@@ -1,4 +1,5 @@
-import { SerialPort } from 'serialport'
+import { SerialPort, ByteLengthParser } from 'serialport'
+
 import fetch from 'node-fetch';
 import fs from 'fs';
 import os from 'os';
@@ -141,21 +142,23 @@ export class Device {
         });
     }
 
-    // Function to read a few bytes from the serial port. Returns after the first burst of data.
-    // TODO: Use ready parser instead https://serialport.io/docs/api-parser-ready
-    // OR: https://serialport.io/docs/api-parser-packet-length
-    async readFromSerialPort(baudRate = 115200) {
+    // Function to read one byte from the serial port.
+    // Returns a promise that resolves to the byte read as a Buffer.
+    async readBytesFromSerialPort(baudRate = 115200, bytes = 1) {
         return new Promise((resolve, reject) => {
-            const serialport = new SerialPort({ path: this.getSerialPort(), baudRate: baudRate, autoOpen : false } );
+            const serialport = new SerialPort({ path: this.serialPort, baudRate: baudRate, autoOpen : false } );
+            const parser = serialport.pipe(new ByteLengthParser({
+                length: bytes
+            }));
+            parser.on('data', function (data) {
+                serialport.close();
+                resolve(data);
+            });
             serialport.open(function (err) {
                 if (err) {
                     this.logger?.log('❌ Error opening port: ', err.message)
                     reject(err);
                 }
-            });
-            serialport.on('data', function (data) {
-                serialport.close();
-                resolve(data);
             });
         });
     };
