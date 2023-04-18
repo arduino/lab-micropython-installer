@@ -34,6 +34,8 @@ arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device, isMicroPy
         await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true, "0x08040000");
         return;
     }
+
+    throw new Error("❌ Invalid firmware file");
 };
 
 const arduinoGigaIdentifiers = {
