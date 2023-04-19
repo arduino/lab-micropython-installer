@@ -28,7 +28,10 @@ button {
 label {
     font-size: 0.9rem;
     vertical-align: middle;
-    color: var(--secondary-text-color);
+}
+
+input[type=checkbox]:disabled+label {
+    opacity: 0.5;
 }
 
 input[type="checkbox"] {
