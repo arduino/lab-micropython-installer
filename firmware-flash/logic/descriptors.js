@@ -96,7 +96,7 @@ const arduinoNano33BLEUPythonOffset = "0x16000";
 const arduinoNano33BLEDescriptor = new DeviceDescriptor(arduinoNano33BLEIdentifiers, 'Nano 33 BLE', 'Arduino', 'arduino_nano_33_ble_sense', 'bin');
 arduinoNano33BLEDescriptor.onPreFlashFirmware = async (device) => {
     /* For now we require the user to flash the softdevice manually.
-    const bootloaderVersion = await flasher.getBootloaderVersionWithBossac(device.serialPort);
+    const bootloaderVersion = await flasher.getBootloaderVersionWithBossac(device.getSerialPort());
     const majorVersion = parseInt(bootloaderVersion.split(".")[0]);
     // console.log("👢 Bootloader version: " + bootloaderVersion);
     
@@ -105,14 +105,14 @@ arduinoNano33BLEDescriptor.onPreFlashFirmware = async (device) => {
     }
 
     // Don't reset the device after flashing the softdevice so that we can flash the upython firmware directly afterwards.
-    await flasher.runBossac(getSoftDevicePath(), device.serialPort, arduinoNano33BLESoftDeviceOffset, false);
+    await flasher.runBossac(getSoftDevicePath(), device.getSerialPort(), arduinoNano33BLESoftDeviceOffset, false);
     */
 };
 arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     if(isMicroPython){
-        await flasher.runBossac(firmware,device.serialPort, arduinoNano33BLEUPythonOffset);
+        await flasher.runBossac(firmware,device.getSerialPort(), arduinoNano33BLEUPythonOffset);
     } else {
-        await flasher.runBossac(firmware,device.serialPort);
+        await flasher.runBossac(firmware,device.getSerialPort());
     }
         
 };

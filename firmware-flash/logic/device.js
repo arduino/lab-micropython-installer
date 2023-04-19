@@ -99,7 +99,7 @@ export class Device {
         return new Promise((resolve, reject) => {
             let responseData = "";
             // For MicroPython devices, we need to open the serial port with a baud rate of 115200
-            const serialport = new SerialPort({ path: this.serialPort, baudRate: 115200, autoOpen : false } );
+            const serialport = new SerialPort({ path: this.getSerialPort(), baudRate: 115200, autoOpen : false } );
             
             serialport.open(function (err) {
                 if (err) {
@@ -144,7 +144,7 @@ export class Device {
     // OR: https://serialport.io/docs/api-parser-packet-length
     async readFromSerialPort(baudRate = 115200) {
         return new Promise((resolve, reject) => {
-            const serialport = new SerialPort({ path: this.serialPort, baudRate: baudRate, autoOpen : false } );
+            const serialport = new SerialPort({ path: this.getSerialPort(), baudRate: baudRate, autoOpen : false } );
             serialport.open(function (err) {
                 if (err) {
                     this.logger?.log('❌ Error opening port: ', err.message)
@@ -162,7 +162,7 @@ export class Device {
         this.logger?.log(`👢 Entering bootloader ...`);
         if (!this.runsMicroPython()) {
             // Open the serial port with a baud rate of 1200
-            const serialport = new SerialPort({ path: this.serialPort, baudRate: 1200, autoOpen: false });
+            const serialport = new SerialPort({ path: this.getSerialPort(), baudRate: 1200, autoOpen: false });
             serialport.on('open', function () {
                 serialport.close();
             });
@@ -213,6 +213,10 @@ export class Device {
         return this.deviceDescriptor.getAlternativeIDs()?.pids.bootloader || this.deviceDescriptor.getDefaultIDs().pids.bootloader;
     }
 
+    getSerialPort() {
+        return this.serialPort;
+    }
+
     async getMicroPythonVersion() {
         const versionData = await this.sendREPLCommand('import sys; print(sys.implementation.version)\r\n');
         const lines = versionData.trim().split('\r\n');
@@ -234,7 +238,7 @@ export class Device {
             vendorID: this.vendorID,
             productID: this.productID,
             serialNumber: this.serialNumber,
-            serialPort: this.serialPort,
+            serialPort: this.getSerialPort(),
         };
     }
 
