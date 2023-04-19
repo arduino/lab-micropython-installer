@@ -9,6 +9,9 @@ import Flasher from './logic/flasher.js';
 /// An alternative could be to use the device's VID/PID with https://www.npmjs.com/package/usb
 const DEVICE_AWAIT_TIMEOUT = 3000;
 
+/// The amount of time to wait for the softdevice to be relocated to the final location in the flash.
+const SOFTDEVICE_RELOCATE_DURATION = 7000;
+
 async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false){
     if(!selectedDevice.logger){
         selectedDevice.logger = logger;
@@ -53,11 +56,11 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
                     break; // Exit the loop if the device is found.
                 } catch (error) {
                     logger.log(error);
-                    logger.log("🔄 Resetting the board...");
                     try {
-                        flasher.resetBoardWithBossac(targetDevice.serialPort);
+                        logger.log("🔄 Resetting the board...");
+                        await flasher.resetBoardWithBossac(targetDevice.serialPort);
                     } catch (error) {
-                        logger.log(error);
+                        logger.log(`❌ Failed to reset the board: ${error}`);
                     }
                 }
                 if(i === maxTries - 1) throw new Error("❌ Failed to flash SoftDevice.");
@@ -72,13 +75,13 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             // Device enters bootloader automatically after flashing the SoftDevice.
             // Give the bootloader some time to relocate the SoftDevice.
             logger.log("⌛️ Waiting for the device to relocate the SoftDevice...");
-            await deviceManager.wait(7000);
+            await deviceManager.wait(SOFTDEVICE_RELOCATE_DURATION);
             targetDevice = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
             if(!targetDevice){
                 throw new Error("❌ Failed to flash SoftDevice.");
             }
             targetDevice.logger = logger;
-            await targetDevice.flashFirmware(firmwarePath);
+            await targetDevice.flashFirmware(firmwarePath, isMicroPython);
             logger.log('✅ Firmware flashed successfully.');
         } catch (error) {
             logger.log(error);
@@ -87,7 +90,6 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
         }
     } else {
         //TODO pre flash also here
-        await selectedDevice.flashFirmware(firmwarePath);
         await selectedDevice.flashFirmware(firmwarePath, isMicroPython);
         logger.log('✅ Firmware flashed successfully.');
     }    
