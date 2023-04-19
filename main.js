@@ -46,13 +46,16 @@ ipcMain.handle('on-file-selected', async (event, data) => {
     // event.returnValue = `Done`; // Synchronous reply
     return new Promise(async function (resolve, reject) {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
-
-        if (selectedDevice && await flash.flashFirmware(filePath, selectedDevice)) {
-            resolve("🎉 Done! You may need to reboot the device.");
-        } else {
-            // Due to a bug in Electron the error message is reformatted.
-            // Therefore the error message is created in the renderer process
-            // See: https://github.com/electron/electron/issues/24427
+        try {
+            if (selectedDevice && await flash.flashFirmware(filePath, selectedDevice)) {
+                resolve("🎉 Done! You may need to reboot the device.");
+            } else {
+                // Due to a bug in Electron the error message is reformatted.
+                // Therefore the error message is created in the renderer process
+                // See: https://github.com/electron/electron/issues/24427
+                reject("Error");
+            }
+        } catch (error) {
             reject("Error");
         }
     });
@@ -62,13 +65,16 @@ ipcMain.handle('on-install', async (event, data) => {
     const { deviceData, useNightlyBuild } = data;
     return new Promise(async function (resolve, reject) {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
-
-        if (selectedDevice && await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
-            resolve("🎉 Done! You may need to reboot the device.");
-        } else {
-            // Due to a bug in Electron the error message is reformatted.
-            // Therefore the error message is created in the renderer process
-            // See: https://github.com/electron/electron/issues/24427
+        try {
+            if (selectedDevice && await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
+                resolve("🎉 Done! You may need to reboot the device.");
+            } else {
+                // Due to a bug in Electron the error message is reformatted.
+                // Therefore the error message is created in the renderer process
+                // See: https://github.com/electron/electron/issues/24427
+                reject("Error");
+            }
+        } catch (error) {
             reject("Error");
         }
     });
