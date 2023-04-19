@@ -16,7 +16,7 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
     if(!selectedDevice.logger){
         selectedDevice.logger = logger;
     }
-    logger.log('👀 Device detected: ' + selectedDevice.deviceDescriptor.name);
+    logger.log(`👀 Device found: ${selectedDevice.deviceDescriptor.name} at ${selectedDevice.getSerialPort()}`);
     
     if(selectedDevice.runsMicroPython()) {
         let version = await selectedDevice.getMicroPythonVersion();
@@ -44,7 +44,7 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             logger.log(`👍 Device is now in bootloader mode.`);
             const flasher = new Flasher();
             logger.log("🔥 Flashing SoftDevice updater...");
-            await flasher.runBossac('/Users/sebastianhunkeler/Repositories/sebromero/upython-flasher/firmware-flash/bin/firmware/SoftDeviceUpdater.bin', targetDevice.serialPort);
+            await flasher.runBossac('/Users/sebastianhunkeler/Repositories/sebromero/upython-flasher/firmware-flash/bin/firmware/SoftDeviceUpdater.bin', targetDevice.getSerialPort());
             logger.log("🏃 Waiting for device to run sketch...");
             
             //TODO: Get Arduino PID for the case that we started in bootloader
@@ -58,9 +58,10 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
                     logger.log(error);
                     try {
                         logger.log("🔄 Resetting the board...");
-                        await flasher.resetBoardWithBossac(targetDevice.serialPort);
+                        await flasher.resetBoardWithBossac(targetDevice.getSerialPort());
                     } catch (error) {
-                        logger.log(`❌ Failed to reset the board: ${error}`);
+                        logger.log(`❌ Failed to reset the board.`);
+                        console.log(error);
                     }
                 }
                 if(i === maxTries - 1) throw new Error("❌ Failed to flash SoftDevice.");
