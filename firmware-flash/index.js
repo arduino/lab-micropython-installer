@@ -81,7 +81,6 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             return false;
         }
     } else {
-        //TODO pre flash also here
         await selectedDevice.flashFirmware(firmwarePath, isMicroPython);
         logger.log('✅ Firmware flashed successfully.');
     }    

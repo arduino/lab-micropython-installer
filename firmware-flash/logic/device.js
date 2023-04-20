@@ -86,12 +86,12 @@ export class Device {
     }
 
     async flashFirmware(firmwareFile, isMicroPython = false) {
-        if(this.deviceDescriptor.onPreFlashFirmware){
-            this.logger?.log(`🔥 Running pre-flash step ...`);
-            await this.deviceDescriptor.onPreFlashFirmware(this);
+        if(this.deviceDescriptor.onFlashMicroPythonFirmware){
+            this.logger?.log(`🔥 Flashing MicroPython firmware ...`);
+            return await this.deviceDescriptor.onFlashMicroPythonFirmware(this);
         };
         this.logger?.log(`🔥 Flashing firmware '${path.basename(firmwareFile)}' ...`);
-        return this.deviceDescriptor.onFlashFirmware(firmwareFile, this, isMicroPython);
+        return await this.deviceDescriptor.onFlashFirmware(firmwareFile, this, isMicroPython);
     }
 
     async sendREPLCommand(command, awaitResponse = true) {
