@@ -76,6 +76,13 @@ class DeviceManager {
         }
     }
   
+    /**
+     * Returns a device descriptor for the specified vendorID and productID.
+     * Using this descriptor connected devices can be identified.
+     * @param {Number} vendorID 
+     * @param {Number} productID 
+     * @returns {DeviceDescriptor} The device descriptor or null if no descriptor was found.
+     */
     getDeviceDescriptor(vendorID, productID) {
         const descriptor = this.deviceDescriptors.find(
                 desc => desc.getDefaultIDs().vid === vendorID && desc.getDefaultProductIDList().includes(productID)

@@ -260,6 +260,14 @@ export class Device {
         return this.deviceDescriptor.getAlternativeIDs()?.pids.bootloader || this.deviceDescriptor.getDefaultIDs().pids.bootloader;
     }
 
+    getDefaultVID(){
+        return this.deviceDescriptor.getDefaultIDs().vid;
+    }
+
+    getDefaultArduinoPID(){
+        return this.deviceDescriptor.getDefaultIDs().pids.arduino;
+    }
+
     getSerialPort() {
         return this.serialPort;
     }

@@ -50,13 +50,14 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             await flasher.runBossac('/Users/sebastianhunkeler/Repositories/sebromero/upython-flasher/firmware-flash/bin/firmware/SoftDeviceUpdater.bin', deviceInBootloaderMode.getSerialPort());
             logger.log("🏃 Waiting for device to run sketch...");
             
-            //TODO: Get Arduino PID for the case that we started in bootloader
             // Try to wait for the device 10 times then give up.
             const maxTries = 10;
             for(let i = 0; i < maxTries; i++){
                 try {
                     // Refreshing the variable in case the serial port has changed.
-                    selectedDevice = await deviceManager.waitForDevice(selectedDevice.vendorID, selectedDevice.productID, 5000);
+                    // Using the default VID/PID to detect the device in Arduino mode.
+                    // If we started in MicroPython or bootloader mode the VID/PID will be different.
+                    selectedDevice = await deviceManager.waitForDevice(selectedDevice.getDefaultVID(), selectedDevice.getDefaultArduinoPID(), 5000);
                     selectedDevice.logger = logger;
                     break; // Exit the loop if the device is found.
                 } catch (error) {
