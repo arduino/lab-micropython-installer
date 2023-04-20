@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+import Logger from './logger.js';
 
 export class Device {
     constructor(vendorID, productID, deviceDescriptor, serialPort = null, serialNumber = null) {
@@ -92,10 +93,8 @@ export class Device {
         return this.deviceDescriptor.onFlashFirmware(firmwareFile, this, isMicroPython);
     }
 
-    async sendREPLCommand(command, awaitResponse = true, debug = false) {
-        if(debug){
-            this.logger?.log(`📤 Sending REPL command: ${command}`);
-        }
+    async sendREPLCommand(command, awaitResponse = true) {
+        this.logger?.log(`📤 Sending REPL command: ${command}`, Logger.LOG_LEVEL.DEBUG);
         
         return new Promise((resolve, reject) => {
             let responseData = "";
@@ -125,7 +124,6 @@ export class Device {
             });
     
             // Read response
-            // TODO: Use https://serialport.io/docs/api-parser-readline instead
             serialport.on('data', function (data) {
                 responseData += data.toString();
                 let lines = responseData.split('\r\n');
@@ -133,9 +131,7 @@ export class Device {
                 
                 if(lastLine === ">>> ") {
                     serialport.close();
-                    if(debug){
-                        this.logger?.log(`📥 Received REPL response: ${responseData}`);
-                    }
+                    this.logger?.log(`📥 Received REPL response: ${responseData}`, Logger.LOG_LEVEL.DEBUG);
                     resolve(responseData);
                 }
             });
@@ -144,22 +140,33 @@ export class Device {
 
     // Function to read one byte from the serial port.
     // Returns a promise that resolves to the byte read as a Buffer.
-    async readBytesFromSerialPort(baudRate = 115200, bytes = 1) {
+    async readBytesFromSerialPort(baudRate = 115200, bytes = 1, timeout = 20000) {
         return new Promise((resolve, reject) => {
             const serialport = new SerialPort({ path: this.serialPort, baudRate: baudRate, autoOpen : false } );
             const parser = serialport.pipe(new ByteLengthParser({
                 length: bytes
             }));
+            
             parser.on('data', function (data) {
+                this.logger?.log('📥 Received data: ' + data.toString('hex'), Logger.LOG_LEVEL.DEBUG);
+                clearTimeout(timeoutID);
                 serialport.close();
                 resolve(data);
             });
+
             serialport.open(function (err) {
                 if (err) {
-                    this.logger?.log('❌ Error opening port: ', err.message)
+                    this.logger?.log('❌ Error opening port: ' + err.message)
                     reject(err);
                 }
             });
+           
+            const timeoutID = setTimeout(() => {
+                if(serialport.isOpen){
+                    serialport.close();
+                }
+                reject("❌ Timeout while reading from serial port.");
+            }, timeout);
         });
     };
 
@@ -174,11 +181,12 @@ export class Device {
                 }
             });
             serialport.write(byte, function (err) {
+                serialport.close();
+
                 if (err) {
                     this.logger?.log('❌ Error on write: ', err.message)
                     reject(err);
                 }
-                serialport.close();
                 resolve();
             });
         });
