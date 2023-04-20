@@ -95,6 +95,9 @@ const arduinoNano33BLEUPythonOffset = "0x16000";
 // const arduinoNano33BLEMinimumBootloaderVersion = 3;
 
 const arduinoNano33BLEDescriptor = new DeviceDescriptor(arduinoNano33BLEIdentifiers, 'Nano 33 BLE', 'Arduino', 'arduino_nano_33_ble_sense', 'bin');
+arduinoNano33BLEDescriptor.onReset = async (device) => {
+    await flasher.resetBoardWithBossac(device.getSerialPort());
+};
 arduinoNano33BLEDescriptor.onPreFlashFirmware = async (device) => {
     /* For now we require the user to flash the softdevice manually.
     const bootloaderVersion = await flasher.getBootloaderVersionWithBossac(device.getSerialPort());

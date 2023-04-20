@@ -211,6 +211,19 @@ export class Device {
         }
     }
 
+    async reset() {
+        if(!this.runsBootloader()) {
+            this.logger?.log(`❌ Can't reset device. It is not in bootloader mode.`, Logger.LOG_LEVEL.ERROR);
+            return;
+        }
+
+        this.logger?.log(`🔄 Resetting device ...`);
+        if(this.deviceDescriptor.onReset){
+            await this.deviceDescriptor.onReset(this);
+        }
+    }
+        
+
     runsMicroPython() {
         const upythonID = this.deviceDescriptor.getDefaultIDs().pids.upython;
         const upythonIDAlt = this.deviceDescriptor.getAlternativeIDs()?.pids.upython;

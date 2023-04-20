@@ -62,8 +62,7 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
                 } catch (error) {
                     logger.log(error);
                     try {
-                        logger.log("🔄 Resetting the board...");
-                        await flasher.resetBoardWithBossac(deviceInBootloaderMode.getSerialPort());
+                        await deviceInBootloaderMode.reset();
                     } catch (error) {
                         logger.log(`❌ Failed to reset the board.`);
                         logger.log(error, Logger.LOG_LEVEL.DEBUG);
