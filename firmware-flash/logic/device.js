@@ -80,7 +80,7 @@ export class Device {
     async downloadMicroPythonFirmware(useNightlyBuild = false) {
         const firmwareUrl = await this.getUPythonFirmwareUrl(useNightlyBuild);
         if (!firmwareUrl) {
-            this.logger?.log("❌ No firmware found.");
+            this.logger?.log("❌ No firmware found.", Logger.LOG_LEVEL.ERROR);
             return null;
         }
         return await this.downloadFirmware(firmwareUrl);
