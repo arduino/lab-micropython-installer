@@ -1,7 +1,7 @@
-import DeviceManager from './logic/DeviceManager.js';
+import DeviceManager from './logic/deviceManager.js';
 import descriptors from './logic/descriptors.js';
-import Device from './logic/Device.js';
-import Logger from './logic/Logger.js';
+import Device from './logic/device.js';
+import Logger from './logic/logger.js';
 import Flasher from './logic/flasher.js';
 
 /// The amount of time to wait for the device to become available in bootloader mode.
@@ -46,37 +46,19 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             deviceInBootloaderMode.logger = logger;
             logger.log(`👍 Device is now in bootloader mode.`);
             const flasher = new Flasher();
+
+
             logger.log("🔥 Flashing SoftDevice updater...");
             await flasher.runBossac('/Users/sebastianhunkeler/Repositories/sebromero/upython-flasher/firmware-flash/bin/firmware/SoftDeviceUpdater.bin', deviceInBootloaderMode.getSerialPort());
             logger.log("🏃 Waiting for device to run sketch...");
-            
-            // Try to wait for the device 10 times then give up.
-            const maxTries = 10;
-            for(let i = 0; i < maxTries; i++){
-                try {
-                    // Refreshing the variable in case the serial port has changed.
-                    // Using the default VID/PID to detect the device in Arduino mode.
-                    // If we started in MicroPython or bootloader mode the VID/PID will be different.
-                    selectedDevice = await deviceManager.waitForDevice(selectedDevice.getDefaultVID(), selectedDevice.getDefaultArduinoPID(), 5000);
-                    selectedDevice.logger = logger;
-                    break; // Exit the loop if the device is found.
-                } catch (error) {
-                    logger.log(error);
-                    try {
-                        await deviceInBootloaderMode.reset();
-                    } catch (error) {
-                        logger.log(`❌ Failed to reset the board.`);
-                        logger.log(error, Logger.LOG_LEVEL.DEBUG);
-                    }
-                }
-                if(i === maxTries - 1) throw new Error("❌ Failed to flash SoftDevice.");
-            }
+            let deviceInArduinoMode = await deviceManager.waitForDeviceToEnterArduinoMode(deviceInBootloaderMode, 10, 5000);
+            deviceInArduinoMode.logger = logger;
 
             logger.log("🪄 Sending magic number to device...");
             // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
-            await selectedDevice.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
+            await deviceInArduinoMode.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
             logger.log("⌛️ Waiting for device to flash SoftDevice...");
-            const data = await selectedDevice.readBytesFromSerialPort(1); // Wait for the device to finish flashing the bootloader / softdevice.
+            const data = await deviceInArduinoMode.readBytesFromSerialPort(1); // Wait for the device to finish flashing the bootloader / softdevice.
             const magicNumber = data.readUint8();
             if(magicNumber != SOFT_DEVICE_MAGIC_NUMBER) throw new Error("❌ Failed to flash SoftDevice.");
             
@@ -84,11 +66,13 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             // Give the bootloader some time to relocate the SoftDevice.
             logger.log("⌛️ Waiting for the device to relocate the SoftDevice...");
             await deviceManager.wait(SOFTDEVICE_RELOCATE_DURATION);
-            deviceInBootloaderMode = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
+            deviceInBootloaderMode = await deviceManager.waitForDevice(deviceInArduinoMode.getBootloaderVID(), selectedDevice.getBootloaderPID());
             if(!deviceInBootloaderMode){
                 throw new Error("❌ Failed to flash SoftDevice.");
             }
             deviceInBootloaderMode.logger = logger;
+
+
             await deviceInBootloaderMode.flashFirmware(firmwarePath, isMicroPython);
             logger.log('✅ Firmware flashed successfully.');
         } catch (error) {
@@ -129,6 +113,7 @@ async function getFirstFoundDevice(){
 
 const logger = new Logger();
 const deviceManager = new DeviceManager();
+deviceManager.logger = logger;
     
 for (const descriptor of descriptors) {
     deviceManager.addDeviceDescriptor(descriptor);

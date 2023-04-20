@@ -1,10 +1,12 @@
 import { SerialPort } from 'serialport'
-import Device from './Device.js';
+import Device from './device.js';
+import Logger from './logger.js';
 
 class DeviceManager {
     constructor() {
       this.devices = null;
       this.deviceDescriptors = [];
+      this.logger = null;
     }
 
     addDeviceDescriptor(deviceDescriptor) {
@@ -30,6 +32,39 @@ class DeviceManager {
     // Function to wait for the specified number of milliseconds.
     wait(ms) {        
         return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async waitForDeviceToEnterArduinoMode(deviceInBootloaderMode, maxTries = 5, timeout = 10000, refreshInterval = 1000) {
+        return new Promise(async (resolve, reject) => {
+            if(!deviceInBootloaderMode.runsBootloader()) {
+                reject("❌ The device is not in bootloader mode.");
+                return;
+            }
+
+            // Wait for the device given times then give up.
+            for(let i = 0; i < maxTries; ++i){
+                try {
+                    // Using the default VID/PID to detect the device in Arduino mode.
+                    // If we started in MicroPython or bootloader mode the VID/PID will be different.
+                    let deviceInArduinoMode = await this.waitForDevice(deviceInBootloaderMode.getDefaultVID(), deviceInBootloaderMode.getDefaultArduinoPID(), timeout, refreshInterval);
+                    resolve(deviceInArduinoMode);
+                    return;
+                } catch (error) {
+                    this.logger?.log(error);
+                    try {
+                        await deviceInBootloaderMode.reset();
+                    } catch (error) {
+                        this.logger?.log(`❌ Failed to reset the board.`, Logger.LOG_LEVEL.ERROR);
+                        this.logger?.log(error, Logger.LOG_LEVEL.DEBUG);
+                    }
+                }
+
+                if(i === maxTries - 1) {
+                    reject("❌ Failed to flash SoftDevice.");
+                    return;
+                }
+            }
+        });
     }
 
     // Wait for a USB device to become available.

@@ -13,6 +13,7 @@ export class Device {
         this.deviceDescriptor = deviceDescriptor;
         this.serialNumber = serialNumber;
         this.serialPort = serialPort;
+        this.logger = null;
     }
 
     async getUPythonFirmwareUrl(useNightlyBuild = false) {
