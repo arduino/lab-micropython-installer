@@ -41,6 +41,8 @@
 #include "nrf_nvmc.h"
 #include "SoftDevice.h"
 
+
+
 #define SOFTDEVICE_ADDR       (0xA0000)
 #define SOFTDEVICE_INFO_ADDR  (0xFF000)
 #define MBR_ADDR              (0x0)
@@ -52,38 +54,59 @@ const unsigned int magic = 0x5f27a93d;
 
 mbed::FlashIAP flash;
 
-void blinkLed(int blinkCount, int interval) {
-  for(int i = 0; i < blinkCount; i++) {
-    digitalWrite(LED_BUILTIN, HIGH); // turn on the LED
-    delay(interval); // wait for half a second
-    digitalWrite(LED_BUILTIN, LOW); // turn off the LED
-    delay(interval); // wait for half a second
-  }
-}
+
 
 bool hasLatestBootloader(){
   //Check if the CRC32 of the flashed bootloader
-  //matches the CRC32 of the provided bootloader binary
-  return getCurrentBootloaderCrc() == getTargetBootloaderCrc();
+  //matches the CRC32 of the provided bootloader binary  
+  uint32_t currentBootloaderCRC = getBootloaderCrcFromMemory(nano33_bootloader_hex, BOOTLOADER_SIZE);
+  // Serial.print("Current bootloader 32bit CRC is: ");
+  // Serial.println(currentBootloaderCRC, HEX);
+
+  uint32_t targetBootloaderCRC = getCrcFromFlash(BOOTLOADER_ADDR, BOOTLOADER_SIZE);
+  // Serial.print("Target bootloader 32bit CRC is: ");
+  // Serial.println(targetBootloaderCRC, HEX);
+  
+  return currentBootloaderCRC == targetBootloaderCRC;
 }
 
-bool getUserConfirmation(){
-  while (true){
-    if (Serial.available()){
-      char choice = Serial.read();
-      switch (choice){
-        case 'y':
-        case 'Y':        
-          return true;
-        case 'n':
-        case 'N':
-          return false;
-        default:
-          continue;
-      }
-    }
+void readBytesFromFlash(int address, int amountOfBytes = 10){
+  // Serial.print("Reading at ");
+  // Serial.println(address, HEX);
+  uint8_t data = 0;
+  uint8_t dataSize = sizeof(data);
+  int currentAddress = address;
+  
+  for (int i=0; i<amountOfBytes; i++) {
+    //Read 8 bit from flash
+    flash.read(&data, currentAddress, dataSize);
+    // Serial.print("0x");
+    // Serial.print(data, HEX);
+    // Serial.print(" ");
+    currentAddress += dataSize;
   }
+  // Serial.println("");
 }
+
+bool hasSoftDevice(){
+  return false;
+
+  // TODO doesn't seem to work for now
+  uint32_t currentSoftDeviceCRC = getCrcFromFlash(0x1000, Softdevice_bin_len);
+  // Serial.print("Current SoftDevice 32bit CRC is: ");
+  // Serial.println(currentSoftDeviceCRC, HEX);
+  
+  uint32_t targetSoftDeviceCRC = getCrcFromMemory(Softdevice_bin, Softdevice_bin_len);
+  // Serial.print("Target SoftDevice 32bit CRC is: ");
+  // Serial.println(targetSoftDeviceCRC, HEX);
+
+  readBytesFromFlash(0xA0000);
+  readBytesFromFlash(0x1000);
+  readBytesFromFlash(0x10000);
+  readBytesFromFlash(0x26000);
+  return true;  
+}
+
 
 void applyUpdate(uint32_t address, const unsigned char payload[], long len, uint32_t bin_pointer = 0) {
   uint32_t flash_pointer = 0;
@@ -111,99 +134,108 @@ void applyUpdate(uint32_t address, const unsigned char payload[], long len, uint
 
     // Program page
     flash.program(&payload[bin_pointer], addr + flash_pointer, sector_size);
-    Serial.print("Flash Address = ");
-    Serial.println(addr + flash_pointer, HEX);
+    // Serial.print("Flash Address = ");
+    // Serial.println(addr + flash_pointer, HEX);
     
     bin_pointer = bin_pointer + sector_size;
     flash_pointer = flash_pointer + sector_size;
 
     uint32_t percent_done = flash_pointer * 100 / len;
-    Serial.println("Flashed " + String(percent_done) + "%");
+    // Serial.println("Flashed " + String(percent_done) + "%");
   }
-  Serial.println();
+  // Serial.println("");
 
   delete[] page_buffer;
 }
 
 void updateBootloader(){
-  Serial.println("This sketch modifies the Nano33 bootloader to support Soft Devices.");
-  Serial.println();
+  // Serial.println("This sketch modifies the Nano33 bootloader to support Soft Devices.");
+  // Serial.println("");
   
   flash.init();
   
-  Serial.println("Flashing MBR...");
+  // Serial.println("Flashing MBR...");
   applyUpdate(MBR_ADDR, MBR_bin, MBR_bin_len);
 
-  Serial.println("Flashing bootloader...");
+  // Serial.println("Flashing bootloader...");
   applyUpdate(BOOTLOADER_ADDR, nano33_bootloader_hex, nano33_bootloader_hex_len);
-
-  Serial.print("Bootloader 32bit CRC is: ");
-  uint32_t crc32 = getTargetBootloaderCrc();
-  Serial.println(crc32, HEX);
   
-  Serial.println("Writing in UICR memory the address of the new bootloader...");
+  // Serial.println("Writing in UICR memory the address of the new bootloader...");
   nrf_nvmc_write_word(UICR_BOOT_ADDR, BOOTLOADER_ADDR);
   
   flash.deinit();
 
-  Serial.println();
-  Serial.println("Bootloader update successfully completed!\n");
+  // Serial.println("");
+  // Serial.println("Bootloader update successfully completed! Rebooting...\n");  
 }
 
 void updateSoftDevice(){
   flash.init();
 
-  Serial.println("Storing SoftDevice length info at 0xFF000...");
+  // Serial.println("Storing SoftDevice length info at 0xFF000...");
   writeSoftDeviceLen(SOFTDEVICE_INFO_ADDR);
   
-  Serial.println("Flashing SoftDevice...");
+  // Serial.println("Flashing SoftDevice...");
   applyUpdate(SOFTDEVICE_ADDR, Softdevice_bin, Softdevice_bin_len - 4096, 4096);
 
   flash.deinit();
 
-  Serial.println();
-  Serial.println("SoftDevice update complete! The board is restarting...");
-  //NVIC_SystemReset();
+  // Serial.println("");
+  // Serial.println("SoftDevice update complete! The board is restarting...");  
 }
 
 void setup() {  
   Serial.begin(115200);
-  //while (!Serial) {}
+  while (!Serial) {}
+  pinMode(LED_BUILTIN, OUTPUT);
+
+  // Read from the serial port and only continue if the magic number 1 is received
+  while(Serial.read() != 1){
+    delay(100);
+  }
 
   if(!hasLatestBootloader()){
-    Serial.println("Your bootloader version is outdated (update required for Soft Device support).");
-    Serial.println("Would you like to update it? Y/N");
-    
-    if(getUserConfirmation()){
-      updateBootloader();
-    }
+    digitalWrite(LED_BUILTIN, HIGH);
+    //// Serial.println("Your bootloader version is outdated (update required for Soft Device support).");
+    //// Serial.println("Updating bootloader...");
+    updateBootloader();
+    digitalWrite(LED_BUILTIN, LOW);
+    NVIC_SystemReset();
+    return;
   }
   
-  if(hasLatestBootloader()){
-    Serial.println("Would you like to install the Soft Device (required for OpenMV)? Y/N");
-    //if(getUserConfirmation()){
-    blinkLed(10, 100);
-      updateSoftDevice();
-      blinkLed(100, 500);
-    //}
+  if(!hasSoftDevice()){
+    digitalWrite(LED_BUILTIN, HIGH);
+    // Serial.println("Installing softdevice...");
+    updateSoftDevice();      
+    Serial.write(1);
+    delay(200);
+    Serial.write(1);
+    delay(200);
+    Serial.write(1);
+    Serial.end();
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(500);       
+    NVIC_SystemReset();    
+    return;
   }
 
-  Serial.println("Done. You may now disconnect the board.");
+  Serial.write(1);
 }
 
-uint32_t getTargetBootloaderCrc() {
+uint32_t getBootloaderCrcFromMemory(const unsigned char address[], uint16_t totalSize) {
   uint32_t mask = 0;
   uint32_t crc = 0xFFFFFFFF;
   uint32_t b = 0;
   uint8_t bootByte = 0;
 
-  int iterations = BOOTLOADER_SIZE;
+  int iterations = totalSize;
 
   for (int i=0; i<iterations; i=i+4) {
     b = 0;
     for (int j=0; j<4; j++) {
       mask = 0;
-      bootByte = nano33_bootloader_hex[i+j];
+      bootByte = address[i+j];
       mask = mask + (uint32_t)bootByte;
       mask = mask << 8*j;
       b = b | mask;
@@ -213,22 +245,45 @@ uint32_t getTargetBootloaderCrc() {
   return crc;
 }
 
-uint32_t getCurrentBootloaderCrc() {
-  uint32_t b = 0;
+uint32_t getCrcFromMemory(const unsigned char address[], uint16_t totalSize) {
+  uint32_t data = 0;
+  uint8_t dataSize = sizeof(data);  
+  uint32_t crc = 0xFFFFFFFF;  
+
+  for (size_t i = 0; i < totalSize; i += dataSize) {
+      if (totalSize - i >= dataSize) {
+          data =  (uint32_t) address[i]     << 24 |
+                  (uint32_t) address[i + 1] << 16 |
+                  (uint32_t) address[i + 2] << 8  |
+                  (uint32_t) address[i + 3];          
+          //Update crc
+        crc = crc ^ data;
+      } else {
+          // Serial.println("Less than 4 bytes remaining, not enough to read into a uint32_t\n");
+      }
+  }
+  
+  return crc;
+}
+
+uint32_t getCrcFromFlash(int address, uint16_t totalSize) {
+  uint32_t data = 0;
+  uint8_t dataSize = sizeof(data);
+  
   uint32_t crc = 0xFFFFFFFF;
-
-  int iterations = ceil(BOOTLOADER_SIZE/4);
-
-  int addr = BOOTLOADER_ADDR;
+  int currentAddress = address;
+  int iterations = ceil(totalSize / dataSize);
 
   for (int i=0; i<iterations; i++) {
     //Read 32 bit from flash
-    flash.read(&b, addr, sizeof(b));
-    //Serial.println(b, HEX);
+    flash.read(&data, currentAddress, dataSize);
+    //// Serial.println(b, HEX);
+    
     //Update crc
-    crc = crc ^ b;
-    //Update pointer 
-    addr = addr + 4;
+    crc = crc ^ data;
+    
+    //Move address pointer to read next 4 bytes
+    currentAddress += dataSize;
   }
   return crc;
 }
@@ -246,5 +301,5 @@ void writeSoftDeviceLen(uint32_t address) {
 }
 
 void loop() {
-  delay(1000);
+  delay(10);
 }
