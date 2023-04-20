@@ -14,6 +14,7 @@ export class Device {
         this.serialNumber = serialNumber;
         this.serialPort = serialPort;
         this.logger = null;
+        this.deviceManager = null;
     }
 
     async getUPythonFirmwareUrl(useNightlyBuild = false) {
@@ -86,10 +87,6 @@ export class Device {
     }
 
     async flashFirmware(firmwareFile, isMicroPython = false) {
-        if(this.deviceDescriptor.onFlashMicroPythonFirmware){
-            this.logger?.log(`🔥 Flashing MicroPython firmware ...`);
-            return await this.deviceDescriptor.onFlashMicroPythonFirmware(this);
-        };
         this.logger?.log(`🔥 Flashing firmware '${path.basename(firmwareFile)}' ...`);
         return await this.deviceDescriptor.onFlashFirmware(firmwareFile, this, isMicroPython);
     }
@@ -271,6 +268,10 @@ export class Device {
 
     getSerialPort() {
         return this.serialPort;
+    }
+
+    getDeviceManager() {
+        return this.deviceManager;
     }
 
     async getMicroPythonVersion() {

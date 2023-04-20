@@ -1,19 +1,12 @@
 import DeviceManager from './logic/deviceManager.js';
 import descriptors from './logic/descriptors.js';
-import Device from './logic/device.js';
 import Logger from './logic/logger.js';
-import Flasher from './logic/flasher.js';
+import Device from './logic/device.js';
 
 /// The amount of time to wait for the device to become available in bootloader mode.
 /// This is only used for devices that can't be detected in bootloader mode through their serial port.
 /// An alternative could be to use the device's VID/PID with https://www.npmjs.com/package/usb
 const DEVICE_AWAIT_TIMEOUT = 3000;
-
-/// The amount of time to wait for the softdevice to be relocated to the final location in the flash.
-const SOFTDEVICE_RELOCATE_DURATION = 7000;
-
-/// The magic number sent by the device to indicate that the softdevice has been flashed.
-const SOFT_DEVICE_MAGIC_NUMBER = 1;
 
 async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false){
     if(!selectedDevice.logger){
@@ -25,66 +18,40 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
         let version = await selectedDevice.getMicroPythonVersion();
         logger.log(`🐍 Device is running MicroPython version: ${version}`);
     }
-    
-    if(!selectedDevice.runsBootloader()) {
-        await selectedDevice.enterBootloader();
-        try {
-            let deviceInBootloaderMode;
-    
-            // Some devices can't be detected in bootloader mode through their serial port.
-            // In this case, we wait a few seconds and then try to flash the device.
-            // An alternative could be to use the device's VID/PID with https://www.npmjs.com/package/usb
-            // or to use the device's mass storage volume with https://www.npmjs.com/package/drivelist
-            if(selectedDevice.deviceDescriptor.skipWaitForDevice) {
-                deviceInBootloaderMode = new Device(selectedDevice.getBootloaderVID(),selectedDevice.getBootloaderPID(), selectedDevice.deviceDescriptor);
-                logger.log(`⌛️ Waiting ${DEVICE_AWAIT_TIMEOUT}ms for the device to become available...`);
-                await deviceManager.wait(DEVICE_AWAIT_TIMEOUT);
-            } else {
-                logger.log("⌛️ Waiting for bootloader to become available...");
-                deviceInBootloaderMode = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
-            }
-            deviceInBootloaderMode.logger = logger;
-            logger.log(`👍 Device is now in bootloader mode.`);
-            const flasher = new Flasher();
 
-
-            logger.log("🔥 Flashing SoftDevice updater...");
-            await flasher.runBossac('/Users/sebastianhunkeler/Repositories/sebromero/upython-flasher/firmware-flash/bin/firmware/SoftDeviceUpdater.bin', deviceInBootloaderMode.getSerialPort());
-            logger.log("🏃 Waiting for device to run sketch...");
-            let deviceInArduinoMode = await deviceManager.waitForDeviceToEnterArduinoMode(deviceInBootloaderMode, 10, 5000);
-            deviceInArduinoMode.logger = logger;
-
-            logger.log("🪄 Sending magic number to device...");
-            // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
-            await deviceInArduinoMode.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
-            logger.log("⌛️ Waiting for device to flash SoftDevice...");
-            const data = await deviceInArduinoMode.readBytesFromSerialPort(1); // Wait for the device to finish flashing the bootloader / softdevice.
-            const magicNumber = data.readUint8();
-            if(magicNumber != SOFT_DEVICE_MAGIC_NUMBER) throw new Error("❌ Failed to flash SoftDevice.");
-            
-            // Device enters bootloader automatically after flashing the SoftDevice.
-            // Give the bootloader some time to relocate the SoftDevice.
-            logger.log("⌛️ Waiting for the device to relocate the SoftDevice...");
-            await deviceManager.wait(SOFTDEVICE_RELOCATE_DURATION);
-            deviceInBootloaderMode = await deviceManager.waitForDevice(deviceInArduinoMode.getBootloaderVID(), selectedDevice.getBootloaderPID());
-            if(!deviceInBootloaderMode){
-                throw new Error("❌ Failed to flash SoftDevice.");
-            }
-            deviceInBootloaderMode.logger = logger;
-
-
-            await deviceInBootloaderMode.flashFirmware(firmwarePath, isMicroPython);
-            logger.log('✅ Firmware flashed successfully.');
-        } catch (error) {
-            logger.log(error);
-            logger.log('❌ Put the device in bootloader mode manually and try again.');
-            return false;
-        }
-    } else {
+    if(selectedDevice.runsBootloader()) {
         await selectedDevice.flashFirmware(firmwarePath, isMicroPython);
         logger.log('✅ Firmware flashed successfully.');
-    }    
-    return true;
+        return true;
+    }
+
+    try {
+        await selectedDevice.enterBootloader();
+        let deviceInBootloaderMode;
+
+        // Some devices can't be detected in bootloader mode through their serial port.
+        // In this case, we wait a few seconds and then try to flash the device.
+        // An alternative could be to use the device's VID/PID with https://www.npmjs.com/package/usb
+        // or to use the device's mass storage volume with https://www.npmjs.com/package/drivelist
+        if(selectedDevice.deviceDescriptor.skipWaitForDevice) {
+            deviceInBootloaderMode = deviceManager.createDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID(), selectedDevice.deviceDescriptor);
+            logger.log(`⌛️ Waiting ${DEVICE_AWAIT_TIMEOUT}ms for the device to become available...`);
+            await deviceManager.wait(DEVICE_AWAIT_TIMEOUT);
+        } else {
+            logger.log("⌛️ Waiting for bootloader to become available...");
+            deviceInBootloaderMode = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
+        }
+        deviceInBootloaderMode.logger = logger;
+        logger.log(`👍 Device is now in bootloader mode.`);
+
+        await deviceInBootloaderMode.flashFirmware(firmwarePath, isMicroPython);
+        logger.log('✅ Firmware flashed successfully.');
+        return true;
+    } catch (error) {
+        logger.log(error);
+        logger.log('❌ Put the device in bootloader mode manually and try again.');
+        return false;
+    }        
 }
 
 async function flashMicroPythonFirmware(selectedDevice, useNightlyBuild = false){

@@ -1,12 +1,17 @@
 import DeviceDescriptor from './DeviceDescriptor.js';
 import Flasher from './flasher.js';
+import DeviceManager from './deviceManager.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+/// The amount of time to wait for the softdevice to be relocated to the final location in the flash.
+const SOFTDEVICE_RELOCATE_DURATION = 7000;
+
+/// The magic number sent by the device to indicate that the softdevice has been flashed.
+const SOFT_DEVICE_MAGIC_NUMBER = 1;
+
 const flasher = new Flasher();
 
-// Get from https://www.nordicsemi.com/Products/Development-software/nRF5-SDK/Download
-// const softDeviceFirmwareFilename = "s140_nrf52_7.2.0_softdevice.bin";
 const softDeviceFirmwareFilename = "SoftDeviceUpdater.bin";
 const __filename = fileURLToPath(import.meta.url);
 
@@ -98,34 +103,48 @@ const arduinoNano33BLEDescriptor = new DeviceDescriptor(arduinoNano33BLEIdentifi
 arduinoNano33BLEDescriptor.onReset = async (device) => {
     await flasher.resetBoardWithBossac(device.getSerialPort());
 };
-arduinoNano33BLEDescriptor.onPreFlashFirmware = async (device) => {
-    /* For now we require the user to flash the softdevice manually.
-    const bootloaderVersion = await flasher.getBootloaderVersionWithBossac(device.getSerialPort());
-    const majorVersion = parseInt(bootloaderVersion.split(".")[0]);
-    // console.log("👢 Bootloader version: " + bootloaderVersion);
-    
-    if(majorVersion < arduinoNano33BLEMinimumBootloaderVersion){
-        throw new Error("Bootloader version is too old. Please update it to version 3.0 or higher.");
-    }
 
-    // Don't reset the device after flashing the softdevice so that we can flash the upython firmware directly afterwards.
-    await flasher.runBossac(getSoftDevicePath(), device.getSerialPort(), arduinoNano33BLESoftDeviceOffset, false);
-    */
-//    console.log("Flashing updater");
-//    //await flasher.runBossac(getSoftDevicePath(), device.serialPort);
-//    console.log("Writing to serial port");
-//    // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
-   
-//    await device.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
-//    const data = await device.readFromSerialPort(); // Wait for the device to finish flashing the bootloader / softdevice.
-//    console.log("Data: " + data);
-//    if(data != 1) throw new Error("Failed to flash bootloader / softdevice.");
-};
 arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     if(isMicroPython){
-        await flasher.runBossac(firmware,device.getSerialPort(), arduinoNano33BLEUPythonOffset);
+        /*
+        const bootloaderVersion = await flasher.getBootloaderVersionWithBossac(device.serialPort);
+        const majorVersion = parseInt(bootloaderVersion.split(".")[0]);
+        console.log("👢 Bootloader version: " + bootloaderVersion);
+        
+        if(majorVersion < arduinoNano33BLEMinimumBootloaderVersion){
+            throw new Error("Bootloader version is too old. Please update it to version 3.0 or higher.");
+        }
+        */
+        const logger = device.logger;
+        const deviceManager = device.getDeviceManager();
+    
+        logger.log("🔥 Flashing SoftDevice updater...");
+        await flasher.runBossac(getSoftDevicePath(), device.getSerialPort());
+        logger.log("🏃 Waiting for device to run sketch...");
+        let deviceInArduinoMode = await deviceManager.waitForDeviceToEnterArduinoMode(device, 10);
+        deviceInArduinoMode.logger = logger;
+    
+        logger.log("🪄 Sending magic number to device...");
+        // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
+        await deviceInArduinoMode.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
+        logger.log("⌛️ Waiting for device to flash SoftDevice...");
+        const data = await deviceInArduinoMode.readBytesFromSerialPort(1); // Wait for the device to finish flashing the bootloader / softdevice.
+        const magicNumber = data.readUint8();
+        if(magicNumber != SOFT_DEVICE_MAGIC_NUMBER) throw new Error("❌ Failed to flash SoftDevice.");
+        
+        // Device enters bootloader automatically after flashing the SoftDevice.
+        // Give the bootloader some time to relocate the SoftDevice.
+        logger.log("⌛️ Waiting for the device to relocate the SoftDevice...");
+        await deviceManager.wait(SOFTDEVICE_RELOCATE_DURATION);
+        const deviceInBootloaderMode = await deviceManager.waitForDevice(deviceInArduinoMode.getBootloaderVID(), deviceInArduinoMode.getBootloaderPID());
+        if(!deviceInBootloaderMode){
+            throw new Error("❌ Failed to flash SoftDevice.");
+        }
+        deviceInBootloaderMode.logger = logger;
+
+        await flasher.runBossac(firmware, deviceInBootloaderMode.getSerialPort(), arduinoNano33BLEUPythonOffset);
     } else {
-        await flasher.runBossac(firmware,device.getSerialPort());
+        await flasher.runBossac(firmware, device.getSerialPort());
     }
         
 };

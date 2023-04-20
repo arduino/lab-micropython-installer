@@ -46,7 +46,11 @@ class DeviceManager {
                 try {
                     // Using the default VID/PID to detect the device in Arduino mode.
                     // If we started in MicroPython or bootloader mode the VID/PID will be different.
-                    let deviceInArduinoMode = await this.waitForDevice(deviceInBootloaderMode.getDefaultVID(), deviceInBootloaderMode.getDefaultArduinoPID(), timeout, refreshInterval);
+                    const defaultVID = deviceInBootloaderMode.getDefaultVID();
+                    const defaultArduinoPID = deviceInBootloaderMode.getDefaultArduinoPID();
+                    this.logger?.log(`⌛️ Waiting for the device with VID ${defaultVID} and PID ${defaultArduinoPID} to become available...`, Logger.LOG_LEVEL.DEBUG);
+                    let deviceInArduinoMode = await this.waitForDevice(defaultVID, defaultArduinoPID, timeout, refreshInterval);
+                    this.logger?.log(`👍 Device is now in Arduino mode.`);
                     resolve(deviceInArduinoMode);
                     return;
                 } catch (error) {
@@ -96,20 +100,42 @@ class DeviceManager {
 
     async refreshDeviceList() {
         this.devices = [];
+        
+        if(this.deviceDescriptors.length === 0) {
+            throw new Error("❌ No device descriptors have been added.");
+        }
+
         const ports = await SerialPort.list();
-  
+
         for (const port of ports) {
             if(port.vendorId === undefined || port.productId === undefined) continue;
-
             const vendorID = this.convertHexToNumber(port.vendorId);
             const productID = this.convertHexToNumber(port.productId);
             let deviceDescriptor = this.getDeviceDescriptor(vendorID, productID);
 
             if (deviceDescriptor) {
-                this.devices.push(new Device(vendorID, productID, deviceDescriptor, port.path, port.serialNumber));
+                const newDevice = this.createDevice(vendorID, productID, deviceDescriptor, port.path, port.serialNumber);
+                this.devices.push(newDevice);
             }
         }
+        return this.devices;
     }
+
+    /**
+     * Factory method to create a new device.
+     * This ensures that the device is created with the correct device manager.
+     * @param {*} vendorID 
+     * @param {*} productID 
+     * @param {*} deviceDescriptor 
+     * @param {*} port 
+     * @param {*} serialNumber 
+     * @returns 
+     */
+    createDevice(vendorID, productID, deviceDescriptor, port = null, serialNumber = null) {
+        const newDevice = new Device(vendorID, productID, deviceDescriptor, port, serialNumber);
+        newDevice.deviceManager = this;
+        return newDevice;
+    };
   
     /**
      * Returns a device descriptor for the specified vendorID and productID.
