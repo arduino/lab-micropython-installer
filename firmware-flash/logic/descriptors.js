@@ -171,13 +171,32 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
         
 };
 
+const arduinoNanoESP32Identifiers = {
+    "default" : {
+        "vid" : 0x2341,
+        "pids" : {}
+        // "pids" : { "arduino" : 0x0070, "bootloader" : 0x0070 }
+    },
+    "alternative" : {
+        "vid" : 0x303a,
+        // "pids" : { "bootloader" : 0x1001, "upython" : 0x4001 }
+        // At the moment it only works when the device is in bootloader mode.
+        "pids" : { "bootloader" : 0x1001 }
+    }
+};
+const arduinoNanoESP32Descriptor = new DeviceDescriptor(arduinoNanoESP32Identifiers, 'Nano ESP32', 'Arduino', 'ARDUINO_NANO_ESP32', 'bin');
+arduinoNanoESP32Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
+    await flasher.runEsptool(firmware, device.getSerialPort());
+};
+
 const descriptors = [
     arduinoPortentaC33Descriptor,
     arduinoGigaDescriptor, 
     arduinoPortentaH7Descriptor, 
     arduinoNanoRP2040Descriptor,
     arduinoNiclaVisionDescriptor,
-    arduinoNano33BLEDescriptor
+    arduinoNano33BLEDescriptor,
+    arduinoNanoESP32Descriptor
 ];
 
 export default descriptors;
