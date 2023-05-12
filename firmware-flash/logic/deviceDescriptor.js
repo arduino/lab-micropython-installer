@@ -7,7 +7,6 @@ export class DeviceDescriptor {
         this.firmwareID = firmwareID;
         this.firmwareExtension = firmwareExtension;
         this.onFlashFirmware = null;
-        this.onPreFlashFirmware = null; // TODO remove this
         this.onReset = null;
         // Currently used to skip the wait for device step when the device 
         // cannot be detected via its serial port.
