@@ -1,0 +1,1 @@
+https://github.com/arduino/BOSSA/releases/tag/1.9.1-arduino2
