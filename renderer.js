@@ -246,12 +246,16 @@ function refreshDeviceList(delay = 0) {
   showDeviceLoadingIndicator();
 
   window.api.invoke('on-get-devices').then((result) => {
-    displayDevices(result, deviceSelectionList);
-    hideDeviceLoadingIndicator();
+    if(result.length == 0) {
+      console.log("🤷 No devices found. Trying again in 4 seconds.");
+      // Try again in 4 seconds if no devices were found
+      setTimeout(refreshDeviceList, 4000);
+    } else {
+      displayDevices(result, deviceSelectionList);
+      hideDeviceLoadingIndicator();
+    }
   }).catch((err) => {
     console.error(err);
-    // Try again in 4 seconds if no devices were found
-    setTimeout(refreshDeviceList, 4000);
   });
 }
 

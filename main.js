@@ -86,7 +86,7 @@ ipcMain.handle('on-get-devices', async (event, arg) => {
         await flash.deviceManager.refreshDeviceList();
         const devices = await flash.getDeviceList();
         if (devices.length === 0) {
-            reject("No devices found.");
+            resolve([]);
         } else {
             const pojos = devices.map(device => device.toPlainObject());
             resolve(pojos);
