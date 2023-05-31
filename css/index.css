@@ -153,7 +153,11 @@ div#installation-controls {
 
 div#device-selection {
     flex-direction: column;
-    gap: var(--main-flexbox-gap);
+    gap: var(--main-flexbox-gap);    
+}
+
+div#device-loading-indicator{
+    font-size: 0.9rem;
 }
 
 /* Spinner animation */
