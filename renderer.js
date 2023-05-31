@@ -10,6 +10,8 @@ const reloadLinkContainer = document.getElementById("reload-link-container");
 const deviceSelectionList = document.querySelector(".item-selection-list");
 const reloadDeviceListLink = document.getElementById("reload-link");
 
+const statusTextAnimator = new StatusTextAnimator(outputElement);
+
 const flashFirmwareFromFile = (filePath) => {
     disableFlashingInteractions();
     disableDeviceListInteractions();
@@ -22,14 +24,14 @@ const flashFirmwareFromFile = (filePath) => {
 
     window.api.invoke('on-file-selected', data).then(function (result) {
         console.log(result);
-        showStatusText(result, outputElement, 5000);
+        statusTextAnimator.showStatusText(result, 5000);
         disableFlashingInteractions();
         // Give the device some time to reboot
         refreshDeviceList(2000);
     }).catch(function (err) {
         console.error(err);
         setTimeout(() => {
-            showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
+            statusTextAnimator.showStatusText("❌ Failed to flash firmware.", 5000);
         }, 4000);
     }).finally(() => {
         enableDeviceListInteractions();
@@ -37,62 +39,6 @@ const flashFirmwareFromFile = (filePath) => {
         hideFlashProgressIndicator();
     });
 };
-
-let animationRunning = false;
-let fadeOutTimeout = null;
-
-function showStatusText(text, target, duration = null, speed = 50) {
-  const statusText = target;
-
-  if (animationRunning) {
-    statusText.textContent = text;
-    clearTimeout(fadeOutTimeout);
-    if(duration){
-        fadeOutTimeout = setTimeout(() => {
-          const fadeOutInterval = setInterval(() => {
-            let opacity = parseFloat(statusText.style.opacity);
-            opacity -= 0.1;
-            statusText.style.opacity = opacity;
-            if (opacity <= 0) {
-              clearInterval(fadeOutInterval);
-              statusText.style.visibility = 'hidden';
-              animationRunning = false;
-            }
-          }, speed);
-        }, duration);
-    }
-    return;
-  }
-  animationRunning = true;
-  statusText.textContent = text;
-  statusText.style.opacity = 0;
-  statusText.style.visibility = 'visible';
-
-  let opacity = 0;
-  const fadeInInterval = setInterval(() => {
-    opacity += 0.1;
-    statusText.style.opacity = opacity;
-    if (opacity >= 1) {
-      clearInterval(fadeInInterval);
-      if (duration) {
-        fadeOutTimeout = setTimeout(() => {
-          const fadeOutInterval = setInterval(() => {
-            let opacity = parseFloat(statusText.style.opacity);
-            opacity -= 0.1;
-            statusText.style.opacity = opacity;
-            if (opacity <= 0) {
-              clearInterval(fadeOutInterval);
-              statusText.style.visibility = 'hidden';
-              animationRunning = false;
-            }
-          }, speed);
-        }, duration);
-      } else {
-        animationRunning = false;
-      }
-    }
-  }, speed);
-}
 
 
 function disableDeviceListInteractions() {
@@ -142,7 +88,7 @@ function hideFlashProgressIndicator() {
 }
 
 window.api.on('on-output', (message) => {
-    showStatusText(message, outputElement);
+    statusTextAnimator.showStatusText(message);
 });
 
 reloadDeviceListLink.addEventListener('click', () => {
@@ -175,7 +121,7 @@ installButton.addEventListener('click', () => {
     window.api.invoke('on-install', data)
         .then((result) => {
             console.log(result);
-            showStatusText(result, outputElement, 5000);
+            statusTextAnimator.showStatusText(result, 5000);
             disableFlashingInteractions();
             // Give the device some time to reboot
             refreshDeviceList(2000);
@@ -183,7 +129,7 @@ installButton.addEventListener('click', () => {
         .catch((err) => {
             console.error(err);
             setTimeout(() => {
-                showStatusText("❌ Failed to flash firmware.", outputElement, 5000);
+                statusTextAnimator.showStatusText("❌ Failed to flash firmware.", 5000);
             }, 4000);
         }).finally(() => {
             enableDeviceListInteractions();
