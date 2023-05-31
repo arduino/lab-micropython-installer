@@ -1,18 +1,30 @@
+const os = require('os');
+
+let filesToExclude;
+switch (os.platform()) {
+  case 'win32':
+    filesToExclude = ["^(\/firmware-flash\/bin\/linux$)", "^(\/firmware-flash\/bin\/darwin$)"];
+    break;
+  case 'darwin':
+    filesToExclude = ["^(\/firmware-flash\/bin\/linux$)", "^(\/firmware-flash\/bin\/win32$)"];
+    break;
+  default:
+    filesToExclude = ["^(\/firmware-flash\/bin\/darwin$)", "^(\/firmware-flash\/bin\/win32$)"];
+    break;
+}
+
 module.exports = {
   packagerConfig: {
     icon: './assets/app-icon',
     name: 'MicroPython Installer',
-    ignore: [
-      "^(\/firmware-flash\/bin\/firmware$)",
-      "^(\/firmware-flash\/bin\/linux$)",
-      "^(\/firmware-flash\/bin\/win32$)",
-    ]
+    ignore: filesToExclude,
+    prune: true
   },
   rebuildConfig: {},
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
-      config: {},
+      platforms: ['win32'],
     },
     {
       name: '@electron-forge/maker-zip',
@@ -20,11 +32,7 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
-    },
-    {
-      name: '@electron-forge/maker-rpm',
-      config: {},
+      platforms: ['linux'],
     },
   ],
 };
