@@ -59,6 +59,9 @@ async function flashMicroPythonFirmware(selectedDevice, useNightlyBuild = false)
         selectedDevice.logger = logger;
     }
     const firmwareFile = await selectedDevice.downloadMicroPythonFirmware(useNightlyBuild);
+    if(!firmwareFile) {
+        return false;
+    }
     return await flashFirmware(firmwareFile, selectedDevice, true);
 }
 
