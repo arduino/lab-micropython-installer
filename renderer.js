@@ -32,6 +32,7 @@ const flashFirmwareFromFile = (filePath) => {
         }, 4000);
     }).finally(() => {
         enableDeviceListInteractions();
+        enableFlashingInteractions();
         hideLoadingIndicator();
     });
 };
@@ -185,6 +186,7 @@ installButton.addEventListener('click', () => {
             }, 4000);
         }).finally(() => {
             enableDeviceListInteractions();
+            enableFlashingInteractions();
             hideLoadingIndicator();
         });
 });
