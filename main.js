@@ -56,6 +56,7 @@ ipcMain.handle('on-file-selected', async (event, data) => {
                 reject("Error");
             }
         } catch (error) {
+            console.error(error);
             reject("Error");
         }
     });
