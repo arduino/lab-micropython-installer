@@ -6,6 +6,8 @@ import os from 'os';
 import path from 'path';
 import Logger from './logger.js';
 
+const HOST_URL = "https://downloads.arduino.cc";
+
 export class Device {
     constructor(vendorID, productID, deviceDescriptor, serialPort = null, serialNumber = null) {
         this.vendorID = vendorID;
@@ -54,10 +56,10 @@ export class Device {
             // same if no stable release is available.
             if (useNightlyBuild && nightlyRelease || !stableRelease) {
                 this.logger?.log("🌙 Using nightly build.");
-                return "https://downloads.arduino.cc" + nightlyRelease.url;
+                return HOST_URL + nightlyRelease.url;
             }
 
-            return "https://downloads.arduino.cc" + stableRelease.url;
+            return HOST_URL + stableRelease.url;
         }
     }
 
