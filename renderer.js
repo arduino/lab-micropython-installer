@@ -5,6 +5,7 @@ const fileDropElement = document.getElementById('file-drop-area');
 const flashActivityIndicator = document.getElementById('activity-indicator');
 const useNightlyBuildCheckbox = document.getElementById('nightly-builds-enabled');
 const deviceLoadingActivityIndicator = document.getElementById("device-loading-indicator");
+const deviceLoadingHint = document.getElementById("device-loading-hint");
 const reloadLinkContainer = document.getElementById("reload-link-container");
 const deviceSelectionList = document.querySelector(".item-selection-list");
 const reloadDeviceListLink = document.getElementById("reload-link");
@@ -12,7 +13,7 @@ const reloadDeviceListLink = document.getElementById("reload-link");
 const flashFirmwareFromFile = (filePath) => {
     disableFlashingInteractions();
     disableDeviceListInteractions();
-    showLoadingIndicator();
+    showFlashProgressIndicator();
 
     const data = {
       deviceData : getSelectedDeviceData(deviceSelectionList),
@@ -33,7 +34,7 @@ const flashFirmwareFromFile = (filePath) => {
     }).finally(() => {
         enableDeviceListInteractions();
         enableFlashingInteractions();
-        hideLoadingIndicator();
+        hideFlashProgressIndicator();
     });
 };
 
@@ -132,11 +133,11 @@ function disableFlashingInteractions() {
     fileDropElement.style.pointerEvents = 'none';
 }
   
-function showLoadingIndicator() {
+function showFlashProgressIndicator() {
   flashActivityIndicator.style.display = 'inline-block';
 }
 
-function hideLoadingIndicator() {
+function hideFlashProgressIndicator() {
   flashActivityIndicator.style.display = 'none';
 }
 
@@ -165,7 +166,7 @@ chooseFileLink.addEventListener('click', () => {
 installButton.addEventListener('click', () => {
     disableFlashingInteractions();
     disableDeviceListInteractions();
-    showLoadingIndicator();
+    showFlashProgressIndicator();
     const data = {
       deviceData : getSelectedDeviceData(deviceSelectionList),
       useNightlyBuild : useNightlyBuildCheckbox.checked
@@ -187,7 +188,7 @@ installButton.addEventListener('click', () => {
         }).finally(() => {
             enableDeviceListInteractions();
             enableFlashingInteractions();
-            hideLoadingIndicator();
+            hideFlashProgressIndicator();
         });
 });
 
@@ -274,6 +275,18 @@ function createDeviceSelectorItem(device) {
   return deviceItem;
 }
 
+function showDeviceLoadingIndicator() {
+  deviceLoadingActivityIndicator.style.display = 'block';
+  setTimeout(() => {
+    deviceLoadingHint.style.opacity = 1;
+  }, 4000);
+}
+
+function hideDeviceLoadingIndicator() {
+  deviceLoadingActivityIndicator.style.display = 'none';
+  deviceLoadingHint.style.opacity = 0;
+}
+
 function refreshDeviceList(delay = 0) {
   // Clear the device list
   displayDevices([], deviceSelectionList);
@@ -284,11 +297,11 @@ function refreshDeviceList(delay = 0) {
     return;
   }
 
-  deviceLoadingActivityIndicator.style.display = 'block';
+  showDeviceLoadingIndicator();
 
   window.api.invoke('on-get-devices').then((result) => {
     displayDevices(result, deviceSelectionList);
-    deviceLoadingActivityIndicator.style.display = 'none';
+    hideDeviceLoadingIndicator();
   }).catch((err) => {
     console.error(err);
     // Try again in 4 seconds if no devices were found

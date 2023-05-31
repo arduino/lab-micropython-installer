@@ -156,8 +156,10 @@ div#device-selection {
     gap: var(--main-flexbox-gap);    
 }
 
-div#device-loading-indicator{
+div#device-loading-hint{
     font-size: 0.9rem;
+    opacity: 0; /* Hidden by default */
+    transition: opacity 0.75s ease-in-out;
 }
 
 /* Spinner animation */
