@@ -17,6 +17,7 @@ module.exports = {
   packagerConfig: {
     icon: './assets/app-icon',
     name: 'MicroPython Installer',
+    executableName: 'micropython-installer',
     ignore: filesToExclude,
     prune: true
   },
@@ -33,13 +34,6 @@ module.exports = {
     {
       name: '@electron-forge/maker-deb',
       platforms: ['linux'],
-      executableName: 'micropython-installer',
-      config: {
-        options: {
-          name: 'micropython-installer',
-          productName: 'MicroPython Installer',
-        }
-      }
     },
   ],
   publishers: [
