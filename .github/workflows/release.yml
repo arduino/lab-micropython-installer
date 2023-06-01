@@ -4,7 +4,8 @@ on:
     types:
       - created
 
-permissions: write-all  
+permissions:
+  contents: write
 
 jobs:
   publish:
