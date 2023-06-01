@@ -26,11 +26,5 @@ jobs:
         node-version: 18
     - name: install dependencies
       run: npm install
-    - name: debug
-      run: |
-          npm run package
-          ls -l
-          ls -l -R out
-
     - name: build
       run: npm run make
