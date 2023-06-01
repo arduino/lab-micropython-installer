@@ -41,8 +41,8 @@ module.exports = {
       "name": "@electron-forge/publisher-github",
       "config": {
         "repository": {
-          "owner": "sebromero",
-          "name": "micropython-installer"
+          "owner": "arduino",
+          "name": "lab-micropython-installer"
         }
       }
     }

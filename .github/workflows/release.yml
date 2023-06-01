@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   publish:
-    if: github.repository == 'sebromero/micropython-installer'
+    if: github.repository == 'arduino/lab-micropython-installer'
     strategy:
       fail-fast: false
       matrix:
