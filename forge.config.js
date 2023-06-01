@@ -36,9 +36,8 @@ module.exports = {
       executableName: 'micropython-installer',
       config: {
         options: {
-          bin: 'micropython-installer',
           name: 'micropython-installer',
-          productName: 'micropython-installer',
+          productName: 'MicroPython Installer',
         }
       }
     },
