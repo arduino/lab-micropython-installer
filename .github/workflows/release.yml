@@ -5,8 +5,8 @@ on:
       - created
 
 jobs:
-
   publish:
+    if: github.repository == 'sebromero/micropython-installer'
     strategy:
       fail-fast: false
       matrix:
