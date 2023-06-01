@@ -35,4 +35,15 @@ module.exports = {
       platforms: ['linux'],
     },
   ],
+  publishers: [
+    {
+      "name": "@electron-forge/publisher-github",
+      "config": {
+        "repository": {
+          "owner": "sebromero",
+          "name": "micropython-installer"
+        }
+      }
+    }
+  ]
 };
