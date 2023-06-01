@@ -1,154 +1,23 @@
-name: Arduino MicroPython Installer
-
-on:
-  push:
-    branches:
-      - main
-      - develop
-    tags:
-      - '[0-9]+.[0-9]+.[0-9]+*'
-  workflow_dispatch:
-  pull_request:
-    branches:
-      - develop
-
-env:
-  JOB_TRANSFER_ARTIFACT: build-artifacts
+name: Build
+on: [push, pull_request]
 
 jobs:
-  build:
-    if: github.repository == 'sebromero/micropython-installer'
+  build_on_linux:
     strategy:
       fail-fast: false
       matrix:
         config:
-          - os: windows-2019
-          - os: ubuntu-latest
+          # - os: windows-2019
+          # - os: ubuntu-latest
           - os: macos-latest
     runs-on: ${{ matrix.config.os }}
     timeout-minutes: 90
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install Node.js 18.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Package
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          AC_USERNAME: ${{ secrets.AC_USERNAME }}
-          AC_PASSWORD: ${{ secrets.AC_PASSWORD }}
-          # AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          # AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          # IS_NIGHTLY: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') }}
-          IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/') }}
-          IS_FORK: ${{ github.event.pull_request.head.repo.fork == true }}
-        run: |
-            # See: https://www.electron.build/code-signing
-            if [ true ]; then
-              echo "Skipping the app signing: building from a fork."
-            else
-              if [ "${{ runner.OS }}" = "macOS" ]; then
-                export CSC_LINK="${{ runner.temp }}/signing_certificate.p12"
-                # APPLE_SIGNING_CERTIFICATE_P12 secret was produced by following the procedure from:
-                # https://www.kencochrane.com/2020/08/01/build-and-sign-golang-binaries-for-macos-with-github-actions/#exporting-the-developer-certificate
-                echo "${{ secrets.APPLE_SIGNING_CERTIFICATE_P12 }}" | base64 --decode > "$CSC_LINK"
-
-                export CSC_KEY_PASSWORD="${{ secrets.KEYCHAIN_PASSWORD }}"
-
-              elif [ "${{ runner.OS }}" = "Windows" ]; then
-                export CSC_LINK="${{ runner.temp }}/signing_certificate.pfx"
-                # npm config set msvs_version 2017 --global
-                echo "${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PFX }}" | base64 --decode > "$CSC_LINK"
-
-                export CSC_KEY_PASSWORD="${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}"
-              fi
-            fi
-
-            npm install
-            npm run make
-
-      - name: Upload [GitHub Actions]
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
-          path: dist
-
-  artifacts:
-    name: ${{ matrix.artifact.name }} artifact
-    needs: build
-    if: always() && needs.build.result != 'skipped'
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        artifact:
-          - path: "*-linux_x64.zip"
-            name: Linux_X86-64
-          - path: "*-darwin-x64-*.zip"
-            name: macOS
-          # - path: "*Windows_64bit.exe"
-          #   name: Windows_X86-64_interactive_installer
-          # - path: "*Windows_64bit.msi"
-          #   name: Windows_X86-64_MSI
-          - path: "*-win_x64.zip"
-            name: Windows_X86-64_zip
-
-    steps:
-      - name: Download job transfer artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
-          path: ${{ env.JOB_TRANSFER_ARTIFACT }}
-
-      - name: Upload tester build artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.artifact.name }}
-          path: ${{ env.JOB_TRANSFER_ARTIFACT }}/${{ matrix.artifact.path }}
-
-  release:
-    needs: build
-    if: github.repository == 'sebromero/micropython-installer' && startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download [GitHub Actions]
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
-          path: ${{ env.JOB_TRANSFER_ARTIFACT }}
-
-      - name: Get Tag
-        id: tag_name
-        run: |
-          echo ::set-output name=TAG_NAME::${GITHUB_REF#refs/tags/}
-
-      - name: Publish Release [GitHub]
-        uses: svenstaro/upload-release-action@2.2.0
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          release_name: ${{ steps.tag_name.outputs.TAG_NAME }}
-          file: ${{ env.JOB_TRANSFER_ARTIFACT }}/*
-          tag: ${{ github.ref }}
-          file_glob: true
-
-  clean:
-    # This job must run after all jobs that use the transfer artifact.
-    needs:
-      - build
-      - release
-      - artifacts
-    if: always() && needs.build.result != 'skipped'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Remove unneeded job transfer artifact
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          name: ${{ env.JOB_TRANSFER_ARTIFACT }}
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@master
+      with:
+        node-version: 18
+    - name: install dependencies
+      run: npm install
+    - name: build
+      run: npm run make
