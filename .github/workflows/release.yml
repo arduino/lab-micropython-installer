@@ -4,6 +4,8 @@ on:
     types:
       - created
 
+permissions: write-all  
+
 jobs:
   publish:
     if: github.repository == 'sebromero/micropython-installer'
