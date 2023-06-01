@@ -33,7 +33,7 @@ module.exports = {
     {
       name: '@electron-forge/maker-deb',
       executableName: 'micropython-installer',
-      productName: 'MicroPython Installer',
+      productName: 'micropython-installer',
       platforms: ['linux'],
     },
   ],
