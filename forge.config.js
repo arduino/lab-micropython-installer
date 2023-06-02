@@ -19,7 +19,14 @@ module.exports = {
     name: 'MicroPython Installer',
     executableName: 'micropython-installer',
     ignore: filesToExclude,
-    prune: true
+    prune: true,
+    osxSign: {},
+    osxNotarize: process.env.APPLE_API_KEY ? {
+      tool: 'notarytool',
+      appleApiKey: process.env.APPLE_API_KEY,
+      appleApiKeyId: process.env.APPLE_API_KEY_ID,
+      appleApiIssuer: process.env.APPLE_API_ISSUER,
+    } : undefined
   },
   rebuildConfig: {},
   makers: [
