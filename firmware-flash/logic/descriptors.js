@@ -1,6 +1,5 @@
-import DeviceDescriptor from './DeviceDescriptor.js';
+import DeviceDescriptor from './deviceDescriptor.js';
 import Flasher from './flasher.js';
-import DeviceManager from './deviceManager.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
