@@ -28,7 +28,8 @@
   "homepage": "https://github.com/arduino/lab-micropython-installer#readme",
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
-    "firmware-flash": "file:firmware-flash"
+    "firmware-flash": "file:firmware-flash",
+    "update-electron-app": "^2.0.1"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6.1.1",
