@@ -36,6 +36,10 @@ npm run package # Creates a ready-to-run application
 
 ## Publishing
 
+The CI takes care of making new releases. All that needs to be done is to bump the version with `npm version patch`, `npm version minor` or `npm version major` and push the tags with `git push --follow-tags`. When the CI is down the release will be in draft state so you can add release notes and publish it.
+
+To manually publish a new version, run:
+
 ```bash
 npm run publish
 ```
