@@ -1,16 +1,16 @@
-# MicroPython Installer for Arduino
+# 🐍 MicroPython Installer for Arduino
 
 MicroPython Installer for Arduino is a cross-platform tool that streamlines the process of downloading and installing MicroPython firmware on compatible Arduino boards. It is compatible with macOS, Linux, and Windows and is built using the Electron framework.
 
-## Features
+## ✨ Features
 - Automatic download of MicroPython firmware.
 - Seamless installation process onto Arduino boards.
 - Cross-platform support (macOS, Linux, Windows).
 
-## System Requirements
+## 💻 System Requirements
 There are no special system requirements for this tool beyond the prerequisites for running Electron applications.
 
-## Installation
+## ⚙️ Installation
 
 ```bash
 # Clone this repository
@@ -26,7 +26,7 @@ npm install
 npm run start
 ```
 
-## Packaging
+## 📦 Packaging
 
 ```bash
 npm run make # Creates a distributable file
@@ -34,7 +34,7 @@ npm run make # Creates a distributable file
 npm run package # Creates a ready-to-run application
 ```
 
-## Publishing
+## 📣 Publishing
 
 The CI takes care of making new releases. All that needs to be done is to bump the version with `npm version patch`, `npm version minor` or `npm version major` and push the tags with `git push --follow-tags`. When the CI is down the release will be in draft state so you can add release notes and publish it.
 
@@ -44,15 +44,20 @@ To manually publish a new version, run:
 npm run publish
 ```
 
-## Usage
+## 👀 Usage
 Connect your Arduino board to your computer.
 Launch the application.
 Follow the on-screen prompts to download and install the MicroPython firmware.
-Supported Boards
-A list of supported Arduino boards will be available soon.
 
-Contributing
+## ✅ Supported Boards
+- Arduino Giga
+- Arduino Portenta H7
+- Arduino Nano RP2040
+- Arduino Nicla Vision
+- Arduino Nano 33 BLE
+
+## 💪 Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-Contact
+## 🤙 Contact
 For questions, comments, or feedback about this tool, please create an issue on this repository.
