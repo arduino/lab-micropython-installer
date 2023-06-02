@@ -20,7 +20,17 @@ module.exports = {
     executableName: 'micropython-installer',
     ignore: filesToExclude,
     prune: true,
-    osxSign: {},
+    osxSign: {
+      binaries: [ './firmware-flash/bin/darwin/bossac', 
+                  './firmware-flash/bin/darwin/dfu-util',
+                  './firmware-flash/bin/darwin/esptool',
+                  './firmware-flash/bin/darwin/picotool'],
+      optionsForFile: (filePath) => {
+        return {
+          entitlements: './config/entitlements.plist'
+        }
+      }
+    },
     osxNotarize: process.env.APPLE_API_KEY ? {
       tool: 'notarytool',
       appleApiKey: process.env.APPLE_API_KEY,
@@ -33,6 +43,10 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel',
       platforms: ['win32'],
+      config: {
+        certificateFile: process.env.WINDOWS_CERTIFICATE_FILE,
+        certificatePassword: process.env.WINDOWS_CERTIFICATE_PASSWORD,
+      },
     },
     {
       name: '@electron-forge/maker-zip',
