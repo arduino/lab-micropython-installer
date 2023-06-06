@@ -36,6 +36,7 @@ jobs:
         WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}
 
       run: |
+        # SEE: https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development
         if [ "${{ runner.OS }}" = "macOS" ] && [ -n "${{ secrets.BUILD_CERTIFICATE_BASE64 }}" ]; then
           # create variables
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
@@ -68,5 +69,5 @@ jobs:
     - name: Clean up keychain and provisioning profile
       if: ${{ always() }}
       run: |
-        security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+        security delete-keychain $RUNNER_TEMP/app-signing.keychain-db || true
         # rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
