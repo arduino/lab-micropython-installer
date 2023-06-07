@@ -30,20 +30,20 @@ jobs:
       if: ${{ runner.OS }} == 'macOS'
       shell: bash
       env:
-        BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
-        P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+        SIGNING_CERTIFICATE_BASE64: ${{ secrets.SIGNING_CERTIFICATE_BASE64_MACOS }}
+        P12_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD_MACOS }}
         # BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
         KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
       run: |
         # SEE: https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development
-        if [ -n "${{ secrets.BUILD_CERTIFICATE_BASE64 }}" ]; then
+        if [ -n "$SIGNING_CERTIFICATE_BASE64" ]; then
           # create variables
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           # PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           # import certificate and provisioning profile from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$SIGNING_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
           # echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
 
           # create temporary keychain
@@ -63,11 +63,11 @@ jobs:
         WINDOWS_BUILD_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_BUILD_CERTIFICATE_BASE64 }}
         WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}
       run: |
-        if [ -n "${{ secrets.WINDOWS_BUILD_CERTIFICATE_BASE64 }}" ]; then
+        if [ -n "$WINDOWS_BUILD_CERTIFICATE_BASE64" ]; then
           export WINDOWS_CERTIFICATE_FILE="${{ runner.temp }}/signing_certificate.pfx"
           # npm config set msvs_version 2017 --global
-          echo "${{ secrets.WINDOWS_BUILD_CERTIFICATE_BASE64 }}" | base64 --decode > "$WINDOWS_CERTIFICATE_FILE"
-          export WINDOWS_CERTIFICATE_PASSWORD="${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}"
+          echo "$WINDOWS_BUILD_CERTIFICATE_BASE64" | base64 --decode > "$WINDOWS_CERTIFICATE_FILE"
+          export WINDOWS_CERTIFICATE_PASSWORD="$WINDOWS_CERTIFICATE_PASSWORD"
         fi
     - name: publish
       env:
