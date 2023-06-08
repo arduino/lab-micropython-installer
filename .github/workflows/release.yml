@@ -75,6 +75,7 @@ jobs:
           echo "$WINDOWS_BUILD_CERTIFICATE_BASE64" | base64 --decode > "$WINDOWS_CERTIFICATE_FILE"
         fi
     - name: publish
+      shell: bash
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}

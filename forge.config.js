@@ -22,10 +22,6 @@ module.exports = {
     prune: true,
     osxSign: {
       app: './out/MicroPython Installer-darwin-x64/MicroPython Installer.app',
-      binaries: [ './firmware-flash/bin/darwin/bossac', 
-                  './firmware-flash/bin/darwin/dfu-util',
-                  './firmware-flash/bin/darwin/esptool',
-                  './firmware-flash/bin/darwin/picotool'],
       optionsForFile: (filePath) => {
         return {
           entitlements: './config/entitlements.plist'
