@@ -30,7 +30,8 @@ module.exports = {
         return {
           entitlements: './config/entitlements.plist'
         }
-      }
+      },
+      keychain: process.env.KEYCHAIN_PATH
     },
     osxNotarize: process.env.APPLE_API_KEY ? {
       tool: 'notarytool',
