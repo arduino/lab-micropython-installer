@@ -29,7 +29,7 @@ module.exports = {
       },
       keychain: process.env.KEYCHAIN_PATH
     },
-    osxNotarize: process.env.APPLE_API_KEY ? {
+    osxNotarize: process.env.APPLE_API_KEY_PATH ? {
       tool: 'notarytool',
       appPath: './out/MicroPython Installer-darwin-x64/MicroPython Installer.app',
       appleApiKey: process.env.APPLE_API_KEY_PATH,
