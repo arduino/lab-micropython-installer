@@ -36,6 +36,8 @@ jobs:
         KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         APPLE_API_KEY_DATA: ${{ secrets.APPLE_API_KEY }}      
       run: |
+        export DEBUG=electron-osx-sign*
+        
         # SEE: https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development
         if [ -n "$SIGNING_CERTIFICATE_BASE64" ]; then
           # create variables
@@ -81,6 +83,4 @@ jobs:
         APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
         APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}
-      run: |
-        export DEBUG=electron-osx-sign*  
-        npm run publish
+      run: npm run publish
