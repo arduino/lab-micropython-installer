@@ -32,7 +32,7 @@ module.exports = {
     osxNotarize: process.env.APPLE_API_KEY ? {
       tool: 'notarytool',
       appPath: './out/MicroPython Installer-darwin-x64/MicroPython Installer.app',
-      appleApiKey: process.env.APPLE_API_KEY,
+      appleApiKey: process.env.APPLE_API_KEY_PATH,
       appleApiKeyId: process.env.APPLE_API_KEY_ID,
       appleApiIssuer: process.env.APPLE_API_ISSUER,
     } : undefined
