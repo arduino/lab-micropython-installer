@@ -34,7 +34,7 @@ jobs:
         P12_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD_MACOS }}
         # BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
         KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}      
+        APPLE_API_KEY_DATA: ${{ secrets.APPLE_API_KEY }}      
       run: |
         # SEE: https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development
         if [ -n "$SIGNING_CERTIFICATE_BASE64" ]; then
@@ -58,9 +58,9 @@ jobs:
         fi
 
         # Export API key for App Store Connect API (required for notarization)
-        if [ -n "$APPLE_API_KEY" ]; then
-          export APPLE_API_KEY_ID=$RUNNER_TEMP/auth_key.p8
-          echo -n "$APPLE_API_KEY" | base64 --decode -o $APPLE_API_KEY_ID
+        if [ -n "$APPLE_API_KEY_DATA" ]; then
+          export APPLE_API_KEY=$RUNNER_TEMP/auth_key.p8
+          echo -n "$APPLE_API_KEY_DATA" > $APPLE_API_KEY
         fi
     - name: install signing certificates (Windows)  
       if: ${{ runner.OS == 'Windows' }}    
