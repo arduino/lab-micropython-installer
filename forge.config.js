@@ -1,17 +1,20 @@
 const os = require('os');
 
-let filesToExclude;
+let filesToExclude = [];
 switch (os.platform()) {
   case 'win32':
-    filesToExclude = ["^(\/firmware-flash\/bin\/linux$)", "^(\/firmware-flash\/bin\/darwin$)"];
+    filesToExclude = ["(\/firmware-flash\/bin\/linux$)", "(\/firmware-flash\/bin\/darwin$)"];
     break;
   case 'darwin':
-    filesToExclude = ["^(\/firmware-flash\/bin\/linux$)", "^(\/firmware-flash\/bin\/win32$)"];
+    filesToExclude = ["(\/firmware-flash\/bin\/linux$)", "(\/firmware-flash\/bin\/win32$)"];
     break;
   default:
-    filesToExclude = ["^(\/firmware-flash\/bin\/darwin$)", "^(\/firmware-flash\/bin\/win32$)"];
+    filesToExclude = ["(\/firmware-flash\/bin\/darwin$)", "(\/firmware-flash\/bin\/win32$)"];
     break;
 }
+
+// Source code of firmware-flash is not needed as it's already installed as a dependency
+filesToExclude.push("^\/firmware-flash");
 
 module.exports = {
   packagerConfig: {
@@ -20,6 +23,20 @@ module.exports = {
     executableName: 'micropython-installer',
     ignore: filesToExclude,
     prune: true,
+    derefSymlinks: true,
+    afterCopy: [(buildPath, electronVersion, platform, arch, callback) => {
+      // Remove files under node_modules/@serialport/bindings-cpp/build/node_gyp_bins/
+      // because the cause notarization issues and they are not needed after building.
+      // One of the files is a symlink to python which is outside of the app bundle.
+      // SEE: https://github.com/nodejs/node-gyp/issues/2713#issuecomment-1400959609
+      const fs = require('fs');
+      const path = require('path');
+      const dir = path.join(buildPath, 'node_modules/firmware-flash/node_modules/@serialport/bindings-cpp/build/node_gyp_bins/');
+      if (fs.existsSync(dir)) {
+        fs.rmdirSync(dir, { recursive: true });
+      }
+      callback();
+    }],
     osxSign: {
       app: './out/MicroPython Installer-darwin-x64/MicroPython Installer.app',
       optionsForFile: (filePath) => {
