@@ -33,6 +33,7 @@ jobs:
         SIGNING_CERTIFICATE_BASE64: ${{ secrets.SIGNING_CERTIFICATE_BASE64_MACOS }}
         SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD_MACOS }}
         # BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}
+        # BUILD_PROVISION_PROFILE_PATH: ${{ runner.temp }}/build_pp.mobileprovision
         KEYCHAIN_PATH: ${{ runner.temp }}/app-signing.keychain-db
         KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         APPLE_API_KEY_DATA: ${{ secrets.APPLE_API_KEY }}
@@ -42,12 +43,10 @@ jobs:
         if [ -n "$SIGNING_CERTIFICATE_BASE64" ]; then
           # create variables
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-          # PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-          #DELETE export KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
           # import certificate and provisioning profile from secrets
           echo -n "$SIGNING_CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-          # echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $PP_PATH
+          # echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode -o $BUILD_PROVISION_PROFILE_PATH
 
           # create temporary keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
@@ -61,7 +60,6 @@ jobs:
 
         # Export API key for App Store Connect API (required for notarization)
         if [ -n "$APPLE_API_KEY_DATA" ]; then
-          #DELETE export APPLE_API_KEY=$RUNNER_TEMP/auth_key.p8
           echo -n "$APPLE_API_KEY_DATA" > $APPLE_API_KEY_PATH
         fi
     - name: install signing certificates (Windows)  
@@ -73,7 +71,6 @@ jobs:
         WINDOWS_CERTIFICATE_FILE: ${{ runner.temp }}/signing_certificate.pfx
       run: |
         if [ -n "$WINDOWS_BUILD_CERTIFICATE_BASE64" ]; then
-          #DELETE export WINDOWS_CERTIFICATE_FILE="${{ runner.temp }}/signing_certificate.pfx"
           # npm config set msvs_version 2017 --global
           echo "$WINDOWS_BUILD_CERTIFICATE_BASE64" | base64 --decode > "$WINDOWS_CERTIFICATE_FILE"
         fi
