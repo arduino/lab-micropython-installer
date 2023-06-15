@@ -31,17 +31,35 @@ const arduinoPortentaH7Descriptor = new DeviceDescriptor(arduinoPortentaH7Identi
 arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     // Check if firmware is a DFU file
     if(firmware.endsWith(".dfu")){
-        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
+        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true);
         return;
     }
     // Check if firmware is a binary file
     if(firmware.endsWith(".bin")){
-        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true, "0x08040000");
+        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true, true, "0x08040000");
         return;
     }
 
     throw new Error("❌ Invalid firmware file");
 };
+
+const arduinoPortentaC33Identifiers = {
+    "default" : {
+        "vid" : 0x2341,
+        "pids" : {"arduino" : 0x0068, "bootloader" : 0x0368, "upython" : 0x0468 }
+    },
+};
+const arduinoPortentaC33Descriptor = new DeviceDescriptor(arduinoPortentaC33Identifiers, 'Portenta C33', 'Arduino', 'ARDUINO_PORTENTA_C33', 'dfu');
+arduinoPortentaC33Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
+    // Check if firmware is a binary file
+    if(firmware.endsWith(".bin")){
+        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), false);
+        return;
+    }
+    
+    throw new Error("❌ Invalid firmware file");
+};
+arduinoPortentaC33Descriptor.skipWaitForDevice = true;
 
 const arduinoGigaIdentifiers = {
     "default" : {
@@ -77,7 +95,7 @@ const arduinoNiclaVisionIdentifiers = {
 };
 const arduinoNiclaVisionDescriptor = new DeviceDescriptor(arduinoNiclaVisionIdentifiers, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
 arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
-    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex());
+    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true);
 };
 
 const arduinoNano33BLEIdentifiers = {
@@ -149,6 +167,7 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
 };
 
 const descriptors = [
+    arduinoPortentaC33Descriptor,
     arduinoGigaDescriptor, 
     arduinoPortentaH7Descriptor, 
     arduinoNanoRP2040Descriptor,
