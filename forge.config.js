@@ -39,7 +39,7 @@ module.exports = {
       
       [nodeGypBinsDir, nodeGypPrebuildsDir].forEach(dir => {
         if (fs.existsSync(dir)) {
-          fs.rmdirSync(dir, { recursive: true });
+          fs.rmSync(dir, { recursive: true });
         }
       });
 
