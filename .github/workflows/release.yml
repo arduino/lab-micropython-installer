@@ -19,6 +19,7 @@ jobs:
           - os: ubuntu-latest
           - os: windows-2019
     runs-on: ${{ matrix.config.os }}
+    timeout-minutes: 90
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@master
