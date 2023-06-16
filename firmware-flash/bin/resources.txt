@@ -1,1 +1,2 @@
-https://github.com/arduino/BOSSA/releases/tag/1.9.1-arduino2
+https://github.com/arduino/BOSSA
+https://github.com/bcmi-labs/dfu-util

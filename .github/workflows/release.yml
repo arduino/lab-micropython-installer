@@ -67,7 +67,7 @@ jobs:
       # SEE: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#using-a-specific-shell
       shell: bash
       env: 
-        WINDOWS_BUILD_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_BUILD_CERTIFICATE_BASE64 }}      
+        WINDOWS_BUILD_CERTIFICATE_BASE64: ${{ secrets.SIGNING_CERTIFICATE_BASE64_WINDOWS }}      
         WINDOWS_CERTIFICATE_FILE: ${{ runner.temp }}/signing_certificate.pfx
       run: |
         if [ -n "$WINDOWS_BUILD_CERTIFICATE_BASE64" ]; then
@@ -84,5 +84,5 @@ jobs:
         APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
         APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         WINDOWS_CERTIFICATE_FILE: ${{ runner.temp }}/signing_certificate.pfx
-        WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_SIGNING_CERTIFICATE_PASSWORD }}
+        WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD_WINDOWS }}
       run: npm run publish
