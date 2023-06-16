@@ -76,7 +76,7 @@ jobs:
           echo "$WINDOWS_BUILD_CERTIFICATE_BASE64" | base64 --decode > "$WINDOWS_CERTIFICATE_FILE"
         fi
     - name: publish
-      shell: bash
+      # shell: bash
       env:
         DEBUG: 'electron-osx-sign*'
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
