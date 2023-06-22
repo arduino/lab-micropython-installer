@@ -2,6 +2,7 @@ import DeviceDescriptor from './deviceDescriptor.js';
 import Flasher from './flasher.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import Logger from './logger.js';
 
 /// The amount of time to wait for the softdevice to be relocated to the final location in the flash.
 const SOFTDEVICE_RELOCATE_DURATION = 7000;
@@ -10,6 +11,8 @@ const SOFTDEVICE_RELOCATE_DURATION = 7000;
 const SOFT_DEVICE_MAGIC_NUMBER = 1;
 
 const flasher = new Flasher();
+flasher.logger = new Logger();
+flasher.logger.printToConsole = true;
 
 const softDeviceFirmwareFilename = "SoftDeviceUpdater.bin";
 const __filename = fileURLToPath(import.meta.url);
@@ -67,6 +70,8 @@ const arduinoNanoRP2040Descriptor = new DeviceDescriptor(arduinoNanoRP2040Identi
 arduinoNanoRP2040Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     await flasher.runPicotool(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
+
+// Device doesn't expose a serial port in bootloader mode
 arduinoNanoRP2040Descriptor.skipWaitForDevice = true;
 
 const arduinoNiclaVisionIdentifiers = {
