@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
+import Logger from './logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -54,7 +55,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, this.logger.LOG_LEVEL.DEBUG);
+                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running dfu-util: '${error.message}'`);
                     return;
                 }
@@ -67,6 +68,7 @@ export class Flasher {
                     reject(`Error running dfu-util (stderr): '${stderr}'`);
                     return;
                 }
+                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 resolve(stdout);
             });
         });
@@ -89,7 +91,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, this.logger.LOG_LEVEL.DEBUG);
+                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${error.message}`);
                     return;
                 }
@@ -97,6 +99,7 @@ export class Flasher {
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }
+                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 resolve(stdout);
             });
         });
@@ -110,7 +113,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, this.logger.LOG_LEVEL.DEBUG);
+                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${error.message}`);
                     return;
                 }
@@ -118,6 +121,7 @@ export class Flasher {
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }                
+                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 const match = stdout.match(regex);
 
                 if (match) {
@@ -136,7 +140,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, this.logger.LOG_LEVEL.DEBUG);
+                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${error.message}`);
                     return;
                 }
@@ -144,6 +148,7 @@ export class Flasher {
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }
+                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 resolve(stdout);
             });
         });
@@ -163,7 +168,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, this.logger.LOG_LEVEL.DEBUG);
+                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running picotool: ${error.message}`);
                     return;
                 }
@@ -171,6 +176,7 @@ export class Flasher {
                     reject(`Error running picotool: ${stderr}`);
                     return;
                 }
+                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 resolve(stdout);
             });
         });
@@ -192,7 +198,7 @@ export class Flasher {
             await new Promise((resolve, reject) => {
                 exec(eraseCmd, (error, stdout, stderr) => {
                     if (error) {
-                        this.logger?.log(error.message, this.logger.LOG_LEVEL.DEBUG);
+                        this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                         reject(`Error running esptool: ${error.message}`);
                         return;
                     }
@@ -200,6 +206,7 @@ export class Flasher {
                         reject(`Error running esptool: ${stderr}`);
                         return;
                     }
+                    this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                     resolve(stdout);
                 });
             });
@@ -208,7 +215,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(flashCmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, this.logger.LOG_LEVEL.DEBUG);
+                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running esptool: ${error.message}`);
                     return;
                 }
@@ -216,6 +223,7 @@ export class Flasher {
                     reject(`Error running esptool: ${stderr}`);
                     return;
                 }
+                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 resolve(stdout);
             });
         });

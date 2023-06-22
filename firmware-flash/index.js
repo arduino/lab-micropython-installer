@@ -22,6 +22,7 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
     }
 
     if(selectedDevice.runsBootloader()) {
+        logger?.log(`👍 Device is already in bootloader mode.`);
         await selectedDevice.flashFirmware(firmwarePath, isMicroPython);
         logger?.log('✅ Firmware flashed successfully.');
         return true;

@@ -11,8 +11,7 @@ const SOFTDEVICE_RELOCATE_DURATION = 7000;
 const SOFT_DEVICE_MAGIC_NUMBER = 1;
 
 const flasher = new Flasher();
-flasher.logger = new Logger();
-flasher.logger.printToConsole = true;
+flasher.logger = new Logger(null, true, Logger.LOG_LEVEL.DEBUG);
 
 const softDeviceFirmwareFilename = "SoftDeviceUpdater.bin";
 const __filename = fileURLToPath(import.meta.url);
