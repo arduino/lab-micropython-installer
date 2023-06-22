@@ -3,6 +3,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path')
 let flash;
 let win;
+let logger;
 
 const createWindow = () => {
     win = new BrowserWindow({
@@ -20,14 +21,16 @@ const createWindow = () => {
     win.loadFile('index.html')
 }
 
-const forwardOutput = (message) => {
-    win.webContents.send("on-output", message);
+const forwardOutput = (message, level) => {
+    if(level > flash.Logger.LOG_LEVEL.DEBUG) {
+        win.webContents.send("on-output", message);    
+    }
 }
 
 app.whenReady().then(async () => {
     flash = await import('firmware-flash');
-    flash.logger.printToConsole = true;
-    flash.logger.onLog = forwardOutput;
+    logger = new flash.Logger(forwardOutput, true);
+    flash.setLogger(logger);
     createWindow()
 })
 
@@ -57,7 +60,7 @@ ipcMain.handle('on-file-selected', async (event, data) => {
                 reject("Error");
             }
         } catch (error) {
-            console.error(error);
+            logger.log(error, flash.Logger.LOG_LEVEL.DEBUG);
             reject("Error");
         }
     });
@@ -77,6 +80,8 @@ ipcMain.handle('on-install', async (event, data) => {
                 reject("Error");
             }
         } catch (error) {
+            console.log(error);
+            logger.log(error, flash.Logger.LOG_LEVEL.DEBUG);
             reject("Error");
         }
     });

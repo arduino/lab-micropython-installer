@@ -22,11 +22,15 @@ class Logger {
         }
 
         if(this.onLog) {
-            this.onLog(message);
+            this.onLog(message, level);
         }
 
         if(this.printToConsole) {
-            console.log(message);
+            if(level === Logger.LOG_LEVEL.ERROR) {
+                console.error(message);
+            } else {
+                console.log(message);
+            }
         }
     }
 }
