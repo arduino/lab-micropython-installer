@@ -1,6 +1,6 @@
 {
   "name": "micropython-installer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A tool to flash MicroPython onto supported Arduino boards.",
   "main": "main.js",
   "directories": {
