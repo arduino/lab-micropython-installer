@@ -107,7 +107,7 @@ export class Flasher {
     async getBootloaderVersionWithBossac(port) {
         const bossacPath = this.getBinaryPath("bossac");
         const regex = /Version\s+:\s+Arduino Bootloader(?: \(.+\))? (\d+\.\d+)/;
-        let cmd = `${bossacPath} -U --port=${port} -i`;
+        let cmd = `'${bossacPath}' -U --port=${port} -i`;
 
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
@@ -135,7 +135,7 @@ export class Flasher {
 
     async resetBoardWithBossac(port) {
         const bossacPath = this.getBinaryPath("bossac");
-        let cmd = `${bossacPath} -U --port=${port} -R`;
+        let cmd = `'${bossacPath}' -U --port=${port} -R`;
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
