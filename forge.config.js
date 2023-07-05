@@ -1,4 +1,5 @@
 const os = require('os');
+const path = require('path');
 
 let filesToExclude = [];
 switch (os.platform()) {
@@ -16,7 +17,34 @@ switch (os.platform()) {
 // Source code of firmware-flash is not needed as it's already installed as a dependency
 filesToExclude.push("^\/firmware-flash");
 
+renamingRules = {
+  "darwin": { from: 'darwin', to: 'macOS' },
+  "win32": { from: 'Setup', to: 'Windows-Setup' },
+  "linux": { from: 'amd64', to: 'Linux' }
+};
+
+// Check options at https://electron.github.io/electron-packager/main/interfaces/electronpackager.options.html
 module.exports = {
+  hooks: {
+    postMake: async (forgeConfig, options) => {
+      const fs = require('fs');
+
+      for(let option of options) {
+        option.artifacts.forEach((artifact, index) => {  
+          const fileName = path.basename(artifact);          
+          const renameInfo = renamingRules[option.platform];
+          const targetName = fileName.replace(renameInfo.from, renameInfo.to);
+          console.log(`Renaming ${fileName} to ${targetName}`);
+          const targetPath = path.join(path.dirname(artifact), targetName);
+
+          if(fs.renameSync(artifact, targetPath)){
+            option.artifacts[index] = targetPath;
+          }
+        });
+      }
+      return options;
+    }
+  },
   packagerConfig: {
     icon: './assets/app-icon',
     name: 'MicroPython Installer',
