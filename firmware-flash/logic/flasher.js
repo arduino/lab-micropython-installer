@@ -33,23 +33,22 @@ export class Flasher {
         return binaryPath;
     }
 
-    async runDfuUtil(firmwareFilepath, vendorId, productId, reset = true, offset = null) {
+    async runDfuUtil(firmwareFilepath, vendorId, productId, dfuseDevice, reset = true, offset = null) {
         const dfuUtilPath = this.getBinaryPath("dfu-util");
 
         // Specify the altsetting of the DFU interface via -a.
         let cmd = `'${dfuUtilPath}' -a 0 -d ${vendorId}:${productId} -D '${firmwareFilepath}'`;
         
-        if (reset && !offset) {
-            // In theory, the reset should work with -R, but it doesn't seem to work
-            //cmd += " -R";
-            cmd += " -s :leave";
+        if (reset && !dfuseDevice) {
+            // cmd += " --reset";
+            cmd += " -Q";
+
         }
 
         if (offset) {
-            cmd += ` --dfuse-address=${offset}`;
-            if(reset){
-                cmd += ":leave";
-            }
+            cmd += ` --dfuse-address=${offset}${reset ? ":leave" : ""}`;
+        } else if(reset && dfuseDevice){
+            cmd += " -s :leave";
         }
 
         return new Promise((resolve, reject) => {
