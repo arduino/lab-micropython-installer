@@ -37,8 +37,11 @@ module.exports = {
           console.log(`Renaming ${fileName} to ${targetName}`);
           const targetPath = path.join(path.dirname(artifact), targetName);
 
-          if(fs.renameSync(artifact, targetPath)){
+          try {
+            fs.renameSync(artifact, targetPath);
             option.artifacts[index] = targetPath;
+          } catch (err) {
+            console.error(err);
           }
         });
       }
