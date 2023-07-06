@@ -41,6 +41,7 @@ export class Flasher {
     }
 
     async runDfuUtil(firmwareFilepath, vendorId, productId, dfuseDevice, reset = true, offset = null) {
+        const logger = this.logger;
         const dfuUtilPath = this.getBinaryPath("dfu-util");
 
         // Specify the altsetting of the DFU interface via -a.
@@ -61,7 +62,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                    logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running dfu-util: '${error.message}'`);
                     return;
                 }
@@ -74,13 +75,14 @@ export class Flasher {
                     reject(`Error running dfu-util (stderr): '${stderr}'`);
                     return;
                 }
-                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 resolve(stdout);
             });
         });
     }
 
     async runBossac(firmwareFilepath, port, offset = null, reset = true) {
+        const logger = this.logger;
         const bossacPath = this.getBinaryPath("bossac");
 
         // In theory, the port should be automatically detected, but it doesn't seem to work
@@ -97,7 +99,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                    logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${error.message}`);
                     return;
                 }
@@ -105,13 +107,14 @@ export class Flasher {
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }
-                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 resolve(stdout);
             });
         });
     }
     
     async getBootloaderVersionWithBossac(port) {
+        const logger = this.logger;
         const bossacPath = this.getBinaryPath("bossac");
         const regex = /Version\s+:\s+Arduino Bootloader(?: \(.+\))? (\d+\.\d+)/;
         let cmd = `"${bossacPath}" -U --port=${port} -i`;
@@ -119,7 +122,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                    logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${error.message}`);
                     return;
                 }
@@ -127,7 +130,7 @@ export class Flasher {
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }                
-                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 const match = stdout.match(regex);
 
                 if (match) {
@@ -141,12 +144,13 @@ export class Flasher {
     }
 
     async resetBoardWithBossac(port) {
+        const logger = this.logger;
         const bossacPath = this.getBinaryPath("bossac");
         let cmd = `"${bossacPath}" -U --port=${port} -R`;
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                    logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${error.message}`);
                     return;
                 }
@@ -154,7 +158,7 @@ export class Flasher {
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }
-                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 resolve(stdout);
             });
         });
@@ -162,6 +166,7 @@ export class Flasher {
         
 
     async runPicotool(firmwareFilepath, reset = true) {
+        const logger = this.logger;
         const picotoolPath = this.getBinaryPath("picotool");
         let params = ["-v"]; // Verify the firmware after flashing
 
@@ -174,7 +179,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                    logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running picotool: ${error.message}`);
                     return;
                 }
@@ -182,13 +187,14 @@ export class Flasher {
                     reject(`Error running picotool: ${stderr}`);
                     return;
                 }
-                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 resolve(stdout);
             });
         });
     }
 
     async runEsptool(firmwareFilepath, port, reset = true, erase = true) {
+        const logger = this.logger;
         const espToolPath = this.getBinaryPath("esptool");
         let params = ["--chip esp32s3", `--port ${port}`];
         let eraseCmd = `"${espToolPath}" ${params.join(" ")} --before default_reset --after no_reset erase_flash`;
@@ -204,7 +210,7 @@ export class Flasher {
             await new Promise((resolve, reject) => {
                 exec(eraseCmd, (error, stdout, stderr) => {
                     if (error) {
-                        this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                        logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                         reject(`Error running esptool: ${error.message}`);
                         return;
                     }
@@ -212,7 +218,7 @@ export class Flasher {
                         reject(`Error running esptool: ${stderr}`);
                         return;
                     }
-                    this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                    logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                     resolve(stdout);
                 });
             });
@@ -221,7 +227,7 @@ export class Flasher {
         return new Promise((resolve, reject) => {
             exec(flashCmd, (error, stdout, stderr) => {
                 if (error) {
-                    this.logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                    logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running esptool: ${error.message}`);
                     return;
                 }
@@ -229,7 +235,7 @@ export class Flasher {
                     reject(`Error running esptool: ${stderr}`);
                     return;
                 }
-                this.logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
                 resolve(stdout);
             });
         });

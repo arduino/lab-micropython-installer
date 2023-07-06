@@ -94,7 +94,8 @@ export class Device {
     }
 
     async sendREPLCommand(command, awaitResponse = true) {
-        this.logger?.log(`📤 Sending REPL command: ${command}`, Logger.LOG_LEVEL.DEBUG);
+        const logger = this.logger;
+        logger?.log(`📤 Sending REPL command: ${command}`, Logger.LOG_LEVEL.DEBUG);
         
         return new Promise((resolve, reject) => {
             let responseData = "";
@@ -103,14 +104,14 @@ export class Device {
             
             serialport.open(function (err) {
                 if (err) {
-                    this.logger?.log('❌ Error opening port: ', err.message);
+                    logger?.log('❌ Error opening port: ', err.message);
                     reject(err);
                     return;
                 }
                 
                 serialport.write(command, function (err) {
                     if (err) {
-                        this.logger?.log('❌ Error on write: ', err.message);
+                        logger?.log('❌ Error on write: ', err.message);
                         reject(err);
                         return;
                     }
@@ -131,7 +132,7 @@ export class Device {
                 
                 if(lastLine === ">>> ") {
                     serialport.close();
-                    this.logger?.log(`📥 Received REPL response: ${responseData}`, Logger.LOG_LEVEL.DEBUG);
+                    logger?.log(`📥 Received REPL response: ${responseData}`, Logger.LOG_LEVEL.DEBUG);
                     resolve(responseData);
                 }
             });
