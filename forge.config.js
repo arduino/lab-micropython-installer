@@ -101,6 +101,8 @@ module.exports = {
       config: {
         certificateFile: process.env.WINDOWS_CERTIFICATE_FILE,
         certificatePassword: process.env.WINDOWS_CERTIFICATE_PASSWORD,
+        name: 'MicroPythonInstaller',
+        loadingGif: './assets/installer.gif',
       },
     },
     {
