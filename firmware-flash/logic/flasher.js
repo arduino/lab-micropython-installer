@@ -44,7 +44,7 @@ export class Flasher {
         const dfuUtilPath = this.getBinaryPath("dfu-util");
 
         // Specify the altsetting of the DFU interface via -a.
-        let cmd = `'${dfuUtilPath}' -a 0 -d ${vendorId}:${productId} -D '${firmwareFilepath}'`;
+        let cmd = `"${dfuUtilPath}" -a 0 -d ${vendorId}:${productId} -D "${firmwareFilepath}"`;
         
         if (reset && !dfuseDevice) {
             // cmd += " --reset";
@@ -84,7 +84,7 @@ export class Flasher {
         const bossacPath = this.getBinaryPath("bossac");
 
         // In theory, the port should be automatically detected, but it doesn't seem to work
-        let cmd = `'${bossacPath}' -d  --port=${port} -U -i -e -w '${firmwareFilepath}'`;
+        let cmd = `"${bossacPath}" -d  --port=${port} -U -i -e -w "${firmwareFilepath}"`;
         
         if (offset) {
             cmd += ` --offset=${offset}`;
@@ -114,7 +114,7 @@ export class Flasher {
     async getBootloaderVersionWithBossac(port) {
         const bossacPath = this.getBinaryPath("bossac");
         const regex = /Version\s+:\s+Arduino Bootloader(?: \(.+\))? (\d+\.\d+)/;
-        let cmd = `'${bossacPath}' -U --port=${port} -i`;
+        let cmd = `"${bossacPath}" -U --port=${port} -i`;
 
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
@@ -142,7 +142,7 @@ export class Flasher {
 
     async resetBoardWithBossac(port) {
         const bossacPath = this.getBinaryPath("bossac");
-        let cmd = `'${bossacPath}' -U --port=${port} -R`;
+        let cmd = `"${bossacPath}" -U --port=${port} -R`;
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if (error) {
@@ -169,7 +169,7 @@ export class Flasher {
             params.push("-x")
         }
 
-        let cmd = `'${picotoolPath}' load ${params.join(" ")} '${firmwareFilepath}'`;
+        let cmd = `"${picotoolPath}" load ${params.join(" ")} '${firmwareFilepath}'`;
         
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
@@ -191,7 +191,7 @@ export class Flasher {
     async runEsptool(firmwareFilepath, port, reset = true, erase = true) {
         const espToolPath = this.getBinaryPath("esptool");
         let params = ["--chip esp32s3", `--port ${port}`];
-        let eraseCmd = `'${espToolPath}' ${params.join(" ")} --before default_reset --after no_reset erase_flash`;
+        let eraseCmd = `"${espToolPath}" ${params.join(" ")} --before default_reset --after no_reset erase_flash`;
         
         if (reset) {
             params.push("--after hard_reset")
