@@ -25,6 +25,12 @@ export class Flasher {
             // If the platform is darwin then don't use the architecture.
             return path.join(osBinaryFolder, binaryName);
         }
+
+        // If we're on windows, append .exe
+        if (platform === 'win32') {
+            binaryName = `${binaryName}.exe`;
+        }
+
         const binaryPath = path.join(osBinaryFolder, arch, binaryName);
 
         // Check if the 64 bit version of the binary exists. If not use the 32 bit version.
