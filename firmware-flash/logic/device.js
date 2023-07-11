@@ -142,6 +142,7 @@ export class Device {
     // Function to read one byte from the serial port.
     // Returns a promise that resolves to the byte read as a Buffer.
     async readBytesFromSerialPort(baudRate = 115200, bytes = 1, timeout = 20000) {
+        const logger = this.logger;
         return new Promise((resolve, reject) => {
             const serialport = new SerialPort({ path: this.serialPort, baudRate: baudRate, autoOpen : false } );
             const parser = serialport.pipe(new ByteLengthParser({
@@ -149,7 +150,7 @@ export class Device {
             }));
             
             parser.on('data', function (data) {
-                this.logger?.log('📥 Received data: ' + data.toString('hex'), Logger.LOG_LEVEL.DEBUG);
+                logger?.log('📥 Received data: ' + data.toString('hex'), Logger.LOG_LEVEL.DEBUG);
                 clearTimeout(timeoutID);
                 serialport.close();
                 resolve(data);
@@ -157,7 +158,7 @@ export class Device {
 
             serialport.open(function (err) {
                 if (err) {
-                    this.logger?.log('❌ Error opening port: ' + err.message)
+                    logger?.log('❌ Error opening port: ' + err.message)
                     reject(err);
                 }
             });
@@ -173,11 +174,12 @@ export class Device {
 
     // Function to write a byte to the serial port.
     async writeToSerialPort(byte, baudRate = 115200) {
+        const logger = this.logger;
         return new Promise((resolve, reject) => {
             const serialport = new SerialPort({ path: this.serialPort, baudRate: baudRate, autoOpen : false } );
             serialport.open(function (err) {
                 if (err) {
-                    this.logger?.log('❌ Error opening port: ', err.message)
+                    logger?.log('❌ Error opening port: ', err.message)
                     reject(err);
                 }
             });
@@ -185,7 +187,7 @@ export class Device {
                 serialport.close();
 
                 if (err) {
-                    this.logger?.log('❌ Error on write: ', err.message)
+                    logger?.log('❌ Error on write: ', err.message)
                     reject(err);
                 }
                 resolve();
