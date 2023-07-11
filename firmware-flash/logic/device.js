@@ -144,6 +144,7 @@ export class Device {
     async readBytesFromSerialPort(baudRate = 115200, bytes = 1, timeout = 20000) {
         const logger = this.logger;
         return new Promise((resolve, reject) => {
+            let timeoutID = null;
             const serialport = new SerialPort({ path: this.serialPort, baudRate: baudRate, autoOpen : false } );
             const parser = serialport.pipe(new ByteLengthParser({
                 length: bytes
@@ -152,23 +153,33 @@ export class Device {
             parser.on('data', function (data) {
                 logger?.log('📥 Received data: ' + data.toString('hex'), Logger.LOG_LEVEL.DEBUG);
                 clearTimeout(timeoutID);
-                serialport.close();
-                resolve(data);
+                serialport.close(function (err){
+                    if(err){
+                        logger?.log('❌ Error on port close: ', err.message);
+                        reject(err);
+                    } else {
+                        resolve(data);
+                    }
+                });
             });
 
             serialport.open(function (err) {
                 if (err) {
                     logger?.log('❌ Error opening port: ' + err.message)
                     reject(err);
+                } else {
+                    timeoutID = setTimeout(() => {
+                        if(serialport.isOpen){
+                            serialport.close(function(err){
+                                reject("❌ Timeout while reading from serial port.");
+                            });
+                        } else {
+                            reject("❌ Timeout while reading from serial port.");
+                        }
+                    }, timeout);
                 }
             });
            
-            const timeoutID = setTimeout(() => {
-                if(serialport.isOpen){
-                    serialport.close();
-                }
-                reject("❌ Timeout while reading from serial port.");
-            }, timeout);
         });
     };
 
@@ -181,16 +192,35 @@ export class Device {
                 if (err) {
                     logger?.log('❌ Error opening port: ', err.message)
                     reject(err);
+                } else {
+                    serialport.write(byte, function (err) {
+                        if (err) {
+                            logger?.log('❌ Error on write: ', err.message);
+                            serialport.close();
+                            reject(err);
+                            return;
+                        }
+                        
+                        serialport.drain(function(err){
+                            if(err){
+                                logger?.log('❌ Error on drain: ', err.message);
+                                serialport.close();
+                                reject(err);       
+                                return;                 
+                            }
+                            serialport.close(function (err){
+                                if(err){
+                                    logger?.log('❌ Error on port close: ', err.message);
+                                    reject(err);
+                                } else {
+                                    resolve();
+                                }
+                                return;
+                            });
+                        });
+        
+                    });
                 }
-            });
-            serialport.write(byte, function (err) {
-                serialport.close();
-
-                if (err) {
-                    logger?.log('❌ Error on write: ', err.message)
-                    reject(err);
-                }
-                resolve();
             });
         });
     };
