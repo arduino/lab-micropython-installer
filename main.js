@@ -18,6 +18,7 @@ const createWindow = () => {
     })
 
     // win.webContents.openDevTools();
+    win.removeMenu();
     win.loadFile('index.html')
 }
 
