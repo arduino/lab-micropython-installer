@@ -207,7 +207,8 @@ void setup() {
   if(!hasSoftDevice()){
     digitalWrite(LED_BUILTIN, HIGH);
     // Serial.println("Installing softdevice...");
-    updateSoftDevice();      
+    updateSoftDevice();
+    while(!Serial);      
     Serial.write(1);
     delay(200);
     Serial.write(1);
@@ -220,6 +221,7 @@ void setup() {
     return;
   }
 
+  while(!Serial);
   Serial.write(1);
 }
 
