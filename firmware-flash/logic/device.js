@@ -112,16 +112,37 @@ export class Device {
                 serialport.write(command, function (err) {
                     if (err) {
                         logger?.log('❌ Error on write: ', err.message);
-                        reject(err);
+                        serialport.close(function(e){
+                            reject(err);
+                        });
                         return;
                     }
+                    serialport.drain(function(err){
+                        if(err){
+                            logger?.log('❌ Error on drain: ', err.message);
+                            serialport.close(function(e){
+                                reject(err);
+                            });
+                            return;
+                        }
+                        
+                        if(!awaitResponse) {
+                            if(serialport.isOpen){
+                                serialport.close(function(err){
+                                    if(err){
+                                        reject("❌ Error on closing port: ", err.message);
+                                    } else {
+                                        resolve();
+                                    }
+                                });
+                            } else {
+                               resolve();
+                            }
+                            return;
+                        }
+                    });
                 });
     
-                if(!awaitResponse) {
-                    if(serialport.isOpen) serialport.close();
-                    resolve();
-                    return;
-                }
             });
     
             // Read response
@@ -131,9 +152,15 @@ export class Device {
                 let lastLine = lines[lines.length - 1];
                 
                 if(lastLine === ">>> ") {
-                    serialport.close();
                     logger?.log(`📥 Received REPL response: ${responseData}`, Logger.LOG_LEVEL.DEBUG);
-                    resolve(responseData);
+                    serialport.close(function(err){
+                        if(err){
+                            logger?.log('❌ Error on port close: ', err.message);
+                            reject(err);
+                        } else {
+                            resolve(responseData);
+                        }
+                    });
                 }
             });
         });
