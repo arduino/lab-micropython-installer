@@ -174,7 +174,7 @@ export class Flasher {
             params.push("-x")
         }
 
-        let cmd = `"${picotoolPath}" load ${params.join(" ")} '${firmwareFilepath}'`;
+        let cmd = `"${picotoolPath}" load ${params.join(" ")} "${firmwareFilepath}"`;
         
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
