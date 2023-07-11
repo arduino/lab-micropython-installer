@@ -64,7 +64,7 @@ class DeviceManager {
                 }
 
                 if(i === maxTries - 1) {
-                    reject("❌ Failed to flash SoftDevice.");
+                    reject("❌ Failed to enter Arduino mode.");
                     return;
                 }
             }
