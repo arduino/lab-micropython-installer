@@ -149,7 +149,7 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
         // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
         await deviceInArduinoMode.writeToSerialPort(new Uint8Array([1])); // Tells the device to flash the bootloader / softdevice.
         logger.log("⌛️ Waiting for device to flash SoftDevice...");
-        const data = await deviceInArduinoMode.readBytesFromSerialPort(1); // Wait for the device to finish flashing the bootloader / softdevice.
+        const data = await deviceInArduinoMode.readBytesFromSerialPort(); // Wait for the device to finish flashing the bootloader / softdevice.
         const magicNumber = data.readUint8();
         if(magicNumber != SOFT_DEVICE_MAGIC_NUMBER) throw new Error("❌ Failed to flash SoftDevice.");
         
@@ -163,6 +163,7 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
         }
         deviceInBootloaderMode.logger = logger;
 
+        logger.log(`🔥 Installing MicroPython...`);
         await flasher.runBossac(firmware, deviceInBootloaderMode.getSerialPort(), arduinoNano33BLEUPythonOffset);
     } else {
         await flasher.runBossac(firmware, device.getSerialPort());
