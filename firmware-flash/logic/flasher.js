@@ -204,7 +204,7 @@ export class Flasher {
         } else {
             params.push("--after no_reset")
         }
-        let flashCmd = `'${espToolPath}' ${params.join(" ")} write_flash --flash_mode dio --flash_freq 80m --flash_size 16MB -z 0 '${firmwareFilepath}'`;
+        let flashCmd = `"${espToolPath}" ${params.join(" ")} write_flash --flash_mode dio --flash_freq 80m --flash_size 16MB -z 0 "${firmwareFilepath}"`;
         
         if(erase){
             await new Promise((resolve, reject) => {
