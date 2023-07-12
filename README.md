@@ -51,9 +51,12 @@ npm run package # Creates a distributable file bundle
 
 ## 📣 Publishing
 
-The CI takes care of making new releases. All that needs to be done is to bump the version with `npm version patch`, `npm version minor` or `npm version major` and push the tags with `git push --follow-tags`. When the CI is done the release will be in draft state so you can add release notes and publish it.
+The CI takes care of making new releases. All that needs to be done is to bump the version with `npm version patch`, `npm version minor` or `npm version major` and push the tags with `git push --follow-tags`. 
+When the CI is done the release will be in draft state so you can add release notes and publish it.
 
-To manually publish a new version, run:
+To do a development release, you can run e.g. `npm version preminor --preid=beta` to create a new minor version of the tool that contains the given suffix (e.g. v1.1.9-beta). For each successor development version you can run `npm version prerelease` which bumps the "beta" version to the next number (e.g.v1.1.0-beta.2).
+
+To manually publish a new version (if you really need to), run:
 
 ```bash
 npm run publish
