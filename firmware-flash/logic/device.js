@@ -149,9 +149,14 @@ export class Device {
             serialport.on('data', function (data) {
                 responseData += data.toString();
                 let lines = responseData.split('\r\n');
+                let secondLastLine = lines[lines.length - 2];
                 let lastLine = lines[lines.length - 1];
                 
-                if(lastLine === ">>> ") {
+                // The inital >>> is received sometimes depending on the timing
+                // and is hence disregarded for the completion condition.
+                const endOfOutputReached = lastLine === ">>> " && secondLastLine != "Type \"help()\" for more information.";
+                
+                if(endOfOutputReached) {
                     logger?.log(`📥 Received REPL response: ${responseData}`, Logger.LOG_LEVEL.DEBUG);
                     serialport.close(function(err){
                         if(err){
