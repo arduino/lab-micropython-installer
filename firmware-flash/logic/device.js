@@ -307,6 +307,14 @@ export class Device {
         return "0x" + anID.toString(16).padStart(4, '0');
     }
 
+    getVendorID() {
+        return this.vendorID;
+    }
+
+    getProductID() {
+        return this.productID;
+    }
+
     getVendorIDHex() {
         return this.convertNumberToHex(this.vendorID);
     }
