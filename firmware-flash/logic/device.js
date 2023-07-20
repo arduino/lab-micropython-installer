@@ -325,12 +325,20 @@ export class Device {
 
 
     getBootloaderVID(){
+        const hasDefaultBootloaderPID = !!this.deviceDescriptor.getDefaultIDs().pids.bootloader;
+        if(hasDefaultBootloaderPID){
+            return this.deviceDescriptor.getDefaultIDs().vid;
+        }
+
         const hasAlternativeBootloaderPID = !!this.deviceDescriptor.getAlternativeIDs()?.pids.bootloader;
-        return hasAlternativeBootloaderPID ? this.deviceDescriptor.getAlternativeIDs()?.vid : this.deviceDescriptor.getDefaultIDs().vid;
+        if(hasAlternativeBootloaderPID){
+            return this.deviceDescriptor.getAlternativeIDs()?.vid;
+        }
+        return null;
     }
     
     getBootloaderPID(){
-        return this.deviceDescriptor.getAlternativeIDs()?.pids.bootloader || this.deviceDescriptor.getDefaultIDs().pids.bootloader;
+        return this.deviceDescriptor.getDefaultIDs().pids.bootloader || this.deviceDescriptor.getAlternativeIDs()?.pids.bootloader;
     }
 
     getDefaultVID(){

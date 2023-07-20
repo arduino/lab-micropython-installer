@@ -179,14 +179,14 @@ const arduinoNanoESP32Identifiers = {
     
     "alternative" : {
         "vid" : 0x303a,
-        // Installing from native bootloader is not supported yet
-        "pids" : { /* "bootloader" : 0x1001, */ "upython" : 0x4001 }
+        "pids" : { "bootloader" : 0x1001, "upython" : 0x4001 }
     }
 };
 const arduinoNanoESP32Descriptor = new DeviceDescriptor(arduinoNanoESP32Identifiers, 'Nano ESP32', 'Arduino', 'ARDUINO_NANO_ESP32', 'bin');
 arduinoNanoESP32Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     if(device.getVendorID() == arduinoNanoESP32Identifiers.alternative?.vid && device.getProductID() == arduinoNanoESP32Identifiers.alternative?.pids.bootloader){
-        await flasher.runEsptool(firmware, device.getSerialPort());        
+        throw new Error("❌ Installing from native bootloader is not supported yet.");
+        // await flasher.runEsptool(firmware, device.getSerialPort());        
     } else {
         await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), false);
     }
