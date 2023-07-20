@@ -16,14 +16,19 @@ Launch the application.
 Follow the on-screen prompts to download and install the MicroPython firmware.
 
 ## ✅ Supported Boards
-- Arduino Giga
 - Arduino Portenta H7
 - Arduino Portenta C33
-- Arduino Nano RP2040
 - Arduino Nicla Vision
+- Arduino Giga
+- Arduino Nano RP2040
+- Arduino Nano ESP32
 - Arduino Nano 33 BLE
 
 ## ⚙️ Installation
+
+You can download the binary for your operating system from the [release page](https://github.com/arduino/lab-micropython-installer/releases).
+
+## 🧑‍💻 Developer Installation
 
 ```bash
 # Clone this repository
