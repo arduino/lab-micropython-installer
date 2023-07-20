@@ -12,6 +12,19 @@ const reloadDeviceListLink = document.getElementById("reload-link");
 
 const statusTextAnimator = new StatusTextAnimator(outputElement);
 
+const showErrorInStatusText = (err, timeout = 4000) => {
+  setTimeout(() => {
+    // Extract relevant part of the error message 
+    const regex = /Error invoking remote method '(?:.+)': Error: (.+)/;
+    const match = regex.exec(err.message);
+    if(match) {
+      statusTextAnimator.showStatusText(match[1], 5000);
+    } else {
+      statusTextAnimator.showStatusText(err.message, 5000);
+    }
+  }, timeout);
+};
+
 const flashFirmwareFromFile = (filePath) => {
     disableFlashingInteractions();
     disableDeviceListInteractions();
@@ -30,9 +43,7 @@ const flashFirmwareFromFile = (filePath) => {
         refreshDeviceList(2000);
     }).catch(function (err) {
         console.error(err);
-        setTimeout(() => {
-            statusTextAnimator.showStatusText("❌ Failed to flash firmware.", 5000);
-        }, 4000);
+        showErrorInStatusText(err);        
     }).finally(() => {
         enableDeviceListInteractions();
         enableFlashingInteractions();
@@ -128,9 +139,7 @@ installButton.addEventListener('click', () => {
         })
         .catch((err) => {
             console.error(err);
-            setTimeout(() => {
-                statusTextAnimator.showStatusText("❌ Failed to flash firmware.", 5000);
-            }, 4000);
+            showErrorInStatusText(err);
         }).finally(() => {
             enableDeviceListInteractions();
             enableFlashingInteractions();

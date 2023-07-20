@@ -84,18 +84,21 @@ ipcMain.handle('on-install', async (event, data) => {
     return new Promise(async function (resolve, reject) {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
         try {
-            if (selectedDevice && await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
+            if(!selectedDevice){
+                reject("❌ Selected is not available. Click 'Refresh' to update the list of devices.");
+                return;
+            }
+            if (await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
                 resolve("🎉 Done! You may need to reboot the device.");
             } else {
-                // Due to a bug in Electron the error message is reformatted.
-                // Therefore the error message is created in the renderer process
+                // Due to a bug in Electron the error message is reformatted and needs
+                // to be cleaned up in the renderer process.
                 // See: https://github.com/electron/electron/issues/24427
-                reject("Error");
+                reject("❌ Failed to flash firmware.");
             }
         } catch (error) {
-            console.log(error);
             logger.log(error, flash.Logger.LOG_LEVEL.DEBUG);
-            reject("Error");
+            reject(error);
         }
     });
 });
