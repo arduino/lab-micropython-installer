@@ -28,6 +28,9 @@ Follow the on-screen prompts to download and install the MicroPython firmware.
 
 You can download the binary for your operating system from the [release page](https://github.com/arduino/lab-micropython-installer/releases).
 
+> **Note**
+> Windows users may have to first install the drivers for their board to be able to install MicroPython with this tool. The easiest way is to install the corresponding Arduino core via Arduino IDE or Arduino CLI. [Here](https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-board-manager) are detailed instructions on how to do this.
+
 ## 🧑‍💻 Developer Installation
 
 ```bash
