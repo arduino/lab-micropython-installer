@@ -24,6 +24,10 @@ Follow the on-screen prompts to download and install the MicroPython firmware.
 - Arduino Nano ESP32
 - Arduino Nano 33 BLE
 
+## 🙅 Limitations
+
+- The Arduino Nano RP2040 and Portenta C33 are not detected when in bootloader mode. This is because the bootloader doesn't expose a serial port but this tool relies on it to detect boards. Therefore make sure that the board is not in bootloader mode when you run the application.
+
 ## ⚙️ Installation
 
 You can download the binary for your operating system from the [release page](https://github.com/arduino/lab-micropython-installer/releases).
@@ -80,6 +84,14 @@ To add support for additional boards a few changes / additions may be required:
 - Add a descriptor for the device to [descriptors.js](./firmware-flash/logic/descriptors.js). The descriptor contains the VID and PID of the board plus some instructions on how to flash a firmware.
 - If the board requires a flashing tool other than the ones already supported, it needs to be added to [firmware-flash/bin](./firmware-flash/bin/) and the corresponding Node.js binding needs to be added to [flasher.js](./firmware-flash/logic/flasher.js)
 - An SVG asset of the board needs to be added to [assets/boards](./assets/boards/). The filename will be derived from the board manufacturer and product name in the descriptor.
+
+## 🐛 Reporting Issues
+If you encounter any issue, please open a bug report [here](https://github.com/arduino/lab-micropython-installer/issues). Please also add all generated log output to your issue. To get that, you need to launch the tool from the command line:
+- macOS: `"/Applications/MicroPython Installer.app/Contents/MacOS/micropython-installer"`
+- Windows: `micropython-installer.exe | echo`
+- Linux: `micropython-installer`
+
+You may need to adjust the path depending on where the tool is installed on your system.
 
 ## 💪 Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
