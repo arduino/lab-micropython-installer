@@ -80,7 +80,11 @@ const arduinoNanoRP2040Identifiers = {
     },
     "alternative" : {
         "vid" : 0x2e8a,
-        "pids" : { "bootloader" : 0x0003 }
+        "pids" : { 
+            "bootloader" : 0x0003, 
+            /* Older version of MicroPython didn't use the Arduino VID and used this deprecated PID */
+            "upython": 0x0005 
+        }
     }
 };
 const arduinoNanoRP2040Descriptor = new DeviceDescriptor(arduinoNanoRP2040Identifiers, 'Nano RP2040 Connect', 'Arduino', 'ARDUINO_NANO_RP2040_CONNECT', 'uf2');
