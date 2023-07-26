@@ -57,24 +57,28 @@ app.on('activate', () => {
 
 ipcMain.handle('on-file-selected', async (event, data) => {
     const { deviceData, filePath } = data;
-    logger.log(`⤵️ Data received from UI: '${data}'`, flash.Logger.LOG_LEVEL.DEBUG);
+    logger.log(`⤵️ Data received from UI: '${Object.keys(data)}'`, flash.Logger.LOG_LEVEL.DEBUG);
     logger.log(`📄 File dropped for flashing: '${filePath}'`, flash.Logger.LOG_LEVEL.DEBUG);
     // Alternative to returning a promise:  
     // event.returnValue = `Done`; // Synchronous reply
     return new Promise(async function (resolve, reject) {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
         try {
-            if (selectedDevice && await flash.flashFirmware(filePath, selectedDevice)) {
+            if(!selectedDevice){
+                reject("❌ Selected is not available. Click 'Refresh' to update the list of devices.");
+                return;
+            }
+            if (await flash.flashFirmware(filePath, selectedDevice)) {
                 resolve("🎉 Done! You may need to reboot the device.");
             } else {
                 // Due to a bug in Electron the error message is reformatted.
                 // Therefore the error message is created in the renderer process
                 // See: https://github.com/electron/electron/issues/24427
-                reject("Error");
+                reject("❌ Failed to flash firmware.");
             }
         } catch (error) {
             logger.log(error, flash.Logger.LOG_LEVEL.DEBUG);
-            reject("Error");
+            reject(error);
         }
     });
 })
