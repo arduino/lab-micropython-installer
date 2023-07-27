@@ -7,6 +7,7 @@ import path from 'path';
 import Logger from './logger.js';
 
 const HOST_URL = "https://downloads.arduino.cc";
+const JSON_URL = HOST_URL + "/micropython/index.json";
 
 export class Device {
     constructor(vendorID, productID, deviceDescriptor, serialPort = null, serialNumber = null) {
@@ -24,8 +25,7 @@ export class Device {
         const boardName = this.deviceDescriptor.firmwareID;
         this.logger?.log(`🔍 Finding latest firmware for board '${boardName}' ...`);
 
-        const jsonUrl = "https://downloads.arduino.cc/micropython/index.json";
-        const response = await fetch(jsonUrl);
+        const response = await fetch(JSON_URL);
         const data = await response.json();
 
         // Find the board with the given name
@@ -51,6 +51,11 @@ export class Device {
                 release.type.trim() === "(nightly)" &&
                 release.url.endsWith("." + fileExtension)
             );
+
+            if(!nightlyRelease && !stableRelease){
+                this.logger?.log("🤷 Neither a stable nor nightly release was found.");
+                return null;
+            }
 
             // If we are using a nightly build, return the nightly release URL
             // same if no stable release is available.
