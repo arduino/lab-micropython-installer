@@ -78,6 +78,10 @@ export class Device {
 
         // Download the file and save it to disk
         const response = await fetch(firmwareUrl);
+        if(!response.ok){
+            this.logger?.log(`❌ Error downloading firmware: ${response.statusText}.`, Logger.LOG_LEVEL.ERROR);
+            return null;
+        }
         const buffer = await response.arrayBuffer();
         fs.writeFileSync(targetFile, Buffer.from(buffer));
 
