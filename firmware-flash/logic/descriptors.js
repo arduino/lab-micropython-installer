@@ -14,12 +14,19 @@ const flasher = new Flasher();
 flasher.logger = new Logger(null, true, Logger.LOG_LEVEL.DEBUG);
 
 const softDeviceFirmwareFilename = "SoftDeviceUpdater.bin";
+const noraRecoveryFirmwareFilename = "nora_recovery.ino.bin";
 const __filename = fileURLToPath(import.meta.url);
 
 function getSoftDevicePath(){
     const scriptDir = path.dirname(__filename);
     const firmwarePath = path.join(scriptDir, ".." , "bin", "firmware", softDeviceFirmwareFilename);
     return firmwarePath;  
+}
+
+function getNoraRecoveryPath(){
+    const scriptDir = path.dirname(__filename);
+    const firmwarePath = path.join(scriptDir, ".." , "bin", "firmware", noraRecoveryFirmwareFilename);
+    return firmwarePath;
 }
 
 const arduinoPortentaH7Identifiers = {
@@ -183,17 +190,33 @@ const arduinoNanoESP32Identifiers = {
     
     "alternative" : {
         "vid" : 0x303a,
-        "pids" : { "bootloader" : 0x1001, "upython" : 0x4001 }
+        "pids" : { "upython" : 0x4001 }
     }
 };
-const arduinoNanoESP32Descriptor = new DeviceDescriptor(arduinoNanoESP32Identifiers, 'Nano ESP32', 'Arduino', 'ARDUINO_NANO_ESP32', 'bin');
+
+const arduinoNanoESP32Descriptor = new DeviceDescriptor(arduinoNanoESP32Identifiers, 'Nano ESP32', 'Arduino', 'ARDUINO_NANO_ESP32', 'app-bin');
 arduinoNanoESP32Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
-    if(device.getVendorID() == arduinoNanoESP32Identifiers.alternative?.vid && device.getProductID() == arduinoNanoESP32Identifiers.alternative?.pids.bootloader){
-        throw new Error("❌ Installing from native bootloader is not supported yet.");
-        // await flasher.runEsptool(firmware, device.getSerialPort());        
-    } else {
-        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), false);
+    if(path.extname(firmware) == ".bin"){
+        throw new Error("❌ Installing a raw binary from DFU bootloader is not supported. Please use the native bootloader instead or flash an application image.");
     }
+    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), false);
+};
+
+const arduinoNanoESP32NativeIdentifiers = {
+    "default" : {
+        "vid" : 0x303a,
+        "pids" : { "bootloader" : 0x1001 }
+    },
+}
+const arduinoNanoESP32NativeDescriptor = new DeviceDescriptor(arduinoNanoESP32NativeIdentifiers, 'Nano ESP32', 'Arduino', 'ARDUINO_NANO_ESP32', 'bin');
+arduinoNanoESP32NativeDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
+    if(path.extname(firmware) == ".app-bin"){
+        throw new Error("❌ Installing an application image from native bootloader is not supported. Please use the DFU bootloader instead or flash a full firmware image.");
+    }
+    const config = {"chip": "esp32s3", "flashSize" : "16MB", "flashMode" : "dio", "flashFreq" : "80m"};
+    const recoveryCommand = {"address" : "0xf70000", "path" : getNoraRecoveryPath()};
+    const firmwareCommand = {"address" : "0x0", "path" : firmware};
+    await flasher.runEsptool([firmwareCommand, recoveryCommand], device.getSerialPort(), config);
 };
 
 const descriptors = [
@@ -203,7 +226,8 @@ const descriptors = [
     arduinoNanoRP2040Descriptor,
     arduinoNiclaVisionDescriptor,
     arduinoNano33BLEDescriptor,
-    arduinoNanoESP32Descriptor
+    arduinoNanoESP32Descriptor,
+    arduinoNanoESP32NativeDescriptor
 ];
 
 export default descriptors;
