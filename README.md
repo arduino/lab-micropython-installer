@@ -32,13 +32,20 @@ Follow the on-screen prompts to download and install the MicroPython firmware.
 
 You can download the binary for your operating system from the [release page](https://github.com/arduino/lab-micropython-installer/releases).
 
-> **Note**
-> Windows users may have to first install the drivers for their board to be able to install MicroPython with this tool. The easiest way is to install the corresponding Arduino core via Arduino IDE or Arduino CLI. [Here](https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-board-manager) are detailed instructions on how to do this.
+> ⚠️ Windows users may have to first install the drivers for their board to be able to install MicroPython with this tool. The easiest way is to install the corresponding Arduino core via Arduino IDE or Arduino CLI. [Here](https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-board-manager) are detailed instructions on how to do this.
 
 ## 🚑 Troubleshooting
 
 - If you get an error message such as "No DFU capable device found" make sure you install the drivers for the board first if you're on Windows. On Linux you may need to adjust the udev rules.
 - If in the log files you see that the tool is sending a REPL command to the board but doesn't get a response (hangs), please double check if you have either a tool on your computer running that occupies the serial port. It's also possible that your board is running a MicroPython script that occupies the serial port (check boot.py and main.py).
+
+## 🐛 Reporting Issues
+If you encounter any issue, please open a bug report [here](https://github.com/arduino/lab-micropython-installer/issues). Please also add all generated log output to your issue. To get that, you need to launch the tool from the command line:
+- macOS: `"/Applications/MicroPython Installer.app/Contents/MacOS/micropython-installer"`
+- Windows: `micropython-installer.exe | echo`
+- Linux: `micropython-installer`
+
+You may need to adjust the path depending on where the tool is installed on your system.
 
 ## 🧑‍💻 Developer Installation
 
@@ -84,14 +91,6 @@ To add support for additional boards a few changes / additions may be required:
 - Add a descriptor for the device to [descriptors.js](./firmware-flash/logic/descriptors.js). The descriptor contains the VID and PID of the board plus some instructions on how to flash a firmware.
 - If the board requires a flashing tool other than the ones already supported, it needs to be added to [firmware-flash/bin](./firmware-flash/bin/) and the corresponding Node.js binding needs to be added to [flasher.js](./firmware-flash/logic/flasher.js)
 - An SVG asset of the board needs to be added to [assets/boards](./assets/boards/). The filename will be derived from the board manufacturer and product name in the descriptor.
-
-## 🐛 Reporting Issues
-If you encounter any issue, please open a bug report [here](https://github.com/arduino/lab-micropython-installer/issues). Please also add all generated log output to your issue. To get that, you need to launch the tool from the command line:
-- macOS: `"/Applications/MicroPython Installer.app/Contents/MacOS/micropython-installer"`
-- Windows: `micropython-installer.exe | echo`
-- Linux: `micropython-installer`
-
-You may need to adjust the path depending on where the tool is installed on your system.
 
 ## 💪 Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
