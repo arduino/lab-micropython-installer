@@ -15,7 +15,7 @@ const statusTextAnimator = new StatusTextAnimator(outputElement);
 const showErrorInStatusText = (err, timeout = 4000) => {
   setTimeout(() => {
     // Extract relevant part of the error message 
-    const regex = /Error invoking remote method '(?:.+)': (?:Error: )?(.+)/;
+    const regex = /Error [a-zA-Z\s]+ '(?:.+)': (?:Error: )?(.+)/;
     const match = regex.exec(err.message);
     if(match) {
       statusTextAnimator.showStatusText(match[1], 5000);
