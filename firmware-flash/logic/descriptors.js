@@ -14,18 +14,18 @@ const flasher = new Flasher();
 flasher.logger = new Logger(null, true, Logger.LOG_LEVEL.DEBUG);
 
 const softDeviceFirmwareFilename = "SoftDeviceUpdater.bin";
-const noraRecoveryFirmwareFilename = "nora_recovery.ino.bin";
+const nanoESP32RecoveryFirmwareFilename = "nora_recovery.ino.bin";
 const __filename = fileURLToPath(import.meta.url);
 
-function getSoftDevicePath(){
+function getSoftDeviceFirmwarePath(){
     const scriptDir = path.dirname(__filename);
     const firmwarePath = path.join(scriptDir, ".." , "bin", "firmware", softDeviceFirmwareFilename);
     return firmwarePath;  
 }
 
-function getNoraRecoveryPath(){
+function getNanoESP32RecoveryFirmwarePath(){
     const scriptDir = path.dirname(__filename);
-    const firmwarePath = path.join(scriptDir, ".." , "bin", "firmware", noraRecoveryFirmwareFilename);
+    const firmwarePath = path.join(scriptDir, ".." , "bin", "firmware", nanoESP32RecoveryFirmwareFilename);
     return firmwarePath;
 }
 
@@ -151,7 +151,7 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
         const deviceManager = device.getDeviceManager();
     
         logger.log("🔥 Flashing SoftDevice updater...");
-        await flasher.runBossac(getSoftDevicePath(), device.getSerialPort());
+        await flasher.runBossac(getSoftDeviceFirmwarePath(), device.getSerialPort());
         logger.log("🏃 Waiting for device to run sketch...");
         let deviceInArduinoMode = await deviceManager.waitForDeviceToEnterArduinoMode(device, 10);
         deviceInArduinoMode.logger = logger;
@@ -214,7 +214,7 @@ arduinoNanoESP32NativeDescriptor.onFlashFirmware = async (firmware, device, isMi
         throw new Error("❌ Installing an application image from native bootloader is not supported. Please use the DFU bootloader instead or flash a full firmware image.");
     }
     const config = {"chip": "esp32s3", "flashSize" : "16MB", "flashMode" : "dio", "flashFreq" : "80m"};
-    const recoveryCommand = {"address" : "0xf70000", "path" : getNoraRecoveryPath()};
+    const recoveryCommand = {"address" : "0xf70000", "path" : getNanoESP32RecoveryFirmwarePath()};
     const firmwareCommand = {"address" : "0x0", "path" : firmware};
     await flasher.runEsptool([firmwareCommand, recoveryCommand], device.getSerialPort(), config);
 };
