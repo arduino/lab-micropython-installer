@@ -31,6 +31,11 @@ You can download the binary for your operating system from the [release page](ht
 > **Note**
 > Windows users may have to first install the drivers for their board to be able to install MicroPython with this tool. The easiest way is to install the corresponding Arduino core via Arduino IDE or Arduino CLI. [Here](https://docs.arduino.cc/software/ide-v2/tutorials/ide-v2-board-manager) are detailed instructions on how to do this.
 
+## 🚑 Troubleshooting
+
+- If you get an error message such as "No DFU capable device found" make sure you install the drivers for the board first if you're on Windows. On Linux you may need to adjust the udev rules.
+- If in the log files you see that the tool is sending a REPL command to the board but doesn't get a response (hangs), please double check if you have either a tool on your computer running that occupies the serial port. It's also possible that your board is running a MicroPython script that occupies the serial port (check boot.py and main.py).
+
 ## 🧑‍💻 Developer Installation
 
 ```bash
