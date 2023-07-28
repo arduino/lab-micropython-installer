@@ -69,7 +69,7 @@ ipcMain.handle('on-file-selected', async (event, data) => {
                 return;
             }
             if (await flash.flashFirmware(filePath, selectedDevice)) {
-                resolve("🎉 Done! You may need to reboot the device.");
+                resolve("🎉 Done! You may need to reboot the board.");
             } else {
                 // Due to a bug in Electron the error message is reformatted.
                 // Therefore the error message is created in the renderer process
@@ -93,7 +93,7 @@ ipcMain.handle('on-install', async (event, data) => {
                 return;
             }
             if (await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
-                resolve("🎉 Done! You may need to reboot the device.");
+                resolve("🎉 Done! You may need to reboot the board.");
             } else {
                 // Due to a bug in Electron the error message is reformatted and needs
                 // to be cleaned up in the renderer process.
