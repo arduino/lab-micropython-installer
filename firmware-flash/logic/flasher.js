@@ -193,10 +193,11 @@ export class Flasher {
         });
     }
 
-    async runEsptool(firmwareFilepath, port, reset = true, erase = true) {
+    async runEsptool(firmwares, port, config, reset = true, erase = true) {
         const logger = this.logger;
         const espToolPath = this.getBinaryPath("esptool");
-        let params = ["--chip esp32s3", `--port ${port}`];
+        const {chip, flashMode, flashFreq, flashSize} = config;
+        let params = [`--chip ${chip}`, `--port ${port}`];
         let eraseCmd = `"${espToolPath}" ${params.join(" ")} --before default_reset --after no_reset erase_flash`;
         
         if (reset) {
@@ -204,7 +205,8 @@ export class Flasher {
         } else {
             params.push("--after no_reset")
         }
-        let flashCmd = `"${espToolPath}" ${params.join(" ")} write_flash --flash_mode dio --flash_freq 80m --flash_size 16MB -z 0 "${firmwareFilepath}"`;
+        const firmwaresString = firmwares.map(f => `${f.address} "${f.path}"`).join(" ");
+        let flashCmd = `"${espToolPath}" ${params.join(" ")} write_flash --flash_mode ${flashMode} --flash_freq ${flashFreq} --flash_size ${flashSize} -z ${firmwaresString}`;
         
         if(erase){
             await new Promise((resolve, reject) => {
