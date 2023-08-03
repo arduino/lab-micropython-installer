@@ -219,7 +219,7 @@ arduinoNanoESP32NativeDescriptor.onFlashFirmware = async (firmware, device, isMi
     await flasher.runEsptool([firmwareCommand, recoveryCommand], device.getSerialPort(), config);
 };
 
-const descriptors = [
+export {
     arduinoPortentaC33Descriptor,
     arduinoGigaDescriptor, 
     arduinoPortentaH7Descriptor, 
@@ -228,6 +228,4 @@ const descriptors = [
     arduinoNano33BLEDescriptor,
     arduinoNanoESP32Descriptor,
     arduinoNanoESP32NativeDescriptor
-];
-
-export default descriptors;
+};

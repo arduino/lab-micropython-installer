@@ -163,7 +163,35 @@ export class Flasher {
             });
         });
     }
+    
+    async getBoardInfoWithPicotool() {
+        const logger = this.logger;
+        const picotoolPath = this.getBinaryPath("picotool");
+        let cmd = `"${picotoolPath}" info -l`;
         
+        return new Promise((resolve, reject) => {
+            exec(cmd, (error, stdout, stderr) => {
+                if(error && stdout.trim() == "No accessible RP2040 devices in BOOTSEL mode were found."){
+                    logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                    resolve(stdout);
+                    return;
+                }
+
+                if (error) {
+                    logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                    reject(`Error running picotool: ${error.message}`);
+                    return;
+                }
+                
+                if (stderr) {
+                    reject(`Error running picotool: ${stderr}`);
+                    return;
+                }
+                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                resolve(stdout);
+            });
+        });
+    }
 
     async runPicotool(firmwareFilepath, reset = true) {
         const logger = this.logger;

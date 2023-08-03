@@ -1,8 +1,9 @@
 import DeviceManager from './logic/deviceManager.js';
-import descriptors from './logic/descriptors.js';
+import * as descriptors from './logic/descriptors.js';
 import Logger from './logic/logger.js';
 import Device from './logic/device.js';
 import SerialDeviceFinder from './logic/deviceDiscovery/serialDeviceFinder.js';
+import PicotoolDeviceFinder from './logic/deviceDiscovery/picotoolDeviceFinder.js';
 
 /// The amount of time to wait for the device to become available in bootloader mode.
 /// This is only used for devices that can't be detected in bootloader mode through their serial port.
@@ -15,7 +16,12 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
     if(!selectedDevice.logger){
         selectedDevice.logger = logger;
     }
-    logger?.log(`👀 Device found: ${selectedDevice.deviceDescriptor.name} at ${selectedDevice.getSerialPort()}`);
+    const serialPort = selectedDevice.getSerialPort();
+    if(serialPort) {
+        logger?.log(`👀 Device found: ${selectedDevice.deviceDescriptor.name} at ${serialPort}`);
+    } else {
+        logger?.log(`👀 Device found: ${selectedDevice.deviceDescriptor.name}`);
+    }
     
     if(selectedDevice.runsBootloader()) {
         logger?.log(`👍 Device is already in bootloader mode.`);
@@ -91,9 +97,10 @@ function setLogger(alogger){
 
 const deviceManager = new DeviceManager();
     
-for (const descriptor of descriptors) {
+for (const descriptor of Object.values(descriptors)) {
     deviceManager.addDeviceDescriptor(descriptor);
 }
 deviceManager.addDeviceFinder(new SerialDeviceFinder());
+deviceManager.addDeviceFinder(new PicotoolDeviceFinder());
 
 export { Device, Logger, flashFirmware, flashMicroPythonFirmware, getDeviceList, getFirstFoundDevice, setLogger, deviceManager };
