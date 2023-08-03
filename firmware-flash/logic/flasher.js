@@ -72,6 +72,7 @@ export class Flasher {
                         resolve(stdout);
                         return;
                     }
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running dfu-util (stderr): '${stderr}'`);
                     return;
                 }
@@ -104,6 +105,7 @@ export class Flasher {
                     return;
                 }
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }
@@ -127,6 +129,7 @@ export class Flasher {
                     return;
                 }
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }                
@@ -155,6 +158,7 @@ export class Flasher {
                     return;
                 }
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }
@@ -184,6 +188,7 @@ export class Flasher {
                 }
                 
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running picotool: ${stderr}`);
                     return;
                 }
@@ -212,6 +217,7 @@ export class Flasher {
                     return;
                 }
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running picotool: ${stderr}`);
                     return;
                 }
@@ -245,6 +251,7 @@ export class Flasher {
                         return;
                     }
                     if (stderr) {
+                        logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                         reject(`Error running esptool: ${stderr}`);
                         return;
                     }
@@ -262,6 +269,7 @@ export class Flasher {
                     return;
                 }
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running esptool: ${stderr}`);
                     return;
                 }
