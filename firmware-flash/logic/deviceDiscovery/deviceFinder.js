@@ -16,6 +16,10 @@ class DeviceFinder {
         return parseInt(anID, 16);
     }
 
+    async getDeviceList() {
+        throw new Error("❌ The getDeviceList() method must be implemented by the subclass.");
+    }
+
 }
 
 export default DeviceFinder;
