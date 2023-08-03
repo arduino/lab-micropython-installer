@@ -2,6 +2,7 @@ import DeviceManager from './logic/deviceManager.js';
 import descriptors from './logic/descriptors.js';
 import Logger from './logic/logger.js';
 import Device from './logic/device.js';
+import SerialDeviceFinder from './logic/deviceDiscovery/serialDeviceFinder.js';
 
 /// The amount of time to wait for the device to become available in bootloader mode.
 /// This is only used for devices that can't be detected in bootloader mode through their serial port.
@@ -16,16 +17,16 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
     }
     logger?.log(`👀 Device found: ${selectedDevice.deviceDescriptor.name} at ${selectedDevice.getSerialPort()}`);
     
-    if(selectedDevice.runsMicroPython()) {
-        let version = await selectedDevice.getMicroPythonVersion();
-        logger?.log(`🐍 Device is running MicroPython version: ${version}`);
-    }
-
     if(selectedDevice.runsBootloader()) {
         logger?.log(`👍 Device is already in bootloader mode.`);
         await selectedDevice.flashFirmware(firmwarePath, isMicroPython);
         logger?.log('✅ Firmware flashed successfully.');
         return true;
+    }
+    
+    if(selectedDevice.runsMicroPython()) {
+        let version = await selectedDevice.getMicroPythonVersion();
+        logger?.log(`🐍 Device is running MicroPython version: ${version}`);
     }
 
     try {
@@ -93,5 +94,6 @@ const deviceManager = new DeviceManager();
 for (const descriptor of descriptors) {
     deviceManager.addDeviceDescriptor(descriptor);
 }
+deviceManager.addDeviceFinder(new SerialDeviceFinder());
 
 export { Device, Logger, flashFirmware, flashMicroPythonFirmware, getDeviceList, getFirstFoundDevice, setLogger, deviceManager };
