@@ -10,14 +10,14 @@ const HOST_URL = "https://downloads.arduino.cc";
 const JSON_URL = HOST_URL + "/micropython/index.json";
 
 export class Device {
-    constructor(vendorID, productID, deviceDescriptor, serialPort = null, serialNumber = null) {
+    constructor(vendorID, productID, serialPort = null, serialNumber = null) {
         this.vendorID = vendorID;
         this.productID = productID;
-        this.deviceDescriptor = deviceDescriptor;
         this.serialNumber = serialNumber;
         this.serialPort = serialPort;
         this.logger = null;
         this.deviceManager = null;
+        this.deviceDescriptor = null;
     }
 
     async getUPythonFirmwareUrl(useNightlyBuild = false) {
@@ -314,6 +314,10 @@ export class Device {
     // The number is padded with a 0 if it is less than 4 digits long.
     convertNumberToHex(anID) {
         return "0x" + anID.toString(16).padStart(4, '0');
+    }
+
+    setDeviceDescriptor(deviceDescriptor) {
+        this.deviceDescriptor = deviceDescriptor;
     }
 
     getVendorID() {

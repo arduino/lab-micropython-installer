@@ -7,26 +7,15 @@ class DeviceManager {
       this.devices = null;
       this.deviceDescriptors = [];
       this.logger = null;
+      this.deviceFinders = [];
+    }
+
+    addDeviceFinder(deviceFinder) {
+        this.deviceFinders.push(deviceFinder);
     }
 
     addDeviceDescriptor(deviceDescriptor) {
         this.deviceDescriptors.push(deviceDescriptor);
-    }
-
-    // Function to convert a hex string ID to a number.
-    convertHexToNumber(anID) {
-        // The hex string can have the 0x prefix or not.
-        if (anID.startsWith("0x")) {
-            anID = anID.substring(2);
-        }
-        // The hex string can be padded with a 0 or not.
-        if (anID.length === 3) {
-            anID = "0" + anID;
-        }
-        // The hex string can be upper or lower case.
-        anID = anID.toLowerCase();
-
-        return parseInt(anID, 16);
     }
 
     // Function to wait for the specified number of milliseconds.
@@ -105,19 +94,18 @@ class DeviceManager {
             throw new Error("❌ No device descriptors have been added.");
         }
 
-        const ports = await SerialPort.list();
+        for (const deviceFinder of this.deviceFinders) {
+            const foundDevices = await deviceFinder.getDeviceList();
+            for (let foundDevice of foundDevices) {
+                let deviceDescriptor = this.getDeviceDescriptor(foundDevice.getVendorID(), foundDevice.getProductID());
 
-        for (const port of ports) {
-            if(port.vendorId === undefined || port.productId === undefined) continue;
-            const vendorID = this.convertHexToNumber(port.vendorId);
-            const productID = this.convertHexToNumber(port.productId);
-            let deviceDescriptor = this.getDeviceDescriptor(vendorID, productID);
-
-            if (deviceDescriptor) {
-                const newDevice = this.createDevice(vendorID, productID, deviceDescriptor, port.path, port.serialNumber);
-                this.devices.push(newDevice);
+                if (deviceDescriptor) {
+                    foundDevice.setDeviceDescriptor(deviceDescriptor);
+                    this.devices.push(foundDevice);
+                }
             }
         }
+
         return this.devices;
     }
 
@@ -132,7 +120,8 @@ class DeviceManager {
      * @returns 
      */
     createDevice(vendorID, productID, deviceDescriptor, port = null, serialNumber = null) {
-        const newDevice = new Device(vendorID, productID, deviceDescriptor, port, serialNumber);
+        const newDevice = new Device(vendorID, productID, port, serialNumber);
+        newDevice.setDeviceDescriptor(deviceDescriptor);
         newDevice.deviceManager = this;
         return newDevice;
     };
