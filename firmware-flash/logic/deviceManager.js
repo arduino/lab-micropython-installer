@@ -87,6 +87,13 @@ class DeviceManager {
         });
     }    
 
+    /**
+     * Refreshes the list of connected devices. It uses the device finders to find the devices.
+     * The device descriptors are used to filter the devices and only list the ones that are supported.
+     * The registered device finders are used in the order they were added.
+     * If a device gets added to the list by a device finder, it will not be added again by another device finder.
+     * Consequently, the order of the device finders is important.
+     */
     async refreshDeviceList() {
         this.devices = [];
         
@@ -101,7 +108,15 @@ class DeviceManager {
 
                 if (deviceDescriptor) {
                     foundDevice.setDeviceDescriptor(deviceDescriptor);
-                    this.devices.push(foundDevice);
+                    foundDevice.deviceManager = this;
+                    foundDevice.logger = this.logger;
+                    if (!this.devices.find(device => 
+                                            device.getVendorID() === foundDevice.getVendorID() && 
+                                            device.getProductID() === foundDevice.getProductID())) {
+                        this.devices.push(foundDevice);
+                    } else {
+                        this.logger?.log(`ℹ️ ${deviceFinder.constructor.name}: Device with VID ${foundDevice.getVendorID()} and PID ${foundDevice.getProductID()} already exists in list. Skipping.`, Logger.LOG_LEVEL.DEBUG);
+                    }
                 }
             }
         }
