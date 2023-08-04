@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Logger from './logger.js';
 
+//TODO: Add discoveryModes property to the device descriptor to indicate supported modes for the device finders.
+
 /// The amount of time to wait for the softdevice to be relocated to the final location in the flash.
 const SOFTDEVICE_RELOCATE_DURATION = 7000;
 
@@ -100,6 +102,7 @@ arduinoNanoRP2040Descriptor.onFlashFirmware = async (firmware, device, isMicroPy
 };
 
 // Device doesn't expose a serial port in bootloader mode
+// TODO: Now that we detect the board in bootloader, we can probably wait for it to appear
 arduinoNanoRP2040Descriptor.skipWaitForDevice = true;
 
 const arduinoNiclaVisionIdentifiers = {

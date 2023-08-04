@@ -7,6 +7,7 @@ import Logger from './logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
+// TODO: Rename this class to something more appropriate.
 export class Flasher {
 
     /**
