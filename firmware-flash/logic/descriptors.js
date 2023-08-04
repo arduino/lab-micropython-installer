@@ -4,8 +4,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import Logger from './logger.js';
 
-//TODO: Add discoveryModes property to the device descriptor to indicate supported modes for the device finders.
-
 /// The amount of time to wait for the softdevice to be relocated to the final location in the flash.
 const SOFTDEVICE_RELOCATE_DURATION = 7000;
 
@@ -70,7 +68,6 @@ arduinoPortentaC33Descriptor.onFlashFirmware = async (firmware, device, isMicroP
     
     throw new Error("❌ Invalid firmware file");
 };
-arduinoPortentaC33Descriptor.skipWaitForDevice = true;
 
 const arduinoGigaIdentifiers = {
     "default" : {
