@@ -40,6 +40,28 @@ export class Flasher {
         return binaryPath;
     }
 
+    async getDeviceListFromDFUUtil() {
+        const logger = this.logger;
+        const dfuUtilPath = this.getBinaryPath("dfu-util");
+        const cmd = `"${dfuUtilPath}" -l`;
+        return new Promise((resolve, reject) => {
+            exec(cmd, (error, stdout, stderr) => {
+                if (error) {
+                    logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                    reject(`Error running dfu-util: '${error.message}'`);
+                    return;
+                }
+                if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
+                    reject(`Error running dfu-util (stderr): '${stderr}'`);
+                    return;
+                }
+                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                resolve(stdout);
+            });
+        });
+    }
+
     async runDfuUtil(firmwareFilepath, vendorId, productId, dfuseDevice, reset = true, offset = null) {
         const logger = this.logger;
         const dfuUtilPath = this.getBinaryPath("dfu-util");
