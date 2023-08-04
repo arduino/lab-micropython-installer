@@ -2,7 +2,7 @@ import Device from '../device.js';
 import DeviceFinder from './deviceFinder.js';
 import Flasher from '../flasher.js';
 import Logger from '../logger.js';
-import { arduinoPortentaC33Descriptor } from '../descriptors.js';
+import * as descriptors from '../descriptors.js';
 
 class DFUDeviceFinder extends DeviceFinder {
 
@@ -26,22 +26,38 @@ class DFUDeviceFinder extends DeviceFinder {
             Found DFU: [2341:0368] ver=0100, devnum=38, cfg=1, intf=0, path="20-3", alt=1, name="@DataFlash /0x08000000/8*1Kg", serial="4206546E3536353291C846534E4B2CC7"
             */
 
-            const identifiersMatch = deviceInfo.match(/Found DFU: \[(\d{4}):(\d{4})\]/);
-            if(!identifiersMatch) {
+            const identifiersMatches = deviceInfo.matchAll(/Found DFU: \[(\d{4}):(\d{4})\]/g);
+            if(!identifiersMatches) {
                 return [];
             }
-            const vid = this.convertHexToNumber("0x" + identifiersMatch[1]);
-            const pid = this.convertHexToNumber("0x" + identifiersMatch[2]);
-            
-            // Use the VID and PID from the Portenta C33 bootloader
-            const targetVID = arduinoPortentaC33Descriptor.getDefaultIDs().vid;
-            const targetPID = arduinoPortentaC33Descriptor.getDefaultIDs().pids.bootloader;
 
-            if(vid === targetVID && pid === targetPID) {
-                const newDevice = new Device(vid, pid);
-                return [newDevice];
+            let devices = [];
+
+            for(let match of identifiersMatches) {
+                const vid = this.convertHexToNumber("0x" + match[1]);
+                const pid = this.convertHexToNumber("0x" + match[2]);
+                
+                for(let descriptor of Object.values(descriptors)) {
+                    // Use the VID and PID from the Portenta C33 bootloader
+                    const targetVID = descriptor.getDefaultIDs().vid;
+                    const targetPID = descriptor.getDefaultIDs().pids.bootloader;
+        
+                    if(vid === targetVID && pid === targetPID) {
+                        const newDevice = new Device(vid, pid);
+                        devices.push(newDevice);
+                    }
+                }
             }
-            return [];            
+
+            // Filter out duplicates by checking the getVendorID() and getProductID() of each device
+            // Duplicates can occur when a device has multiple DFU interfaces
+            devices = devices.filter((device, index, self) =>
+                index === self.findIndex((t) => (
+                    t.getVendorID() === device.getVendorID() && t.getProductID() === device.getProductID()
+                ))
+            );
+
+            return devices;            
 
         } catch (error) {
             logger.log(error, Logger.LOG_LEVEL.ERROR);
