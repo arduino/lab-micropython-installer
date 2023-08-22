@@ -9,7 +9,7 @@ export class DeviceDescriptor {
         this.onFlashFirmware = null;
         this.onReset = null;
         // Currently used to skip the wait for device step when the device 
-        // cannot be detected via its serial port.
+        // cannot be detected via its serial port or DFU interface.
         this.skipWaitForDevice = false;
     }
 

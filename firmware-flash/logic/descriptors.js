@@ -98,10 +98,6 @@ arduinoNanoRP2040Descriptor.onFlashFirmware = async (firmware, device, isMicroPy
     await flasher.runPicotool(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 
-// Device doesn't expose a serial port in bootloader mode
-// TODO: Now that we detect the board in bootloader, we can probably wait for it to appear
-arduinoNanoRP2040Descriptor.skipWaitForDevice = true;
-
 const arduinoNiclaVisionIdentifiers = {
     "default" : {
         "vid" : 0x2341,
