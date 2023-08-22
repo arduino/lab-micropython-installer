@@ -10,6 +10,18 @@ const __filename = fileURLToPath(import.meta.url);
 // TODO: Rename this class to something more appropriate.
 export class Flasher {
 
+    get logger() {
+        if(this._logger === undefined) {
+            return Logger.defaultLogger;
+        }
+        return this._logger;
+    }
+
+    set logger(logger) {
+        this._logger = logger;
+    }
+
+
     /**
      * Get binary folder based on the operating system and the architecture.
      * @param {String} binaryName the name of the command line tool to run

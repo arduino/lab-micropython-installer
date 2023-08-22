@@ -40,8 +40,9 @@ const forwardOutput = (message, level) => {
 
 app.whenReady().then(async () => {
     flash = await import('firmware-flash');
-    logger = new flash.Logger(forwardOutput, true, flash.Logger.LOG_LEVEL.DEBUG);
-    flash.setLogger(logger);
+    logger = flash.Logger.defaultLogger;
+    logger.onLog = forwardOutput;
+    logger.setLogLevel(flash.Logger.LOG_LEVEL.DEBUG);
     createWindow()
 })
 

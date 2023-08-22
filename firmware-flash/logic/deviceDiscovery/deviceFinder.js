@@ -1,4 +1,17 @@
+import Logger from "../logger.js";
+
 class DeviceFinder {
+
+    get logger() {
+        if(this._logger === undefined) {
+            return Logger.defaultLogger;
+        }
+        return this._logger;
+    }
+
+    set logger(logger) {
+        this._logger = logger;
+    }
 
     // Function to convert a hex string ID to a number.
     convertHexToNumber(anID) {

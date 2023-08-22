@@ -10,8 +10,6 @@ class PicotoolDeviceFinder extends DeviceFinder {
 
     async getDeviceList() {
         const flasher = new Flasher();
-        const logger = new Logger(null, true, Logger.LOG_LEVEL.DEBUG);
-        flasher.logger = logger;
         try {
             const boardInfo = await flasher.getBoardInfoWithPicotool();
             /* 
@@ -38,7 +36,7 @@ class PicotoolDeviceFinder extends DeviceFinder {
             return [];            
 
         } catch (error) {
-            logger.log(error, Logger.LOG_LEVEL.ERROR);
+            this.logger.log(error, Logger.LOG_LEVEL.ERROR);
             return [];
         }
     }

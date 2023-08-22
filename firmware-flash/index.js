@@ -11,12 +11,9 @@ import DFUDeviceFinder from './logic/deviceDiscovery/dfuDeviceFinder.js';
 /// An alternative could be to use the device's VID/PID with https://www.npmjs.com/package/usb
 const DEVICE_AWAIT_TIMEOUT = 3000;
 
-let logger;
+let logger = Logger.defaultLogger;
 
 async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false){
-    if(!selectedDevice.logger){
-        selectedDevice.logger = logger;
-    }
     const serialPort = selectedDevice.getSerialPort();
     if(serialPort) {
         logger?.log(`👀 Device found: ${selectedDevice.deviceDescriptor.name} at ${serialPort}`);
@@ -52,7 +49,6 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             logger?.log("⌛️ Waiting for bootloader to become available...");
             deviceInBootloaderMode = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
         }
-        deviceInBootloaderMode.logger = logger;
         logger?.log(`👍 Device is now in bootloader mode.`);
 
         await deviceInBootloaderMode.flashFirmware(firmwarePath, isMicroPython);
@@ -66,9 +62,6 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
 }
 
 async function flashMicroPythonFirmware(selectedDevice, useNightlyBuild = false){
-    if(!selectedDevice.logger){
-        selectedDevice.logger = logger;
-    }
     const firmwareFile = await selectedDevice.downloadMicroPythonFirmware(useNightlyBuild);
     if(!firmwareFile) {
         return false;
@@ -91,11 +84,6 @@ async function getFirstFoundDevice(){
     return foundDevices[0];
 }
 
-function setLogger(alogger){
-    logger = alogger;
-    deviceManager.logger = logger;
-}
-
 const deviceManager = new DeviceManager();
     
 for (const descriptor of Object.values(descriptors)) {
@@ -105,4 +93,4 @@ deviceManager.addDeviceFinder(new SerialDeviceFinder());
 deviceManager.addDeviceFinder(new PicotoolDeviceFinder());
 deviceManager.addDeviceFinder(new DFUDeviceFinder());
 
-export { Device, Logger, flashFirmware, flashMicroPythonFirmware, getDeviceList, getFirstFoundDevice, setLogger, deviceManager };
+export { Device, Logger, flashFirmware, flashMicroPythonFirmware, getDeviceList, getFirstFoundDevice, deviceManager };

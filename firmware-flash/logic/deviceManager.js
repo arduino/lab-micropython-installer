@@ -1,4 +1,3 @@
-import { SerialPort } from 'serialport'
 import Device from './device.js';
 import Logger from './logger.js';
 
@@ -6,8 +5,18 @@ class DeviceManager {
     constructor() {
       this.devices = null;
       this.deviceDescriptors = [];
-      this.logger = null;
       this.deviceFinders = [];
+    }
+
+    get logger() {
+        if(this._logger === undefined) {
+            return Logger.defaultLogger;
+        }
+        return this._logger;
+    }
+
+    set logger(logger) {
+        this._logger = logger;
     }
 
     addDeviceFinder(deviceFinder) {
@@ -109,7 +118,6 @@ class DeviceManager {
                 if (deviceDescriptor) {
                     foundDevice.setDeviceDescriptor(deviceDescriptor);
                     foundDevice.deviceManager = this;
-                    foundDevice.logger = this.logger;
                     if (!this.devices.find(device => 
                                             device.getVendorID() === foundDevice.getVendorID() && 
                                             device.getProductID() === foundDevice.getProductID())) {

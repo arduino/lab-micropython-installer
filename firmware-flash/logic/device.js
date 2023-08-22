@@ -15,9 +15,19 @@ export class Device {
         this.productID = productID;
         this.serialNumber = serialNumber;
         this.serialPort = serialPort;
-        this.logger = null;
         this.deviceManager = null;
         this.deviceDescriptor = null;
+    }
+
+    get logger() {
+        if(this._logger === undefined) {
+            return Logger.defaultLogger;
+        }
+        return this._logger;
+    }
+
+    set logger(logger) {
+        this._logger = logger;
     }
 
     async getUPythonFirmwareUrl(useNightlyBuild = false) {

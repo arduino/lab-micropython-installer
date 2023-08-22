@@ -8,8 +8,6 @@ class DFUDeviceFinder extends DeviceFinder {
 
     async getDeviceList() {
         const flasher = new Flasher();
-        const logger = new Logger(null, true, Logger.LOG_LEVEL.DEBUG);
-        flasher.logger = logger;
         try {
             const deviceInfo = await flasher.getDeviceListFromDFUUtil();
             /* 
@@ -60,7 +58,7 @@ class DFUDeviceFinder extends DeviceFinder {
             return devices;            
 
         } catch (error) {
-            logger.log(error, Logger.LOG_LEVEL.ERROR);
+            this.logger.log(error, Logger.LOG_LEVEL.ERROR);
             return [];
         }
     }

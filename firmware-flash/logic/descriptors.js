@@ -11,7 +11,7 @@ const SOFTDEVICE_RELOCATE_DURATION = 7000;
 const SOFT_DEVICE_MAGIC_NUMBER = 1;
 
 const flasher = new Flasher();
-flasher.logger = new Logger(null, true, Logger.LOG_LEVEL.DEBUG);
+const logger = Logger.defaultLogger;
 
 const softDeviceFirmwareFilename = "SoftDeviceUpdater.bin";
 const nanoESP32RecoveryFirmwareFilename = "nora_recovery.ino.bin";
@@ -147,14 +147,12 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
             throw new Error("Bootloader version is too old. Please update it to version 3.0 or higher.");
         }
         */
-        const logger = device.logger;
         const deviceManager = device.getDeviceManager();
     
         logger.log("🔥 Flashing SoftDevice updater...");
         await flasher.runBossac(getSoftDeviceFirmwarePath(), device.getSerialPort());
         logger.log("🏃 Waiting for device to run sketch...");
         let deviceInArduinoMode = await deviceManager.waitForDeviceToEnterArduinoMode(device, 10);
-        deviceInArduinoMode.logger = logger;
     
         logger.log("🪄 Sending magic number to device...");
         // Write one byte (1) to the serial port to tell the device to flash the bootloader / softdevice.
@@ -172,7 +170,6 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
         if(!deviceInBootloaderMode){
             throw new Error("❌ Failed to flash SoftDevice.");
         }
-        deviceInBootloaderMode.logger = logger;
 
         logger.log(`🔥 Installing MicroPython...`);
         await flasher.runBossac(firmware, deviceInBootloaderMode.getSerialPort(), arduinoNano33BLEUPythonOffset);
