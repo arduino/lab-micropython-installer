@@ -1,5 +1,5 @@
 import DeviceDescriptor from './deviceDescriptor.js';
-import Flasher from './flasher.js';
+import CommandRunner from './commandRunner.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import Logger from './logger.js';
@@ -10,7 +10,7 @@ const SOFTDEVICE_RELOCATE_DURATION = 7000;
 /// The magic number sent by the device to indicate that the softdevice has been flashed.
 const SOFT_DEVICE_MAGIC_NUMBER = 1;
 
-const flasher = new Flasher();
+const commandRunner = new CommandRunner();
 const logger = Logger.defaultLogger;
 
 const softDeviceFirmwareFilename = "SoftDeviceUpdater.bin";
@@ -40,12 +40,12 @@ const arduinoPortentaH7Descriptor = new DeviceDescriptor(arduinoPortentaH7Identi
 arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     // Check if firmware is a DFU file
     if(firmware.endsWith(".dfu")){
-        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true);
+        await commandRunner.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true);
         return;
     }
     // Check if firmware is a binary file
     if(firmware.endsWith(".bin")){
-        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true, true, "0x08040000");
+        await commandRunner.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true, true, "0x08040000");
         return;
     }
 
@@ -62,7 +62,7 @@ const arduinoPortentaC33Descriptor = new DeviceDescriptor(arduinoPortentaC33Iden
 arduinoPortentaC33Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     // Check if firmware is a binary file
     if(firmware.endsWith(".bin")){
-        await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), false);
+        await commandRunner.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), false);
         return;
     }
     
@@ -95,7 +95,7 @@ const arduinoNanoRP2040Identifiers = {
 };
 const arduinoNanoRP2040Descriptor = new DeviceDescriptor(arduinoNanoRP2040Identifiers, 'Nano RP2040 Connect', 'Arduino', 'ARDUINO_NANO_RP2040_CONNECT', 'uf2');
 arduinoNanoRP2040Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
-    await flasher.runPicotool(firmware, device.getVendorIDHex(), device.getProductIDHex());
+    await commandRunner.runPicotool(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 
 const arduinoNiclaVisionIdentifiers = {
@@ -106,7 +106,7 @@ const arduinoNiclaVisionIdentifiers = {
 };
 const arduinoNiclaVisionDescriptor = new DeviceDescriptor(arduinoNiclaVisionIdentifiers, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
 arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
-    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true);
+    await commandRunner.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true);
 };
 
 const arduinoNano33BLEIdentifiers = {
@@ -129,13 +129,14 @@ const arduinoNano33BLEUPythonOffset = "0x16000";
 
 const arduinoNano33BLEDescriptor = new DeviceDescriptor(arduinoNano33BLEIdentifiers, 'Nano 33 BLE', 'Arduino', 'arduino_nano_33_ble_sense', 'bin');
 arduinoNano33BLEDescriptor.onReset = async (device) => {
-    await flasher.resetBoardWithBossac(device.getSerialPort());
+    await commandRunner.resetBoardWithBossac(device.getSerialPort());
 };
 
 arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     if(isMicroPython){
         /*
-        const bootloaderVersion = await flasher.getBootloaderVersionWithBossac(device.serialPort);
+        // Doesn't work because the bootloader version wasn't updated in the bootloader.
+        const bootloaderVersion = await commandRunner.getBootloaderVersionWithBossac(device.serialPort);
         const majorVersion = parseInt(bootloaderVersion.split(".")[0]);
         console.log("👢 Bootloader version: " + bootloaderVersion);
         
@@ -146,7 +147,7 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
         const deviceManager = device.getDeviceManager();
     
         logger.log("🔥 Flashing SoftDevice updater...");
-        await flasher.runBossac(getSoftDeviceFirmwarePath(), device.getSerialPort());
+        await commandRunner.runBossac(getSoftDeviceFirmwarePath(), device.getSerialPort());
         logger.log("🏃 Waiting for device to run sketch...");
         let deviceInArduinoMode = await deviceManager.waitForDeviceToEnterArduinoMode(device, 10);
     
@@ -168,9 +169,9 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
         }
 
         logger.log(`🔥 Installing MicroPython...`);
-        await flasher.runBossac(firmware, deviceInBootloaderMode.getSerialPort(), arduinoNano33BLEUPythonOffset);
+        await commandRunner.runBossac(firmware, deviceInBootloaderMode.getSerialPort(), arduinoNano33BLEUPythonOffset);
     } else {
-        await flasher.runBossac(firmware, device.getSerialPort());
+        await commandRunner.runBossac(firmware, device.getSerialPort());
     }
         
 };
@@ -192,7 +193,7 @@ arduinoNanoESP32Descriptor.onFlashFirmware = async (firmware, device, isMicroPyt
     if(path.extname(firmware) == ".bin"){
         throw new Error("❌ Installing a raw binary from DFU bootloader is not supported. Please use the native bootloader instead or flash an application image.");
     }
-    await flasher.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), false);
+    await commandRunner.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), false);
 };
 
 const arduinoNanoESP32NativeIdentifiers = {
@@ -209,7 +210,7 @@ arduinoNanoESP32NativeDescriptor.onFlashFirmware = async (firmware, device, isMi
     const config = {"chip": "esp32s3", "flashSize" : "16MB", "flashMode" : "dio", "flashFreq" : "80m"};
     const recoveryCommand = {"address" : "0xf70000", "path" : getNanoESP32RecoveryFirmwarePath()};
     const firmwareCommand = {"address" : "0x0", "path" : firmware};
-    await flasher.runEsptool([firmwareCommand, recoveryCommand], device.getSerialPort(), config);
+    await commandRunner.runEsptool([firmwareCommand, recoveryCommand], device.getSerialPort(), config);
 };
 
 export {

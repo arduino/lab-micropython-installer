@@ -89,7 +89,7 @@ npm run publish
 ## 🫶 Adding Support for Other Boards
 To add support for additional boards a few changes / additions may be required:
 - Add a descriptor for the device to [descriptors.js](./firmware-flash/logic/descriptors.js). The descriptor contains the VID and PID of the board plus some instructions on how to flash a firmware.
-- If the board requires a flashing tool other than the ones already supported, it needs to be added to [firmware-flash/bin](./firmware-flash/bin/) and the corresponding Node.js binding needs to be added to [flasher.js](./firmware-flash/logic/flasher.js)
+- If the board requires a flashing tool other than the ones already supported, it needs to be added to [firmware-flash/bin](./firmware-flash/bin/) and the corresponding Node.js binding needs to be added to [commandRunner.js](./firmware-flash/logic/commandRunner.js)
 - An SVG asset of the board needs to be added to [assets/boards](./assets/boards/). The filename will be derived from the board manufacturer and product name in the descriptor.
 
 ## 💪 Contributing

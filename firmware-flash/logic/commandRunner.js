@@ -8,7 +8,7 @@ import Logger from './logger.js';
 const __filename = fileURLToPath(import.meta.url);
 
 // TODO: Rename this class to something more appropriate.
-export class Flasher {
+export class CommandRunner {
 
     get logger() {
         if(this._logger === undefined) {
@@ -316,4 +316,4 @@ export class Flasher {
 
 }
 
-export default Flasher;
+export default CommandRunner;

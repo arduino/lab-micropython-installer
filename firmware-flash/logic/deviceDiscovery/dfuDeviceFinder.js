@@ -1,15 +1,15 @@
 import Device from '../device.js';
 import DeviceFinder from './deviceFinder.js';
-import Flasher from '../flasher.js';
+import CommandRunner from '../commandRunner.js';
 import Logger from '../logger.js';
 import * as descriptors from '../descriptors.js';
 
 class DFUDeviceFinder extends DeviceFinder {
 
     async getDeviceList() {
-        const flasher = new Flasher();
+        const commandRunner = new CommandRunner();
         try {
-            const deviceInfo = await flasher.getDeviceListFromDFUUtil();
+            const deviceInfo = await commandRunner.getDeviceListFromDFUUtil();
             /* 
             Extract the board name from the output of picotool info -l
             Example output:

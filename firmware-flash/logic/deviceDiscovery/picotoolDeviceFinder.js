@@ -1,6 +1,6 @@
 import Device from '../device.js';
 import DeviceFinder from './deviceFinder.js';
-import Flasher from '../flasher.js';
+import CommandRunner from '../commandRunner.js';
 import Logger from '../logger.js';
 import { arduinoNanoRP2040Descriptor } from '../descriptors.js';
 
@@ -9,9 +9,9 @@ const PICO_BOARD_NAME = 'arduino_nano_rp2040_connect';
 class PicotoolDeviceFinder extends DeviceFinder {
 
     async getDeviceList() {
-        const flasher = new Flasher();
+        const commandRunner = new CommandRunner();
         try {
-            const boardInfo = await flasher.getBoardInfoWithPicotool();
+            const boardInfo = await commandRunner.getBoardInfoWithPicotool();
             /* 
             Extract the board name from the output of picotool info -l
             Example output:
