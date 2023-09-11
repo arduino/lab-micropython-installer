@@ -1,31 +1,36 @@
 import DeviceManager from './logic/deviceManager.js';
-import descriptors from './logic/descriptors.js';
+import * as descriptors from './logic/descriptors.js';
 import Logger from './logic/logger.js';
 import Device from './logic/device.js';
+import SerialDeviceFinder from './logic/deviceDiscovery/serialDeviceFinder.js';
+import PicotoolDeviceFinder from './logic/deviceDiscovery/picotoolDeviceFinder.js';
+import DFUDeviceFinder from './logic/deviceDiscovery/dfuDeviceFinder.js';
 
 /// The amount of time to wait for the device to become available in bootloader mode.
 /// This is only used for devices that can't be detected in bootloader mode through their serial port.
 /// An alternative could be to use the device's VID/PID with https://www.npmjs.com/package/usb
 const DEVICE_AWAIT_TIMEOUT = 3000;
 
-let logger;
+let logger = Logger.defaultLogger;
 
 async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false){
-    if(!selectedDevice.logger){
-        selectedDevice.logger = logger;
+    const serialPort = selectedDevice.getSerialPort();
+    if(serialPort) {
+        logger?.log(`👀 Device found: ${selectedDevice.deviceDescriptor.name} at ${serialPort}`);
+    } else {
+        logger?.log(`👀 Device found: ${selectedDevice.deviceDescriptor.name}`);
     }
-    logger?.log(`👀 Device found: ${selectedDevice.deviceDescriptor.name} at ${selectedDevice.getSerialPort()}`);
     
-    if(selectedDevice.runsMicroPython()) {
-        let version = await selectedDevice.getMicroPythonVersion();
-        logger?.log(`🐍 Device is running MicroPython version: ${version}`);
-    }
-
     if(selectedDevice.runsBootloader()) {
         logger?.log(`👍 Device is already in bootloader mode.`);
         await selectedDevice.flashFirmware(firmwarePath, isMicroPython);
         logger?.log('✅ Firmware flashed successfully.');
         return true;
+    }
+    
+    if(selectedDevice.runsMicroPython()) {
+        let version = await selectedDevice.getMicroPythonVersion();
+        logger?.log(`🐍 Device is running MicroPython version: ${version}`);
     }
 
     try {
@@ -44,7 +49,6 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
             logger?.log("⌛️ Waiting for bootloader to become available...");
             deviceInBootloaderMode = await deviceManager.waitForDevice(selectedDevice.getBootloaderVID(), selectedDevice.getBootloaderPID());
         }
-        deviceInBootloaderMode.logger = logger;
         logger?.log(`👍 Device is now in bootloader mode.`);
 
         await deviceInBootloaderMode.flashFirmware(firmwarePath, isMicroPython);
@@ -58,9 +62,6 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
 }
 
 async function flashMicroPythonFirmware(selectedDevice, useNightlyBuild = false){
-    if(!selectedDevice.logger){
-        selectedDevice.logger = logger;
-    }
     const firmwareFile = await selectedDevice.downloadMicroPythonFirmware(useNightlyBuild);
     if(!firmwareFile) {
         return false;
@@ -83,15 +84,13 @@ async function getFirstFoundDevice(){
     return foundDevices[0];
 }
 
-function setLogger(alogger){
-    logger = alogger;
-    deviceManager.logger = logger;
-}
-
 const deviceManager = new DeviceManager();
     
-for (const descriptor of descriptors) {
+for (const descriptor of Object.values(descriptors)) {
     deviceManager.addDeviceDescriptor(descriptor);
 }
+deviceManager.addDeviceFinder(new SerialDeviceFinder());
+deviceManager.addDeviceFinder(new PicotoolDeviceFinder());
+deviceManager.addDeviceFinder(new DFUDeviceFinder());
 
-export { Device, Logger, flashFirmware, flashMicroPythonFirmware, getDeviceList, getFirstFoundDevice, setLogger, deviceManager };
+export { Device, Logger, flashFirmware, flashMicroPythonFirmware, getDeviceList, getFirstFoundDevice, deviceManager };

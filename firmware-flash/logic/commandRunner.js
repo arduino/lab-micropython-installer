@@ -7,7 +7,20 @@ import Logger from './logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
-export class Flasher {
+// TODO: Rename this class to something more appropriate.
+export class CommandRunner {
+
+    get logger() {
+        if(this._logger === undefined) {
+            return Logger.defaultLogger;
+        }
+        return this._logger;
+    }
+
+    set logger(logger) {
+        this._logger = logger;
+    }
+
 
     /**
      * Get binary folder based on the operating system and the architecture.
@@ -38,6 +51,28 @@ export class Flasher {
             return path.join(osBinaryFolder, "ia32", binaryName);
         } 
         return binaryPath;
+    }
+
+    async getDeviceListFromDFUUtil() {
+        const logger = this.logger;
+        const dfuUtilPath = this.getBinaryPath("dfu-util");
+        const cmd = `"${dfuUtilPath}" -l`;
+        return new Promise((resolve, reject) => {
+            exec(cmd, (error, stdout, stderr) => {
+                if (error) {
+                    logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                    reject(`Error running dfu-util: '${error.message}'`);
+                    return;
+                }
+                if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
+                    reject(`Error running dfu-util (stderr): '${stderr}'`);
+                    return;
+                }
+                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                resolve(stdout);
+            });
+        });
     }
 
     async runDfuUtil(firmwareFilepath, vendorId, productId, dfuseDevice, reset = true, offset = null) {
@@ -72,6 +107,7 @@ export class Flasher {
                         resolve(stdout);
                         return;
                     }
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running dfu-util (stderr): '${stderr}'`);
                     return;
                 }
@@ -104,6 +140,7 @@ export class Flasher {
                     return;
                 }
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }
@@ -127,6 +164,7 @@ export class Flasher {
                     return;
                 }
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }                
@@ -155,6 +193,7 @@ export class Flasher {
                     return;
                 }
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running bossac: ${stderr}`);
                     return;
                 }
@@ -163,7 +202,36 @@ export class Flasher {
             });
         });
     }
+    
+    async getBoardInfoWithPicotool() {
+        const logger = this.logger;
+        const picotoolPath = this.getBinaryPath("picotool");
+        let cmd = `"${picotoolPath}" info -l`;
         
+        return new Promise((resolve, reject) => {
+            exec(cmd, (error, stdout, stderr) => {
+                if(error && stdout.trim() == "No accessible RP2040 devices in BOOTSEL mode were found."){
+                    logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                    resolve(stdout);
+                    return;
+                }
+
+                if (error) {
+                    logger?.log(error.message, Logger.LOG_LEVEL.DEBUG);
+                    reject(`Error running picotool: ${error.message}`);
+                    return;
+                }
+                
+                if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
+                    reject(`Error running picotool: ${stderr}`);
+                    return;
+                }
+                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                resolve(stdout);
+            });
+        });
+    }
 
     async runPicotool(firmwareFilepath, reset = true) {
         const logger = this.logger;
@@ -184,6 +252,7 @@ export class Flasher {
                     return;
                 }
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running picotool: ${stderr}`);
                     return;
                 }
@@ -217,6 +286,7 @@ export class Flasher {
                         return;
                     }
                     if (stderr) {
+                        logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                         reject(`Error running esptool: ${stderr}`);
                         return;
                     }
@@ -234,6 +304,7 @@ export class Flasher {
                     return;
                 }
                 if (stderr) {
+                    logger?.log(stderr, Logger.LOG_LEVEL.DEBUG);
                     reject(`Error running esptool: ${stderr}`);
                     return;
                 }
@@ -245,4 +316,4 @@ export class Flasher {
 
 }
 
-export default Flasher;
+export default CommandRunner;

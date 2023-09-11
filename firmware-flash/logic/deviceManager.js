@@ -1,4 +1,3 @@
-import { SerialPort } from 'serialport'
 import Device from './device.js';
 import Logger from './logger.js';
 
@@ -6,27 +5,26 @@ class DeviceManager {
     constructor() {
       this.devices = null;
       this.deviceDescriptors = [];
-      this.logger = null;
+      this.deviceFinders = [];
+    }
+
+    get logger() {
+        if(this._logger === undefined) {
+            return Logger.defaultLogger;
+        }
+        return this._logger;
+    }
+
+    set logger(logger) {
+        this._logger = logger;
+    }
+
+    addDeviceFinder(deviceFinder) {
+        this.deviceFinders.push(deviceFinder);
     }
 
     addDeviceDescriptor(deviceDescriptor) {
         this.deviceDescriptors.push(deviceDescriptor);
-    }
-
-    // Function to convert a hex string ID to a number.
-    convertHexToNumber(anID) {
-        // The hex string can have the 0x prefix or not.
-        if (anID.startsWith("0x")) {
-            anID = anID.substring(2);
-        }
-        // The hex string can be padded with a 0 or not.
-        if (anID.length === 3) {
-            anID = "0" + anID;
-        }
-        // The hex string can be upper or lower case.
-        anID = anID.toLowerCase();
-
-        return parseInt(anID, 16);
     }
 
     // Function to wait for the specified number of milliseconds.
@@ -98,6 +96,13 @@ class DeviceManager {
         });
     }    
 
+    /**
+     * Refreshes the list of connected devices. It uses the device finders to find the devices.
+     * The device descriptors are used to filter the devices and only list the ones that are supported.
+     * The registered device finders are used in the order they were added.
+     * If a device gets added to the list by a device finder, it will not be added again by another device finder.
+     * Consequently, the order of the device finders is important.
+     */
     async refreshDeviceList() {
         this.devices = [];
         
@@ -105,19 +110,25 @@ class DeviceManager {
             throw new Error("❌ No device descriptors have been added.");
         }
 
-        const ports = await SerialPort.list();
+        for (const deviceFinder of this.deviceFinders) {
+            const foundDevices = await deviceFinder.getDeviceList();
+            for (let foundDevice of foundDevices) {
+                let deviceDescriptor = this.getDeviceDescriptor(foundDevice.getVendorID(), foundDevice.getProductID());
 
-        for (const port of ports) {
-            if(port.vendorId === undefined || port.productId === undefined) continue;
-            const vendorID = this.convertHexToNumber(port.vendorId);
-            const productID = this.convertHexToNumber(port.productId);
-            let deviceDescriptor = this.getDeviceDescriptor(vendorID, productID);
-
-            if (deviceDescriptor) {
-                const newDevice = this.createDevice(vendorID, productID, deviceDescriptor, port.path, port.serialNumber);
-                this.devices.push(newDevice);
+                if (deviceDescriptor) {
+                    foundDevice.setDeviceDescriptor(deviceDescriptor);
+                    foundDevice.deviceManager = this;
+                    if (!this.devices.find(device => 
+                                            device.getVendorID() === foundDevice.getVendorID() && 
+                                            device.getProductID() === foundDevice.getProductID())) {
+                        this.devices.push(foundDevice);
+                    } else {
+                        this.logger?.log(`ℹ️ ${deviceFinder.constructor.name}: Device with VID ${foundDevice.getVendorID()} and PID ${foundDevice.getProductID()} already exists in list. Skipping.`, Logger.LOG_LEVEL.DEBUG);
+                    }
+                }
             }
         }
+
         return this.devices;
     }
 
@@ -132,7 +143,8 @@ class DeviceManager {
      * @returns 
      */
     createDevice(vendorID, productID, deviceDescriptor, port = null, serialNumber = null) {
-        const newDevice = new Device(vendorID, productID, deviceDescriptor, port, serialNumber);
+        const newDevice = new Device(vendorID, productID, port, serialNumber);
+        newDevice.setDeviceDescriptor(deviceDescriptor);
         newDevice.deviceManager = this;
         return newDevice;
     };
