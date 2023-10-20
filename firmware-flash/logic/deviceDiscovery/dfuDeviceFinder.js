@@ -25,7 +25,9 @@ class DFUDeviceFinder extends DeviceFinder {
             */
 
             const identifiersMatches = deviceInfo.matchAll(/Found DFU: \[(\d{4}):(\d{4})\]/g);
-            if(!identifiersMatches) {
+            if(identifiersMatches.next().done) {
+                const message = "🔌 No DFU capable USB device found.";
+                this.logger.log(message, Logger.LOG_LEVEL.DEBUG);
                 return [];
             }
 

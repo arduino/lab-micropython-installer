@@ -7,7 +7,6 @@ import Logger from './logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
-// TODO: Rename this class to something more appropriate.
 export class CommandRunner {
 
     get logger() {
@@ -69,7 +68,7 @@ export class CommandRunner {
                     reject(`Error running dfu-util (stderr): '${stderr}'`);
                     return;
                 }
-                logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                
                 resolve(stdout);
             });
         });
@@ -211,7 +210,8 @@ export class CommandRunner {
         return new Promise((resolve, reject) => {
             exec(cmd, (error, stdout, stderr) => {
                 if(error && stdout.trim() == "No accessible RP2040 devices in BOOTSEL mode were found."){
-                    logger?.log(stdout, Logger.LOG_LEVEL.DEBUG);
+                    const message = "🔌 No RP2040 device found.";
+                    logger?.log(message, Logger.LOG_LEVEL.DEBUG);
                     resolve(stdout);
                     return;
                 }
