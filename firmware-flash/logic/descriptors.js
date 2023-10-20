@@ -58,7 +58,7 @@ const arduinoPortentaC33Identifiers = {
         "pids" : {"arduino" : 0x0068, "bootloader" : 0x0368, "upython" : 0x0468 }
     },
 };
-const arduinoPortentaC33Descriptor = new DeviceDescriptor(arduinoPortentaC33Identifiers, 'Portenta C33', 'Arduino', 'ARDUINO_PORTENTA_C33', 'dfu');
+const arduinoPortentaC33Descriptor = new DeviceDescriptor(arduinoPortentaC33Identifiers, 'Portenta C33', 'Arduino', 'ARDUINO_PORTENTA_C33', 'bin');
 arduinoPortentaC33Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     // Check if firmware is a binary file
     if(firmware.endsWith(".bin")){
