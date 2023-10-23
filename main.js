@@ -1,6 +1,6 @@
 if (require('electron-squirrel-startup')) return;
 
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path')
 
 // Handle events from windows squirrel installer
@@ -56,7 +56,7 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.handle('on-file-selected', async (event, data) => {
+ipcMain.handle('on-custom-install', async (event, data) => {
     const { deviceData, filePath } = data;
     logger.log(`⤵️ Data received from UI: '${Object.keys(data)}'`, flash.Logger.LOG_LEVEL.DEBUG);
     logger.log(`📄 File dropped for flashing: '${filePath}'`, flash.Logger.LOG_LEVEL.DEBUG);
@@ -66,7 +66,7 @@ ipcMain.handle('on-file-selected', async (event, data) => {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
         try {
             if(!selectedDevice){
-                reject("❌ Selected is not available. Click 'Refresh' to update the list of devices.");
+                reject("❌ Selected device is not available. Click 'Refresh' to update the list of devices.");
                 return;
             }
             if (await flash.flashFirmware(filePath, selectedDevice)) {
@@ -90,7 +90,7 @@ ipcMain.handle('on-install', async (event, data) => {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
         try {
             if(!selectedDevice){
-                reject("❌ Selected is not available. Click 'Refresh' to update the list of devices.");
+                reject("❌ Selected device is not available. Click 'Refresh' to update the list of devices.");
                 return;
             }
             if (await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
@@ -119,6 +119,10 @@ ipcMain.handle('on-get-devices', async (event, arg) => {
             resolve(pojos);
         }
     });
+});
+
+ipcMain.handle('dialog', (event, method, params) => {
+    dialog[method](win, params);
 });
 
 function handleSquirrelEvent() {

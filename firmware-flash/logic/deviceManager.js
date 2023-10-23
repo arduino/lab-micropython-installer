@@ -123,7 +123,7 @@ class DeviceManager {
                                             device.getProductID() === foundDevice.getProductID())) {
                         this.devices.push(foundDevice);
                     } else {
-                        this.logger?.log(`ℹ️ ${deviceFinder.constructor.name}: Device with VID ${foundDevice.getVendorID()} and PID ${foundDevice.getProductID()} already exists in list. Skipping.`, Logger.LOG_LEVEL.DEBUG);
+                        this.logger?.log(`⏭️ ${deviceFinder.constructor.name}: Device with VID ${foundDevice.getVendorID()} and PID ${foundDevice.getProductID()} already exists in list. Skipping.`, Logger.LOG_LEVEL.DEBUG);
                     }
                 }
             }
