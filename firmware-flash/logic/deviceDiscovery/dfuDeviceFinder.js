@@ -24,8 +24,8 @@ class DFUDeviceFinder extends DeviceFinder {
             Found DFU: [2341:0368] ver=0100, devnum=38, cfg=1, intf=0, path="20-3", alt=1, name="@DataFlash /0x08000000/8*1Kg", serial="4206546E3536353291C846534E4B2CC7"
             */
 
-            const identifiersMatches = deviceInfo.matchAll(/Found DFU: \[(\d{4}):(\d{4})\]/g);
-            if(identifiersMatches.next().done) {
+            const identifiersMatches = [...deviceInfo.matchAll(/Found DFU: \[(\d{4}):(\d{4})\]/g)];
+            if(identifiersMatches.length === 0) {
                 const message = "🔌 No DFU capable USB device found.";
                 this.logger.log(message, Logger.LOG_LEVEL.DEBUG);
                 return [];
