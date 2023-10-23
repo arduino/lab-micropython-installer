@@ -66,7 +66,7 @@ ipcMain.handle('on-custom-install', async (event, data) => {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
         try {
             if(!selectedDevice){
-                reject("❌ Selected is not available. Click 'Refresh' to update the list of devices.");
+                reject("❌ Selected device is not available. Click 'Refresh' to update the list of devices.");
                 return;
             }
             if (await flash.flashFirmware(filePath, selectedDevice)) {
@@ -90,7 +90,7 @@ ipcMain.handle('on-install', async (event, data) => {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
         try {
             if(!selectedDevice){
-                reject("❌ Selected is not available. Click 'Refresh' to update the list of devices.");
+                reject("❌ Selected device is not available. Click 'Refresh' to update the list of devices.");
                 return;
             }
             if (await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
