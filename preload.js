@@ -14,9 +14,9 @@ window.addEventListener('DOMContentLoaded', () => {
 contextBridge.exposeInMainWorld(
     "api", {
         invoke: (channel, data = null) => {
-            let validChannels = ["on-install", "on-file-selected", "on-get-devices"];
+            let validChannels = ["on-install", "on-custom-install", "on-get-devices"];
             if(!validChannels.includes(channel)) return;
-            // ipcRenderer.invoke accesses ipcMain.handle channels like 'on-file-selected'
+            // ipcRenderer.invoke accesses ipcMain.handle channels like 'on-custom-install'
             // make sure to include this return statement or you won't get your Promise back
             return ipcRenderer.invoke(channel, data);
         },

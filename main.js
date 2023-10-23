@@ -56,7 +56,7 @@ app.on('activate', () => {
     }
 })
 
-ipcMain.handle('on-file-selected', async (event, data) => {
+ipcMain.handle('on-custom-install', async (event, data) => {
     const { deviceData, filePath } = data;
     logger.log(`⤵️ Data received from UI: '${Object.keys(data)}'`, flash.Logger.LOG_LEVEL.DEBUG);
     logger.log(`📄 File dropped for flashing: '${filePath}'`, flash.Logger.LOG_LEVEL.DEBUG);

@@ -35,7 +35,7 @@ const flashFirmwareFromFile = (filePath) => {
       filePath : filePath
     };
 
-    window.api.invoke('on-file-selected', data).then(function (result) {
+    window.api.invoke('on-custom-install', data).then(function (result) {
         console.log(result);
         statusTextAnimator.showStatusText(result, 5000);
         disableFlashingInteractions();
