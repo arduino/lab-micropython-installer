@@ -25,6 +25,11 @@ const showErrorInStatusText = (err, timeout = 4000) => {
   }, timeout);
 };
 
+const showDialogMessageBox = (title, message) => {
+  const dialogConfig = {title: title, message: message};
+  electron.openDialog('showMessageBox', dialogConfig);
+};
+
 const flashFirmwareFromFile = (filePath) => {
     disableFlashingInteractions();
     disableDeviceListInteractions();
@@ -37,7 +42,8 @@ const flashFirmwareFromFile = (filePath) => {
 
     window.api.invoke('on-custom-install', data).then(function (result) {
         console.log(result);
-        statusTextAnimator.showStatusText(result, 5000);
+        statusTextAnimator.clearStatusText();
+        showDialogMessageBox("Success", result);
         disableFlashingInteractions();
         // Give the device some time to reboot
         refreshDeviceList(2000);
@@ -132,7 +138,8 @@ installButton.addEventListener('click', () => {
     window.api.invoke('on-install', data)
         .then((result) => {
             console.log(result);
-            statusTextAnimator.showStatusText(result, 5000);
+            statusTextAnimator.clearStatusText();
+            showDialogMessageBox("Success", result);
             disableFlashingInteractions();
             // Give the device some time to reboot
             refreshDeviceList(2000);

@@ -1,6 +1,6 @@
 if (require('electron-squirrel-startup')) return;
 
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path')
 
 // Handle events from windows squirrel installer
@@ -119,6 +119,10 @@ ipcMain.handle('on-get-devices', async (event, arg) => {
             resolve(pojos);
         }
     });
+});
+
+ipcMain.handle('dialog', (event, method, params) => {
+    dialog[method](win, params);
 });
 
 function handleSquirrelEvent() {
