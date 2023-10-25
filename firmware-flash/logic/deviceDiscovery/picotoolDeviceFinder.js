@@ -25,8 +25,12 @@ class PicotoolDeviceFinder extends DeviceFinder {
 
             const boardNameMatch = boardInfo.match(/pico_board:\s+(\S+)/);
             const boardName = boardNameMatch ? boardNameMatch[1] : null;
+            // The Nano RP2040 doesn't report build information in bootloader mode
+            // when an Arduino sketch is in the flash. When MicroPython is installed
+            // however, the build information is reported correctly.
+            const unknownBuild = "Build Information\n none\n";
     
-            if(boardName === PICO_BOARD_NAME) {
+            if(boardName === PICO_BOARD_NAME || boardInfo === unknownBuild) {
                 // Use the VID and PID from the RP2040 native bootloader
                 const vid = arduinoNanoRP2040Descriptor.getAlternativeIDs().vid;
                 const pid = arduinoNanoRP2040Descriptor.getAlternativeIDs().pids.bootloader;
