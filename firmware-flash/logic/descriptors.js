@@ -178,9 +178,10 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
 const arduinoNanoESP32Identifiers = {
     "default" : {
         "vid" : 0x2341,
-        "pids" : { "arduino" : 0x0070, "bootloader" : 0x0070 }
+        "pids" : { "arduino" : 0x0070, "upython" : 0x056b, "bootloader" : 0x0070 }
     },
     
+    // This VID/PID combination was used in older builds of MicroPython until we submitted a PR to change it.
     "alternative" : {
         "vid" : 0x303a,
         "pids" : { "upython" : 0x4001 }
