@@ -88,6 +88,10 @@ To add support for additional boards a few changes / additions may be required:
 - If the board requires a flashing tool other than the ones already supported, it needs to be added to [firmware-flash/bin](./firmware-flash/bin/) and the corresponding Node.js binding needs to be added to [commandRunner.js](./firmware-flash/logic/commandRunner.js)
 - An SVG asset of the board needs to be added to [assets/boards](./assets/boards/). The filename will be derived from the board manufacturer and product name in the descriptor.
 
+### 🙅 Limitations
+
+This tool relies on the fact that all of the supported boards use a different MCU and hence expose different VID / PID pairs. Should at any point two or more boards share the same MCU it may not be possible to distinguish them when in ROM bootloader mode. For these boards the installation from bootloader needs to be disabled or a manual board selection by the user will have to be added.
+
 ## 💪 Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
