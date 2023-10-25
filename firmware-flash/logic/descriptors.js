@@ -124,8 +124,6 @@ The default offset of bossac is always 0x10000 (a mistake from the initial imple
 so the softdevice-based image should be flashed with --offset=0x16000 (since it ends up at 0x26000).
 */
 const arduinoNano33BLEUPythonOffset = "0x16000";
-// const arduinoNano33BLESoftDeviceOffset = "0xA0000";
-// const arduinoNano33BLEMinimumBootloaderVersion = 3;
 
 const arduinoNano33BLEDescriptor = new DeviceDescriptor(arduinoNano33BLEIdentifiers, 'Nano 33 BLE', 'Arduino', 'arduino_nano_33_ble_sense', 'bin');
 arduinoNano33BLEDescriptor.onReset = async (device) => {
@@ -136,6 +134,7 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
     if(isMicroPython){
         /*
         // Doesn't work because the bootloader version wasn't updated in the bootloader.
+        const arduinoNano33BLEMinimumBootloaderVersion = 3;
         const bootloaderVersion = await commandRunner.getBootloaderVersionWithBossac(device.serialPort);
         const majorVersion = parseInt(bootloaderVersion.split(".")[0]);
         console.log("👢 Bootloader version: " + bootloaderVersion);

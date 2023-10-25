@@ -24,10 +24,6 @@ Follow the on-screen prompts to download and install the MicroPython firmware.
 - Arduino Nano ESP32
 - Arduino Nano 33 BLE
 
-## 🙅 Limitations
-
-- The Arduino Nano RP2040 and Portenta C33 are not detected when in bootloader mode. This is because the bootloader doesn't expose a serial port but this tool relies on it to detect boards. Therefore make sure that the board is not in bootloader mode when you run the application.
-
 ## ⚙️ Installation
 
 You can download the binary for your operating system from the [release page](https://github.com/arduino/lab-micropython-installer/releases).
