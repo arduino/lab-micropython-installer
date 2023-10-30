@@ -30,7 +30,7 @@ export class Device {
         this._logger = logger;
     }
 
-    async getUPythonFirmwareUrl(useNightlyBuild = false) {
+    async getUPythonFirmwareUrl(usePreviewBuild = false) {
         const fileExtension = this.deviceDescriptor.firmwareExtension;
         const boardName = this.deviceDescriptor.firmwareID;
         this.logger?.log(`🔍 Finding latest firmware for board '${boardName}' ...`);
@@ -57,21 +57,21 @@ export class Device {
             }
 
             // Find the first release that matches the desired file extension
-            const nightlyRelease = boardData.releases.find((release) =>
-                release.type.trim() === "(nightly)" &&
+            const previewRelease = boardData.releases.find((release) =>
+                release.type.trim() === "(preview)" &&
                 release.url.endsWith("." + fileExtension)
             );
 
-            if(!nightlyRelease && !stableRelease){
-                this.logger?.log("🤷 Neither a stable nor nightly release was found.");
+            if(!previewRelease && !stableRelease){
+                this.logger?.log("🤷 Neither a stable nor preview release was found.");
                 return null;
             }
 
-            // If we are using a nightly build, return the nightly release URL
+            // If we are using a preview build, return the preview release URL
             // same if no stable release is available.
-            if (useNightlyBuild && nightlyRelease || !stableRelease) {
-                this.logger?.log("🌙 Using nightly build.");
-                return HOST_URL + nightlyRelease.url;
+            if (usePreviewBuild && previewRelease || !stableRelease) {
+                this.logger?.log("🚧 Using preview build.");
+                return HOST_URL + previewRelease.url;
             }
 
             return HOST_URL + stableRelease.url;
@@ -98,8 +98,8 @@ export class Device {
         return targetFile;
     }
 
-    async downloadMicroPythonFirmware(useNightlyBuild = false) {
-        const firmwareUrl = await this.getUPythonFirmwareUrl(useNightlyBuild);
+    async downloadMicroPythonFirmware(usePreviewBuild = false) {
+        const firmwareUrl = await this.getUPythonFirmwareUrl(usePreviewBuild);
         if (!firmwareUrl) {
             this.logger?.log("❌ No firmware found.", Logger.LOG_LEVEL.ERROR);
             return null;

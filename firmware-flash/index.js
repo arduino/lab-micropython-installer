@@ -61,8 +61,8 @@ async function flashFirmware(firmwarePath, selectedDevice, isMicroPython = false
     }        
 }
 
-async function flashMicroPythonFirmware(selectedDevice, useNightlyBuild = false){
-    const firmwareFile = await selectedDevice.downloadMicroPythonFirmware(useNightlyBuild);
+async function flashMicroPythonFirmware(selectedDevice, usePreviewBuild = false){
+    const firmwareFile = await selectedDevice.downloadMicroPythonFirmware(usePreviewBuild);
     if(!firmwareFile) {
         return false;
     }

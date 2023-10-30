@@ -3,7 +3,7 @@ const chooseFileLink = document.getElementById('choose-file-link');
 const outputElement = document.getElementById('output');
 const fileDropElement = document.getElementById('file-drop-area');
 const flashActivityIndicator = document.getElementById('activity-indicator');
-const useNightlyBuildCheckbox = document.getElementById('nightly-builds-enabled');
+const usePreviewBuildCheckbox = document.getElementById('preview-builds-enabled');
 const deviceLoadingActivityIndicator = document.getElementById("device-loading-indicator");
 const deviceLoadingHint = document.getElementById("device-loading-hint");
 const reloadLinkContainer = document.getElementById("reload-link-container");
@@ -81,7 +81,7 @@ function enableDeviceListInteractions() {
 }
 
 function enableFlashingInteractions() {
-    useNightlyBuildCheckbox.disabled = false;
+    usePreviewBuildCheckbox.disabled = false;
     installButton.disabled = false;
     installButton.style.opacity = 1;
     fileDropElement.style.opacity = 1;
@@ -89,7 +89,7 @@ function enableFlashingInteractions() {
 }
 
 function disableFlashingInteractions() {
-    useNightlyBuildCheckbox.disabled = true;
+    usePreviewBuildCheckbox.disabled = true;
     installButton.disabled = true;
     installButton.style.opacity = 0.25;
     fileDropElement.style.opacity = 0.25;
@@ -132,7 +132,7 @@ installButton.addEventListener('click', () => {
     showFlashProgressIndicator();
     const data = {
       deviceData : getSelectedDeviceData(deviceSelectionList),
-      useNightlyBuild : useNightlyBuildCheckbox.checked
+      usePreviewBuild : usePreviewBuildCheckbox.checked
     };
 
     window.api.invoke('on-install', data)

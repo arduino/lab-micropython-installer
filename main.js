@@ -85,7 +85,7 @@ ipcMain.handle('on-custom-install', async (event, data) => {
 })
 
 ipcMain.handle('on-install', async (event, data) => {
-    const { deviceData, useNightlyBuild } = data;
+    const { deviceData, usePreviewBuild } = data;
     return new Promise(async function (resolve, reject) {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
         try {
@@ -93,7 +93,7 @@ ipcMain.handle('on-install', async (event, data) => {
                 reject("❌ Selected device is not available. Click 'Refresh' to update the list of devices.");
                 return;
             }
-            if (await flash.flashMicroPythonFirmware(selectedDevice, useNightlyBuild)) {
+            if (await flash.flashMicroPythonFirmware(selectedDevice, usePreviewBuild)) {
                 resolve("🎉 Done! You may need to reboot the board.");
             } else {
                 // Due to a bug in Electron the error message is reformatted and needs
