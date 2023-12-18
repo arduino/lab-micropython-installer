@@ -25,6 +25,6 @@
   "homepage": "https://github.com/arduino/lab-micropython-installer#readme",
   "dependencies": {
     "node-fetch": "^3.3.0",
-    "serialport": "^12.0.0"
+    "serialport": "^11.0.1"
   }
 }
