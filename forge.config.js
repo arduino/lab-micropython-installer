@@ -4,20 +4,33 @@ const path = require('path');
 let filesToExclude = [];
 switch (os.platform()) {
   case 'win32':
-    filesToExclude = ["(\/firmware-flash\/bin\/linux$)", "(\/firmware-flash\/bin\/darwin$)"];
+    filesToExclude = ["(\/firmware-flash\/bin\/linux$)",
+                      "(\/firmware-flash\/bin\/darwin$)",
+                      "(\/@serialport\/bindings-cpp\/prebuilds\/android.*)",
+                      "(\/@serialport\/bindings-cpp\/prebuilds\/darwin.*)",
+                      "(\/@serialport\/bindings-cpp\/prebuilds\/linux.*)"
+                    ];
     break;
   case 'darwin':
-    filesToExclude = ["(\/firmware-flash\/bin\/linux$)", "(\/firmware-flash\/bin\/win32$)"];
+    filesToExclude = ["\/firmware-flash\/bin\/linux$", 
+                      "\/firmware-flash\/bin\/win32$",
+                      "\/@serialport\/bindings-cpp\/prebuilds\/android.*",
+                      "\/@serialport\/bindings-cpp\/prebuilds\/linux.*",
+                      "\/@serialport\/bindings-cpp\/prebuilds\/win32.*",
+                    ];
     break;
   default:
-    filesToExclude = ["(\/firmware-flash\/bin\/darwin$)", "(\/firmware-flash\/bin\/win32$)"];
+    filesToExclude = ["(\/firmware-flash\/bin\/darwin$)", 
+                      "(\/firmware-flash\/bin\/win32$)",
+                      "(\/@serialport\/bindings-cpp\/prebuilds\/darwin.*)",
+                      "(\/@serialport\/bindings-cpp\/prebuilds\/android.*)",
+                      "(\/@serialport\/bindings-cpp\/prebuilds\/win32.*)",
+                    ];
     break;
 }
 
 // Source code of firmware-flash is not needed as it's already installed as a dependency
 filesToExclude.push("^\/firmware-flash");
-
-filesToExclude.push("\/@serialport\/bindings-cpp\/prebuilds\/")
 
 renamingRules = {
   "darwin": { from: 'darwin', to: 'macOS' },
@@ -69,12 +82,12 @@ module.exports = {
       // because they are not needed after building and they cause code signing issues under Windows.
       // signtool.exe would e.g. try to sign android-arm\node.napi.armv7.node which will in fail.
       const nodeGypPrebuildsDir = path.join(buildPath, 'node_modules/firmware-flash/node_modules/@serialport/bindings-cpp/prebuilds/');
-      
-      // [nodeGypBinsDir, nodeGypPrebuildsDir].forEach(dir => {
-      //   if (fs.existsSync(dir)) {
-      //     fs.rmSync(dir, { recursive: true });
-      //   }
-      // });
+
+      [nodeGypBinsDir, nodeGypPrebuildsDir].forEach(dir => {
+        if (fs.existsSync(dir)) {
+          fs.rmSync(dir, { recursive: true });
+        }
+      });
 
       callback();
     }],
