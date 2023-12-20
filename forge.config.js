@@ -17,8 +17,7 @@ switch (os.platform()) {
 // Source code of firmware-flash is not needed as it's already installed as a dependency
 filesToExclude.push("^\/firmware-flash");
 
-filesToExclude.push("@serialport\/bindings-cpp\/prebuilds\/")
-filesToExclude.push("@serialport\/bindings-cpp\/build\/node_gyp_bins\/")
+filesToExclude.push("\/@serialport\/bindings-cpp\/prebuilds\/")
 
 renamingRules = {
   "darwin": { from: 'darwin', to: 'macOS' },
