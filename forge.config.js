@@ -17,6 +17,9 @@ switch (os.platform()) {
 // Source code of firmware-flash is not needed as it's already installed as a dependency
 filesToExclude.push("^\/firmware-flash");
 
+filesToExclude.push("@serialport\/bindings-cpp\/prebuilds\/")
+filesToExclude.push("@serialport\/bindings-cpp\/build\/node_gyp_bins\/")
+
 renamingRules = {
   "darwin": { from: 'darwin', to: 'macOS' },
   "win32": { from: 'Setup', to: 'Windows-Setup' },
@@ -68,11 +71,11 @@ module.exports = {
       // signtool.exe would e.g. try to sign android-arm\node.napi.armv7.node which will in fail.
       const nodeGypPrebuildsDir = path.join(buildPath, 'node_modules/firmware-flash/node_modules/@serialport/bindings-cpp/prebuilds/');
       
-      [nodeGypBinsDir, nodeGypPrebuildsDir].forEach(dir => {
-        if (fs.existsSync(dir)) {
-          fs.rmSync(dir, { recursive: true });
-        }
-      });
+      // [nodeGypBinsDir, nodeGypPrebuildsDir].forEach(dir => {
+      //   if (fs.existsSync(dir)) {
+      //     fs.rmSync(dir, { recursive: true });
+      //   }
+      // });
 
       callback();
     }],
