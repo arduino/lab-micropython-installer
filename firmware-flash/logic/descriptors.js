@@ -125,7 +125,7 @@ so the softdevice-based image should be flashed with --offset=0x16000 (since it 
 */
 const arduinoNano33BLEUPythonOffset = "0x16000";
 
-const arduinoNano33BLEDescriptor = new DeviceDescriptor(arduinoNano33BLEIdentifiers, 'Nano 33 BLE', 'Arduino', 'arduino_nano_33_ble_sense', 'bin');
+const arduinoNano33BLEDescriptor = new DeviceDescriptor(arduinoNano33BLEIdentifiers, 'Nano 33 BLE', 'Arduino', 'ARDUINO_NANO_33_BLE_SENSE', 'bin');
 arduinoNano33BLEDescriptor.onReset = async (device) => {
     await commandRunner.resetBoardWithBossac(device.getSerialPort());
 };
