@@ -27,6 +27,7 @@ const showErrorInStatusText = (err, timeout = 4000) => {
 
 const showDialogMessageBox = (title, message) => {
   const dialogConfig = {title: title, message: message};
+  // Use dialog function exposed by preload.js
   electron.openDialog('showMessageBox', dialogConfig);
 };
 
@@ -254,7 +255,7 @@ function refreshDeviceList(delay = 0) {
   displayDevices([], deviceSelectionList);
 
   if(delay > 0) {
-    // Calls itself after a delay while passing 0 as the delay.
+    // Calls itself after a delay
     setTimeout(refreshDeviceList, delay);
     return;
   }
