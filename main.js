@@ -108,6 +108,7 @@ ipcMain.handle('on-install', async (event, data) => {
     });
 });
 
+// Handle event for when the renderer requests the list of devices
 ipcMain.handle('on-get-devices', async (event, arg) => {
     return new Promise(async function (resolve, reject) {
         await flash.deviceManager.refreshDeviceList();
@@ -121,10 +122,12 @@ ipcMain.handle('on-get-devices', async (event, arg) => {
     });
 });
 
+// Handle native dialog events from renderer
 ipcMain.handle('dialog', (event, method, params) => {
     dialog[method](win, params);
 });
 
+// Handle auto updater events
 function handleSquirrelEvent() {
     if (process.argv.length === 1) {
         return false;
