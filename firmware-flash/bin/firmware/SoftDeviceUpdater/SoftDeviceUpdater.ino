@@ -1,5 +1,6 @@
 /*
  *  This sketch allows to support Soft Devices on the Arduino Nano 33 BLE (Sense).
+ *  It is based on the Nano33_updateBLandSoftDevice.ino sketch.
  *  
  *  To be able to support Soft Devices, the bootloader first needs to be updated.
  *  The new bootloader is fully backwards compatible with standard sketches.
