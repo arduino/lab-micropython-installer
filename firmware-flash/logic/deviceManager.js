@@ -20,6 +20,21 @@ class DeviceManager {
     }
 
     addDeviceFinder(deviceFinder) {
+        deviceFinder.onDeviceConnected = (device) => {
+            const vidPid = `${device.getVendorID()}:${device.getProductID()}`;
+            this.logger?.log(`🔌 Device connected: ${vidPid}`, Logger.LOG_LEVEL.DEBUG);
+            if(this.onDeviceConnected){
+                this.onDeviceConnected(device);
+            }
+        };
+        
+        deviceFinder.onDeviceDisconnected = (device) => {
+            const vidPid = `${device.getVendorID()}:${device.getProductID()}`;
+            this.logger?.log(`🔌 Device disconnected: ${vidPid}`, Logger.LOG_LEVEL.DEBUG);
+            if(this.onDeviceDisconnected){
+                this.onDeviceDisconnected(device);
+            }
+        };
         this.deviceFinders.push(deviceFinder);
     }
 
@@ -118,6 +133,8 @@ class DeviceManager {
                 if (deviceDescriptor) {
                     foundDevice.setDeviceDescriptor(deviceDescriptor);
                     foundDevice.deviceManager = this;
+                    
+                    // Only add the device if it is not already in the list.
                     if (!this.devices.find(device => 
                                             device.getVendorID() === foundDevice.getVendorID() && 
                                             device.getProductID() === foundDevice.getProductID())) {
