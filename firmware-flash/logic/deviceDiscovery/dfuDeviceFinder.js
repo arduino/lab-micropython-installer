@@ -11,7 +11,7 @@ class DFUDeviceFinder extends DeviceFinder {
         try {
             const deviceInfo = await commandRunner.getDeviceListFromDFUUtil();
             /* 
-            Extract the board name from the output of picotool info -l
+            Extract the board name from the output of dfu-util -l
             Example output:
             dfu-util 0.11-arduino4
 
