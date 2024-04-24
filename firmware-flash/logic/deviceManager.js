@@ -20,18 +20,18 @@ class DeviceManager {
     }
 
     addDeviceFinder(deviceFinder) {
-        deviceFinder.onDeviceConnected = (device) => {
-            const vidPid = `${device.getVendorID()}:${device.getProductID()}`;
-            this.logger?.log(`🔌 Device connected: ${vidPid}`, Logger.LOG_LEVEL.DEBUG);
+        deviceFinder.onDeviceConnected = async () => {
+            this.logger?.log(`🔌 Device connected`, Logger.LOG_LEVEL.DEBUG);
             if(this.onDeviceListChanged){
+                await this.refreshDeviceList();
                 this.onDeviceListChanged();
             }
         };
         
-        deviceFinder.onDeviceDisconnected = (device) => {
-            const vidPid = `${device.getVendorID()}:${device.getProductID()}`;
-            this.logger?.log(`🔌 Device disconnected: ${vidPid}`, Logger.LOG_LEVEL.DEBUG);
+        deviceFinder.onDeviceDisconnected = async () => {
+            this.logger?.log(`🔌 Device disconnected`, Logger.LOG_LEVEL.DEBUG);
             if(this.onDeviceListChanged){
+                await this.refreshDeviceList();
                 this.onDeviceListChanged();
             }
         };
