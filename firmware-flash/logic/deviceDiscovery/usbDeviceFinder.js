@@ -10,40 +10,44 @@ class USBDeviceFinder extends DeviceFinder {
         // Use the serial device finder to add the serial port 
         // and serial number of the USB device.
         this.serialDeviceFinder = new SerialDeviceFinder();
-
-        USB.usb.once('attach', async (usbDevice) => {
-            if(!this.onDeviceConnected ) return;
-
-            const device = await this.deviceFromUSBDescriptor(usbDevice.deviceDescriptor);
-            if(device) this.onDeviceConnected(device);            
+        
+        this.webusb = new USB.WebUSB({
+            allowAllDevices: true
         });
-        USB.usb.once('detach', async (usbDevice) => {
-            if(!this.onDeviceDisconnected) return;
-            const device = await this.deviceFromUSBDescriptor(usbDevice.deviceDescriptor);
-            if(device) this.onDeviceDisconnected(device);
+
+        this.webusb.addEventListener('connect', async (usbDevice) => {
+                if(!this.onDeviceConnected ) return;
+                // For now it's enough to just inform that a device is connected
+                // since the device manager will ask for a refreshed device list.
+                // const device = await this.deviceFromUSBDescriptor(usbDevice.deviceDescriptor);
+                this.onDeviceConnected();            
+        });
+        this.webusb.addEventListener('disconnect', async (usbDevice) => {
+                if(!this.onDeviceDisconnected) return;
+                // For now it's enough to just inform that a device is disconnected
+                // since the device manager will ask for a refreshed device list.
+                // const device = await this.deviceFromUSBDescriptor(usbDevice.deviceDescriptor);
+                this.onDeviceDisconnected();
         });
     }
 
-    async deviceFromUSBDescriptor(descriptor) {
-        if(descriptor.idVendor === undefined || descriptor.idProduct === undefined) return null;
+    async deviceFromDeviceInfo(deviceInfo) {
+        if(deviceInfo.vendorId === undefined || deviceInfo.productId === undefined) return null;
         const serialDevices = await this.serialDeviceFinder.getDeviceList();
 
-        const vendorID = descriptor.idVendor;
-        const productID = descriptor.idProduct;
-        const serialDevice = serialDevices.find((device) => device.vendorID === vendorID && device.productID === productID);
+        const serialNumber = deviceInfo.serialNumber;
+        const serialDevice = serialDevices.find((device) => device.vendorID === deviceInfo.vendorId && device.productID === deviceInfo.productId);
         const serialPort = serialDevice ? serialDevice.serialPort : null;
-        const serialNumber = serialDevice ? serialDevice.serialNumber : null;
-        const newDevice = new Device(vendorID, productID, serialPort, serialNumber);
+        const newDevice = new Device(deviceInfo.vendorId, deviceInfo.productId, serialPort, serialNumber);
         return newDevice;
     }
 
     async getDeviceList() {
         let devices = [];
-        const usbDevices = USB.getDeviceList();        
+        const usbDevices = await this.webusb.getDevices();
 
         for (const usbDevice of usbDevices) {
-            const descriptor = usbDevice.deviceDescriptor;
-            const newDevice = await this.deviceFromUSBDescriptor(descriptor);
+            const newDevice = await this.deviceFromDeviceInfo(usbDevice);
             
             if(newDevice){
                 devices.push(newDevice);
