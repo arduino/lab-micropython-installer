@@ -52,6 +52,10 @@ git clone https://github.com/arduino/lab-micropython-installer.git
 # Go into the repository
 cd micropython-installer-arduino
 
+# Install python setuptools for gyp used in node-usb
+brew install python-setuptools # on macOS
+sudo apt-get install python-setuptools # on Linux
+
 # Install dependencies
 npm install
 
