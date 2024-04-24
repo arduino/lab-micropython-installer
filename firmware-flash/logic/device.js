@@ -113,24 +113,29 @@ export class Device {
     }
 
     async sendREPLCommand(command, awaitResponse = true) {
+        const serialPort = this.getSerialPort();
+        if (!serialPort) {
+            this.logger?.log(`❌ Can't send REPL command. No serial port available.`, Logger.LOG_LEVEL.ERROR);
+            return;
+        }
         const logger = this.logger;
         logger?.log(`📤 Sending REPL command: ${command}`, Logger.LOG_LEVEL.DEBUG);
         
         return new Promise((resolve, reject) => {
             let responseData = "";
             // For MicroPython devices, we need to open the serial port with a baud rate of 115200
-            const serialport = new SerialPort({ path: this.getSerialPort(), baudRate: 115200, autoOpen : false } );
+            const serialport = new SerialPort({ path: serialPort, baudRate: 115200, autoOpen : false } );
             
             serialport.open(function (err) {
                 if (err) {
-                    logger?.log('❌ Error opening port: ', err.message);
+                    logger?.log('❌ Error opening port: ' + err.message, Logger.LOG_LEVEL.ERROR);
                     reject(err);
                     return;
                 }
                 
                 serialport.write(command, function (err) {
                     if (err) {
-                        logger?.log('❌ Error on write: ', err.message);
+                        logger?.log('❌ Error on write: ' + err.message, Logger.LOG_LEVEL.ERROR);
                         serialport.close(function(e){
                             reject(err);
                         });
@@ -138,7 +143,7 @@ export class Device {
                     }
                     serialport.drain(function(err){
                         if(err){
-                            logger?.log('❌ Error on drain: ', err.message);
+                            logger?.log('❌ Error on drain: ' + err.message, Logger.LOG_LEVEL.ERROR);
                             serialport.close(function(e){
                                 reject(err);
                             });
@@ -149,7 +154,7 @@ export class Device {
                             if(serialport.isOpen){
                                 serialport.close(function(err){
                                     if(err){
-                                        reject("❌ Error on closing port: ", err.message);
+                                        reject("❌ Error on closing port: " + err.message);
                                     } else {
                                         resolve();
                                     }
@@ -179,7 +184,7 @@ export class Device {
                     logger?.log(`📥 Received REPL response: ${responseData}`, Logger.LOG_LEVEL.DEBUG);
                     serialport.close(function(err){
                         if(err){
-                            logger?.log('❌ Error on port close: ', err.message);
+                            logger?.log('❌ Error on port close: ' + err.message);
                             reject(err);
                         } else {
                             resolve(responseData);
@@ -206,7 +211,7 @@ export class Device {
                 clearTimeout(timeoutID);
                 serialport.close(function (err){
                     if(err){
-                        logger?.log('❌ Error on port close: ', err.message);
+                        logger?.log('❌ Error on port close: ' + err.message, Logger.LOG_LEVEL.ERROR);
                         reject(err);
                     } else {
                         resolve(data);
@@ -241,12 +246,12 @@ export class Device {
             const serialport = new SerialPort({ path: this.serialPort, baudRate: baudRate, autoOpen : false } );
             serialport.open(function (err) {
                 if (err) {
-                    logger?.log('❌ Error opening port: ', err.message)
+                    logger?.log('❌ Error opening port: ' + err.message, Logger.LOG_LEVEL.ERROR)
                     reject(err);
                 } else {
                     serialport.write(byte, function (err) {
                         if (err) {
-                            logger?.log('❌ Error on write: ', err.message);
+                            logger?.log('❌ Error on write: ' + err.message), Logger.LOG_LEVEL.ERROR;
                             serialport.close();
                             reject(err);
                             return;
@@ -254,14 +259,14 @@ export class Device {
                         
                         serialport.drain(function(err){
                             if(err){
-                                logger?.log('❌ Error on drain: ', err.message);
+                                logger?.log('❌ Error on drain: ' + err.message, Logger.LOG_LEVEL.ERROR);
                                 serialport.close();
                                 reject(err);       
                                 return;                 
                             }
                             serialport.close(function (err){
                                 if(err){
-                                    logger?.log('❌ Error on port close: ', err.message);
+                                    logger?.log('❌ Error on port close: ' + err.message, Logger.LOG_LEVEL.ERROR);
                                     reject(err);
                                 } else {
                                     resolve();
@@ -279,15 +284,20 @@ export class Device {
     async enterBootloader() {
         this.logger?.log(`👢 Entering bootloader ...`);
         if (!this.runsMicroPython()) {
+            const serialPort = this.getSerialPort();
+            if (!serialPort) {
+                this.logger?.log(`❌ Can't enter bootloader. No serial port available.`, Logger.LOG_LEVEL.ERROR);
+                return;
+            }
             // Open the serial port with a baud rate of 1200
-            const serialport = new SerialPort({ path: this.getSerialPort(), baudRate: 1200, autoOpen: false });
+            const serialport = new SerialPort({ path: serialPort, baudRate: 1200, autoOpen: false });
             serialport.on('open', function () {
                 serialport.close();
             });
 
             serialport.open(function (err) {
                 if (err) {
-                    this.logger?.log('❌ Error opening port: ', err.message);
+                    this.logger?.log('❌ Error opening port: ' + err.message, Logger.LOG_LEVEL.ERROR);
                 }
             });
         } else {
