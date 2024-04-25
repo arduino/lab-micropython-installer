@@ -269,8 +269,12 @@ function displayDevices(deviceList, container) {
     container.appendChild(createDeviceSelectorItem(device));
   }
 
-  // If there is only one device, select it
-  if(deviceList.length == 1) {
+  // When the device list changes while flashing is in progress
+  // we should disable device list interactions until flashing is complete.  
+  if(flashingInProgress()) {
+    disableDeviceListInteractions();
+  } else if(deviceList.length == 1) {
+    // If there is only one device, select it
     selectDevice(container.firstElementChild);
   }
 
