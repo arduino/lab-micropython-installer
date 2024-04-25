@@ -74,13 +74,17 @@ export class CommandRunner {
         });
     }
 
-    async runDfuUtil(firmwareFilepath, vendorId, productId, dfuseDevice, reset = true, offset = null) {
+    async runDfuUtil(firmwareFilepath, vendorId, productId, serialNumber, dfuseDevice, reset = true, offset = null) {
         const logger = this.logger;
         const dfuUtilPath = this.getBinaryPath("dfu-util");
 
         // Specify the altsetting of the DFU interface via -a.
         let cmd = `"${dfuUtilPath}" -a 0 -d ${vendorId}:${productId} -D "${firmwareFilepath}"`;
         
+        if (serialNumber) {
+            cmd += ` --serial ${serialNumber}`;
+        }
+
         if (reset && !dfuseDevice) {
             // cmd += " --reset";
             cmd += " -Q";
