@@ -95,6 +95,11 @@ ipcMain.handle('on-install', async (event, data) => {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
         const selectedDeviceName = selectedDevice?.deviceDescriptor.name;
         
+        // Enable this code block to test the UI without flashing the firmware
+        // await flash.deviceManager.wait(2000);
+        // resolve(`🎉 Successfully flashed firmware onto ${selectedDeviceName}. You may need to reboot the board.`);
+        // return;
+        
         try {
             if(!selectedDevice){
                 reject("❌ Selected device is not available. Make sure the device is connected and try again.");
