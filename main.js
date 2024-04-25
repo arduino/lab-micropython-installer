@@ -43,6 +43,11 @@ app.whenReady().then(async () => {
     logger = flash.Logger.defaultLogger;
     logger.onLog = forwardOutput;
     logger.setLogLevel(flash.Logger.LOG_LEVEL.DEBUG);
+    flash.deviceManager.onDeviceListChanged = async () => {
+        const devices = await flash.deviceManager.getDeviceList();
+        const pojos = devices.map(device => device.toPlainObject());
+        win.webContents.send("on-device-list-changed", pojos);
+    }
     createWindow()
 })
 
