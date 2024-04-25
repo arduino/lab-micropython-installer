@@ -95,6 +95,10 @@ function hideFlashProgressIndicator() {
   flashActivityIndicator.style.display = 'none';
 }
 
+function flashingInProgress() {
+  return flashActivityIndicator.style.display === 'inline-block';
+}
+
 window.api.on('on-output', (message) => {
     statusTextAnimator.showStatusText(message);
 });
@@ -238,6 +242,11 @@ function hideDeviceLoadingIndicator() {
 
 function displayDevices(deviceList, container) {
   
+  // This function is only called when the device list changes
+  // which conseqently clears the selected device.
+  // so we should disable flashing interactions until a device is selected.
+  disableFlashingInteractions();
+
   // Sort the device list by manufacturer name and device name
   deviceList.sort((deviceA, deviceB) => {
     const deviceAName = deviceA.manufacturer + deviceA.name;
@@ -269,7 +278,14 @@ function displayDevices(deviceList, container) {
 
 window.addEventListener('DOMContentLoaded', () => {
   deviceSelectionList.addEventListener("device-selected", (event) => {
-    enableFlashingInteractions();
+    // Enable flashing interactions when a device is selected
+    // and no flashing operation is in progress.
+    // This check is necessary because the device selection list
+    // may change during flashing and in case there is just one device
+    // in the list it gets selected automatically.
+    if(!flashingInProgress()) {
+      enableFlashingInteractions();
+    }
   });
   
   disableFlashingInteractions();
