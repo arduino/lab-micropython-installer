@@ -118,7 +118,6 @@ ipcMain.handle('on-install', async (event, data) => {
 // Handle event for when the renderer requests the list of devices
 ipcMain.handle('on-get-devices', async (event, arg) => {
     return new Promise(async function (resolve, reject) {
-        await flash.deviceManager.refreshDeviceList();
         const devices = await flash.getDeviceList();
         const pojos = devices.map(device => device.toPlainObject());
         resolve(pojos);
