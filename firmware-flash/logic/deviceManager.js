@@ -22,16 +22,18 @@ class DeviceManager {
     addDeviceFinder(deviceFinder) {
         deviceFinder.onDeviceConnected = async () => {
             this.logger?.log(`🔌 Device connected`, Logger.LOG_LEVEL.DEBUG);
+            await this.refreshDeviceList();
+            
             if(this.onDeviceListChanged){
-                await this.refreshDeviceList();
                 this.onDeviceListChanged();
             }
         };
         
         deviceFinder.onDeviceDisconnected = async () => {
             this.logger?.log(`🔌 Device disconnected`, Logger.LOG_LEVEL.DEBUG);
+            await this.refreshDeviceList();
+
             if(this.onDeviceListChanged){
-                await this.refreshDeviceList();
                 this.onDeviceListChanged();
             }
         };
