@@ -36,7 +36,10 @@ class USBDeviceFinder extends DeviceFinder {
         const serialDevices = await this.serialDeviceFinder.getDeviceList();
 
         const serialNumber = deviceInfo.serialNumber;
-        const serialDevice = serialDevices.find((device) => device.vendorID === deviceInfo.vendorId && device.productID === deviceInfo.productId);
+        const serialDevice = serialDevices.find((device) => device.vendorID === deviceInfo.vendorId 
+                                                    && device.productID === deviceInfo.productId
+                                                    && device.serialNumber === serialNumber
+                                                );
         const serialPort = serialDevice ? serialDevice.serialPort : null;
         const newDevice = new Device(deviceInfo.vendorId, deviceInfo.productId, serialPort, serialNumber);
         return newDevice;
