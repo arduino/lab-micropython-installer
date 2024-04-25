@@ -88,18 +88,20 @@ ipcMain.handle('on-install', async (event, data) => {
     const { deviceData, usePreviewBuild } = data;
     return new Promise(async function (resolve, reject) {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
+        const selectedDeviceName = selectedDevice?.deviceDescriptor.name;
+        
         try {
             if(!selectedDevice){
-                reject("❌ Selected device is not available. Click 'Refresh' to update the list of devices.");
+                reject("❌ Selected device is not available. Make sure the device is connected and try again.");
                 return;
             }
             if (await flash.flashMicroPythonFirmware(selectedDevice, usePreviewBuild)) {
-                resolve("🎉 Done! You may need to reboot the board.");
+                resolve(`🎉 Successfully flashed firmware onto ${selectedDeviceName}. You may need to reboot the board.`);
             } else {
                 // Due to a bug in Electron the error message is reformatted and needs
                 // to be cleaned up in the renderer process.
                 // See: https://github.com/electron/electron/issues/24427
-                reject("❌ Failed to flash firmware.");
+                reject(`❌ Failed to flash firmware onto ${selectedDeviceName}.`);
             }
         } catch (error) {
             logger.log(error, flash.Logger.LOG_LEVEL.DEBUG);
