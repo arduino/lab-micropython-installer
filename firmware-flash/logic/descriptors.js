@@ -38,14 +38,18 @@ const arduinoPortentaH7Identifiers = {
 
 const arduinoPortentaH7Descriptor = new DeviceDescriptor(arduinoPortentaH7Identifiers, 'Portenta H7', 'Arduino', 'ARDUINO_PORTENTA_H7', 'dfu');
 arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
+    const vid = device.getVendorIDHex();
+    const pid = device.getProductIDHex();
+    const serialNumber = device.getSerialNumber();
+    
     // Check if firmware is a DFU file
     if(firmware.endsWith(".dfu")){
-        await commandRunner.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true);
+        await commandRunner.runDfuUtil(firmware, vid, pid, serialNumber, true);
         return;
     }
     // Check if firmware is a binary file
     if(firmware.endsWith(".bin")){
-        await commandRunner.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true, true, "0x08040000");
+        await commandRunner.runDfuUtil(firmware, vid, pid, serialNumber, true, true, "0x08040000");
         return;
     }
 
@@ -62,7 +66,10 @@ const arduinoPortentaC33Descriptor = new DeviceDescriptor(arduinoPortentaC33Iden
 arduinoPortentaC33Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     // Check if firmware is a binary file
     if(firmware.endsWith(".bin")){
-        await commandRunner.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), false);
+        const vid = device.getVendorIDHex();
+        const pid = device.getProductIDHex();
+        const serialNumber = device.getSerialNumber();
+        await commandRunner.runDfuUtil(firmware, vid, pid, serialNumber, false);
         return;
     }
     
@@ -106,7 +113,10 @@ const arduinoNiclaVisionIdentifiers = {
 };
 const arduinoNiclaVisionDescriptor = new DeviceDescriptor(arduinoNiclaVisionIdentifiers, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
 arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
-    await commandRunner.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), true);
+    const vid = device.getVendorIDHex();
+    const pid = device.getProductIDHex();
+    const serialNumber = device.getSerialNumber();
+    await commandRunner.runDfuUtil(firmware, vid, pid, serialNumber, true);
 };
 
 const arduinoNano33BLEIdentifiers = {
@@ -188,7 +198,10 @@ arduinoNanoESP32Descriptor.onFlashFirmware = async (firmware, device, isMicroPyt
     if(path.extname(firmware) == ".bin"){
         throw new Error("❌ Installing a raw binary from DFU bootloader is not supported. Please use the native bootloader instead or flash an application image.");
     }
-    await commandRunner.runDfuUtil(firmware, device.getVendorIDHex(), device.getProductIDHex(), false);
+    const vid = device.getVendorIDHex();
+    const pid = device.getProductIDHex();
+    const serialNumber = device.getSerialNumber();
+    await commandRunner.runDfuUtil(firmware, vid, pid, serialNumber, false);
 };
 
 const arduinoNanoESP32NativeIdentifiers = {

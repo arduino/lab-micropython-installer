@@ -386,6 +386,10 @@ export class Device {
         return this.serialPort;
     }
 
+    getSerialNumber() {
+        return this.serialNumber;
+    }
+
     getDeviceManager() {
         return this.deviceManager;
     }
