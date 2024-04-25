@@ -8,7 +8,6 @@ const deviceLoadingActivityIndicator = document.getElementById("device-loading-i
 const deviceLoadingHint = document.getElementById("device-loading-hint");
 const reloadLinkContainer = document.getElementById("reload-link-container");
 const deviceSelectionList = document.querySelector(".item-selection-list");
-const reloadDeviceListLink = document.getElementById("reload-link");
 
 const statusTextAnimator = new StatusTextAnimator(outputElement);
 
@@ -45,9 +44,6 @@ const flashFirmwareFromFile = (filePath) => {
         console.log(result);
         statusTextAnimator.clearStatusText();
         showDialogMessageBox("Success", result);
-        disableFlashingInteractions();
-        // Give the device some time to reboot
-        refreshDeviceList(2000);
     }).catch(function (err) {
         console.error(err);
         showErrorInStatusText(err);        
@@ -60,9 +56,6 @@ const flashFirmwareFromFile = (filePath) => {
 
 
 function disableDeviceListInteractions() {
-  reloadDeviceListLink.style.pointerEvents = 'none';
-  reloadDeviceListLink.style.opacity = 0.25;
-
   // Disable all buttons in the device selection list
   const deviceItems = deviceSelectionList.querySelectorAll(".selection-item");
   deviceItems.forEach((item) => {
@@ -71,9 +64,6 @@ function disableDeviceListInteractions() {
 }
 
 function enableDeviceListInteractions() {
-  reloadDeviceListLink.style.pointerEvents = 'auto';
-  reloadDeviceListLink.style.opacity = 1;
-
    // Enable all buttons in the device selection list
    const deviceItems = deviceSelectionList.querySelectorAll(".selection-item");
    deviceItems.forEach((item) => {
@@ -109,9 +99,8 @@ window.api.on('on-output', (message) => {
     statusTextAnimator.showStatusText(message);
 });
 
-reloadDeviceListLink.addEventListener('click', () => {
-    disableFlashingInteractions();
-    refreshDeviceList();
+window.api.on('on-device-list-changed', (deviceList) => {
+  displayDevices(deviceList, deviceSelectionList);
 });
 
 chooseFileLink.addEventListener('click', () => {
@@ -141,9 +130,6 @@ installButton.addEventListener('click', () => {
             console.log(result);
             statusTextAnimator.clearStatusText();
             showDialogMessageBox("Success", result);
-            disableFlashingInteractions();
-            // Give the device some time to reboot
-            refreshDeviceList(2000);
         })
         .catch((err) => {
             console.error(err);
@@ -250,32 +236,6 @@ function hideDeviceLoadingIndicator() {
   deviceLoadingHint.style.opacity = 0;
 }
 
-function refreshDeviceList(delay = 0) {
-  // Clear the device list
-  displayDevices([], deviceSelectionList);
-
-  if(delay > 0) {
-    // Calls itself after a delay
-    setTimeout(refreshDeviceList, delay);
-    return;
-  }
-
-  showDeviceLoadingIndicator();
-
-  window.api.invoke('on-get-devices').then((result) => {
-    if(result.length == 0) {
-      console.log("🤷 No devices found. Trying again in 4 seconds.");
-      // Try again in 4 seconds if no devices were found
-      setTimeout(refreshDeviceList, 4000);
-    } else {
-      displayDevices(result, deviceSelectionList);
-      hideDeviceLoadingIndicator();
-    }
-  }).catch((err) => {
-    console.error(err);
-  });
-}
-
 function displayDevices(deviceList, container) {
   
   // Sort the device list by manufacturer name and device name
@@ -288,12 +248,17 @@ function displayDevices(deviceList, container) {
   // Clear the device list
   container.innerHTML = "";
 
-  reloadLinkContainer.style.display = deviceList.length > 0 ? 'block' : 'none';
+  if(deviceList.length == 0) {
+    console.log("🤷 No devices found.");
+    showDeviceLoadingIndicator();
+    return;
+  }
+
+  hideDeviceLoadingIndicator();
 
   for (const device of deviceList) {
     container.appendChild(createDeviceSelectorItem(device));
   }
-    
 
   // If there is only one device, select it
   if(deviceList.length == 1) {
@@ -308,5 +273,11 @@ window.addEventListener('DOMContentLoaded', () => {
   });
   
   disableFlashingInteractions();
-  refreshDeviceList();
+  
+  window.api.invoke('on-get-devices').then((result) => {
+    displayDevices(result, deviceSelectionList);
+  }).catch((err) => {
+    console.error(err);
+  });
+  
 });
