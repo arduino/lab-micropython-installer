@@ -222,8 +222,18 @@ function createDeviceSelectorItem(device) {
 
   const deviceLabel = document.createElement("span");
   deviceLabel.classList.add("selection-item-label");
-  deviceLabel.textContent = fullDeviceName;
+  deviceLabel.textContent = device.name;
   deviceItem.appendChild(deviceLabel);
+
+  const deviceDetailsLabel = document.createElement("span");
+  deviceDetailsLabel.classList.add("selection-item-details-label");
+
+  if(device.mode == "Bootloader") {
+    deviceDetailsLabel.textContent = "🛠️ Bootloader Mode";
+  } else if (device.mode == "MicroPython") {
+    deviceDetailsLabel.textContent = "🐍 " + device.microPythonVersion + " installed";
+  }
+  deviceItem.appendChild(deviceDetailsLabel);
 
   return deviceItem;
 }

@@ -45,7 +45,7 @@ app.whenReady().then(async () => {
     logger.setLogLevel(flash.Logger.LOG_LEVEL.DEBUG);
     flash.deviceManager.onDeviceListChanged = async () => {
         const devices = await flash.deviceManager.getDeviceList();
-        const pojos = devices.map(device => device.toPlainObject());
+        const pojos = await Promise.all(devices.map(device => device.toPlainObject()));
         win.webContents.send("on-device-list-changed", pojos);
     }
     createWindow()
@@ -124,7 +124,7 @@ ipcMain.handle('on-install', async (event, data) => {
 ipcMain.handle('on-get-devices', async (event, arg) => {
     return new Promise(async function (resolve, reject) {
         const devices = await flash.getDeviceList();
-        const pojos = devices.map(device => device.toPlainObject());
+        const pojos = await Promise.all(devices.map(device => device.toPlainObject()));
         resolve(pojos);
     });
 });
