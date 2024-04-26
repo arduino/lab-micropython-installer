@@ -112,7 +112,7 @@ export class Device {
         return await this.deviceDescriptor.onFlashFirmware(firmwareFile, this, isMicroPython);
     }
 
-    async sendREPLCommand(command, awaitResponse = true) {
+    async sendREPLCommand(command, awaitResponse = true, timeout = 3000) {
         const serialPort = this.getSerialPort();
         if (!serialPort) {
             this.logger?.log(`❌ Can't send REPL command. No serial port available.`, Logger.LOG_LEVEL.ERROR);
@@ -123,6 +123,8 @@ export class Device {
         
         return new Promise((resolve, reject) => {
             let responseData = "";
+            let timeoutID = null;
+
             // For MicroPython devices, we need to open the serial port with a baud rate of 115200
             const serialport = new SerialPort({ path: serialPort, baudRate: 115200, autoOpen : false } );
             
@@ -150,6 +152,7 @@ export class Device {
                             return;
                         }
                         
+                        // If no response is expected, we close the port immediately
                         if(!awaitResponse) {
                             if(serialport.isOpen){
                                 serialport.close(function(err){
@@ -164,6 +167,17 @@ export class Device {
                             }
                             return;
                         }
+
+                        // Set a timeout for the response
+                        timeoutID = setTimeout(() => {
+                            if(serialport.isOpen){
+                                serialport.close(function(err){
+                                    reject("❌ Timeout while waiting for response.");
+                                });
+                            } else {
+                                reject("❌ Timeout while waiting for response.");
+                            }
+                        }, timeout);
                     });
                 });
     
@@ -171,6 +185,7 @@ export class Device {
     
             // Read response
             serialport.on('data', function (data) {
+                if(timeoutID) clearTimeout(timeoutID);
                 responseData += data.toString();
                 let lines = responseData.split('\r\n');
                 let secondLastLine = lines[lines.length - 2];
