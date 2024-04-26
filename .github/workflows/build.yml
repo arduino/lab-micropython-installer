@@ -18,9 +18,9 @@ jobs:
           - os: windows-2019
             dependencies: npm install
           - os: ubuntu-latest
-            dependencies: sudo apt-get install libusb-dev && sudo apt-get install libudev-dev && npm install
+            dependencies: sudo apt-get install libusb-dev && sudo apt-get install libudev-dev && npm install -g node-addon-api && npm install
           - os: macos-latest
-            dependencies: brew install python-setuptools && npm install
+            dependencies: brew install python-setuptools && npm install -g node-addon-api && npm install
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
