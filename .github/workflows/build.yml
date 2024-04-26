@@ -15,8 +15,11 @@ jobs:
       matrix:
         config:
           - os: windows-2019
+            dependencies: npm install
           - os: ubuntu-latest
+            dependencies: apt-get install libusb-dev && apt-get install libudev-dev && npm install
           - os: macos-latest
+            dependencies: brew install python-setuptools && npm install
     runs-on: ${{ matrix.config.os }}
     timeout-minutes: 90
     steps:
@@ -25,6 +28,6 @@ jobs:
       with:
         node-version: 18
     - name: install dependencies
-      run: pip install setuptools && npm install
+      run: ${{ matrix.config.dependencies }}
     - name: build
-      run: npm run make
+      run: npm run make      
