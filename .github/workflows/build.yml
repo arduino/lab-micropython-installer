@@ -25,6 +25,6 @@ jobs:
       with:
         node-version: 18
     - name: install dependencies
-      run: npm install
+      run: pip install setuptools && npm install
     - name: build
       run: npm run make
