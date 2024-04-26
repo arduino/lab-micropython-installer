@@ -13,14 +13,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config:
+        os: [ubuntu-latest, macos-latest, windows-2019]
+        include:
           - os: windows-2019
             dependencies: npm install
           - os: ubuntu-latest
-            dependencies: apt-get install libusb-dev && apt-get install libudev-dev && npm install
+            dependencies: sudo apt-get install libusb-dev && sudo apt-get install libudev-dev && npm install
           - os: macos-latest
             dependencies: brew install python-setuptools && npm install
-    runs-on: ${{ matrix.config.os }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
     - uses: actions/checkout@v3
@@ -28,6 +29,6 @@ jobs:
       with:
         node-version: 18
     - name: install dependencies
-      run: ${{ matrix.config.dependencies }}
+      run: ${{ matrix.dependencies }}
     - name: build
       run: npm run make      
