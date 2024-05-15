@@ -13,17 +13,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # os: [ubuntu-latest, macos-latest, windows-2019]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest, windows-2019]
         include:
-          # - os: windows-2019
-          #   dependencies: npm install
+          - os: windows-2019
+            dependencies: npm install
           - os: ubuntu-latest
-          #   # build-essential libudev-dev
             dependencies: sudo apt-get install build-essential libudev-dev && npm install
-          #   dependencies: sudo apt-get install libusb-dev && npm install
-          # - os: macos-latest
-          #   dependencies: brew install python-setuptools && npm install
+          - os: macos-latest
+            dependencies: brew install python-setuptools && npm install
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
