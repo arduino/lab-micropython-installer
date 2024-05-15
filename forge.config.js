@@ -1,8 +1,13 @@
 const os = require('os');
 const path = require('path');
 
+const platform = os.platform();
+const architecture = os.arch();
+const applicationName = 'MicroPython-Installer';
+
 let filesToExclude = [];
-switch (os.platform()) {
+
+switch (platform) {
   case 'win32':
     filesToExclude = ["(\/firmware-flash\/bin\/linux$)",
                       "(\/firmware-flash\/bin\/darwin$)",
@@ -61,12 +66,11 @@ module.exports = {
         });
       }
       return results;
-    },
     }
   },
   packagerConfig: {
     icon: './assets/app-icon',
-    name: 'MicroPython-Installer',
+    name: applicationName, // Name cannot contain spaces because gyp doesn't support them
     executableName: 'micropython-installer',
     ignore: filesToExclude,
     prune: true,
@@ -93,7 +97,7 @@ module.exports = {
       callback();
     }],
     osxSign: {
-      app: './out/MicroPython Installer-darwin-x64/MicroPython Installer.app',
+      app: './out/' + applicationName + '-darwin-' + architecture + '/' + applicationName + '.app',
       optionsForFile: (filePath) => {
         return {
           entitlements: './config/entitlements.plist'
@@ -103,7 +107,7 @@ module.exports = {
     },
     osxNotarize: process.env.APPLE_API_KEY_PATH ? {
       tool: 'notarytool',
-      appPath: './out/MicroPython Installer-darwin-x64/MicroPython Installer.app',
+      appPath: './out/' + applicationName + '-darwin-' + architecture + '/' + applicationName + '.app',
       appleApiKey: process.env.APPLE_API_KEY_PATH,
       appleApiKeyId: process.env.APPLE_API_KEY_ID,
       appleApiIssuer: process.env.APPLE_API_ISSUER,
