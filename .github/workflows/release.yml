@@ -17,8 +17,11 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-sign-pc]
         include:
           - os: windows-sign-pc
+            dependencies: npm install
           - os: ubuntu-latest
+            dependencies: sudo apt-get install build-essential libudev-dev && npm install
           - os: macos-latest
+            dependencies: brew install python-setuptools && npm install
             publish-flags: --arch=x64,arm64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
