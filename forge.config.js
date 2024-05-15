@@ -66,7 +66,7 @@ module.exports = {
   },
   packagerConfig: {
     icon: './assets/app-icon',
-    name: 'MicroPython Installer',
+    name: 'MicroPython-Installer',
     executableName: 'micropython-installer',
     ignore: filesToExclude,
     prune: true,
