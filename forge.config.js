@@ -3,7 +3,7 @@ const path = require('path');
 
 const platform = os.platform();
 const architecture = os.arch();
-const applicationName = 'MicroPython-Installer';
+const applicationName = 'MicroPython-Installer'; // Name cannot contain spaces because gyp doesn't support them
 
 let filesToExclude = [];
 
