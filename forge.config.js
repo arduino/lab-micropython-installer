@@ -91,7 +91,7 @@ module.exports = {
       
       // Remove files under node_modules\usb\prebuilds because they are not needed after building and they cause code signing issues under Windows.
       // signtool.exe would e.g. try to sign android-arm\node.napi.armv7.node which will in fail.
-      const usbPrebuildsDir = path.join(buildPath, 'node_modules/firmware-flash/node_modules/usb/prebuilds/');
+      const usbPrebuildsDir = path.join(buildPath, 'node_modules/usb/prebuilds/');
 
       [nodeGypBinsDir, nodeGypPrebuildsDir, usbPrebuildsDir].forEach(dir => {
         if (fs.existsSync(dir)) {
