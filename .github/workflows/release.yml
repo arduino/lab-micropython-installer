@@ -14,11 +14,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - os: macos-latest
-          - os: ubuntu-latest
+        os: [ubuntu-latest, macos-latest, windows-2019]
+        include:
           - os: windows-2019
-    runs-on: ${{ matrix.config.os }}
+            dependencies: npm install
+          - os: ubuntu-latest
+            dependencies: sudo apt-get install build-essential libudev-dev && npm install
+          - os: macos-latest
+            dependencies: brew install python-setuptools && npm install
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
     - uses: actions/checkout@v3
@@ -26,7 +30,7 @@ jobs:
       with:
         node-version: 18
     - name: install dependencies
-      run: npm install
+      run: ${{ matrix.dependencies }}
     - name: install signing certificate (macOS)
       if: ${{ runner.OS == 'macOS' }}
       shell: bash
