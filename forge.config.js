@@ -32,7 +32,7 @@ switch (os.platform()) {
 // Source code of firmware-flash is not needed as it's already installed as a dependency
 filesToExclude.push("^\/firmware-flash");
 
-renamingRules = {
+const distributableRenamingRules = {
   "darwin": { from: 'darwin', to: 'macOS' },
   "win32": { from: 'Setup', to: 'Windows-Setup' },
   "linux": { from: 'amd64', to: 'Linux' }
@@ -41,26 +41,27 @@ renamingRules = {
 // Check options at https://electron.github.io/electron-packager/main/interfaces/electronpackager.options.html
 module.exports = {
   hooks: {
-    postMake: async (forgeConfig, options) => {
+    postMake: async (forgeConfig, results) => {
       const fs = require('fs');
 
-      for(let option of options) {
-        option.artifacts.forEach((artifact, index) => {  
+      for(let result of results) {
+        result.artifacts.forEach((artifact, index) => {  
           const fileName = path.basename(artifact);          
-          const renameInfo = renamingRules[option.platform];
-          const targetName = fileName.replace(renameInfo.from, renameInfo.to);
+          const renameRule = distributableRenamingRules[result.platform];
+          const targetName = fileName.replace(renameRule.from, renameRule.to);
           console.log(`Renaming ${fileName} to ${targetName}`);
           const targetPath = path.join(path.dirname(artifact), targetName);
 
           try {
             fs.renameSync(artifact, targetPath);
-            option.artifacts[index] = targetPath;
+            result.artifacts[index] = targetPath;
           } catch (err) {
             console.error(err);
           }
         });
       }
-      return options;
+      return results;
+    },
     }
   },
   packagerConfig: {
