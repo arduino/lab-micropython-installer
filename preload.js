@@ -21,7 +21,7 @@ contextBridge.exposeInMainWorld(
             return ipcRenderer.invoke(channel, data);
         },
         on: (channel, func) => {
-            let validChannels = ["on-output"];
+            let validChannels = ["on-output", "on-device-list-changed"];
             if(!validChannels.includes(channel)) return;
             // Deliberately strip event as it includes `sender`
             ipcRenderer.on(channel, (event, ...args) => func(...args));

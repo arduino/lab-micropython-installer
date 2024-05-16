@@ -14,19 +14,23 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - os: macos-latest
-          - os: ubuntu-latest
+        os: [ubuntu-latest, macos-latest, windows-2019]
+        include:
           - os: windows-2019
-    runs-on: ${{ matrix.config.os }}
+            dependencies: npm install
+          - os: ubuntu-latest
+            dependencies: sudo apt-get install build-essential libudev-dev && npm install
+          - os: macos-latest
+            dependencies: brew install python-setuptools && npm install
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@master
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: 18
     - name: install dependencies
-      run: npm install
+      run: ${{ matrix.dependencies }}
     - name: install signing certificate (macOS)
       if: ${{ runner.OS == 'macOS' }}
       shell: bash
@@ -77,7 +81,7 @@ jobs:
         fi
     - name: publish
       env:
-        DEBUG: 'electron-osx-sign*'
+        DEBUG: 'electron-osx-sign* electron-notarize*'
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         KEYCHAIN_PATH: ${{ runner.temp }}/app-signing.keychain-db
         APPLE_API_KEY_PATH: ${{ runner.temp }}/auth_key.p8
