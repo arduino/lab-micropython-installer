@@ -97,7 +97,10 @@ module.exports = {
       // signtool.exe would e.g. try to sign android-arm\node.napi.armv7.node which will in fail.
       const usbPrebuildsDir = path.join(buildPath, 'node_modules/usb/prebuilds/');
 
-      [nodeGypBinsDir, nodeGypPrebuildsDir, usbPrebuildsDir].forEach(dir => {
+      // Remove temporary build files of usb module to speed up code signing under macOS
+      const usbObjectsDir = path.join(buildPath, 'node_modules/usb/build/Release/obj.target/');
+
+      [nodeGypBinsDir, nodeGypPrebuildsDir, usbPrebuildsDir, usbObjectsDir].forEach(dir => {
         if (fs.existsSync(dir)) {
           fs.rmSync(dir, { recursive: true });
         }
