@@ -3,8 +3,14 @@ const path = require('path');
 
 const platform = os.platform();
 const architecture = os.arch();
-const applicationName = 'MicroPython-Installer'; // Name cannot contain spaces because gyp doesn't support them
 
+const applicationNames = {
+  'darwin': 'MicroPython-Installer',
+  'win32': 'MicroPython-Installer',
+  'linux': 'micropython-installer'
+};
+
+const applicationName = applicationNames[platform];
 let filesToExclude = [];
 
 switch (platform) {
@@ -75,10 +81,6 @@ module.exports = {
   packagerConfig: {
     icon: './assets/app-icon',
     name: applicationName, // Name cannot contain spaces because gyp doesn't support them
-    executableName: 'micropython-installer',
-    extendInfo: {
-      "CFBundleDisplayName": applicationName,
-    },
     ignore: filesToExclude,
     prune: true,
     derefSymlinks: true,
