@@ -3,8 +3,7 @@
 # This script can be used to check the validity of a codesigned app on macOS.
 # It runs both codesign and Gatekeeper assessments.
 # Example usage: ./check-validity-macos.sh ""./out/MicroPython Installer-darwin-x64/MicroPython Installer.app"
-
-codesign --verify --verbose=1 "$1"
+codesign --verify --deep --strict --verbose=2 "$1"
 if [ $? -ne 0 ]; then
     echo "❌ Codesign verification failed. Exiting..."
     exit 1
