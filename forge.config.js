@@ -53,6 +53,10 @@ module.exports = {
         result.artifacts.forEach((artifact, index) => {  
           const fileName = path.basename(artifact);          
           const renameRule = distributableRenamingRules[result.platform];
+          
+          if(!fileName.includes(renameRule.from)) {
+            return;
+          }
           const targetName = fileName.replace(renameRule.from, renameRule.to);
           console.log(`Renaming ${fileName} to ${targetName}`);
           const targetPath = path.join(path.dirname(artifact), targetName);
