@@ -76,6 +76,9 @@ module.exports = {
     icon: './assets/app-icon',
     name: applicationName, // Name cannot contain spaces because gyp doesn't support them
     executableName: 'micropython-installer',
+    extendInfo: {
+      "CFBundleDisplayName": applicationName,
+    },
     ignore: filesToExclude,
     prune: true,
     derefSymlinks: true,
