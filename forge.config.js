@@ -82,12 +82,12 @@ module.exports = {
       // because the cause notarization issues and they are not needed after building.
       // One of the files is a symlink to python which is outside of the app bundle.
       // SEE: https://github.com/nodejs/node-gyp/issues/2713#issuecomment-1400959609
-      const nodeGypBinsDir = path.join(buildPath, 'node_modules/firmware-flash/node_modules/@serialport/bindings-cpp/build/node_gyp_bins/');
+      const nodeGypBinsDir = path.join(buildPath, 'node_modules/@serialport/bindings-cpp/build/node_gyp_bins/');
       
       // Remove files under node_modules/@serialport/bindings-cpp/prebuilds/
       // because they are not needed after building and they cause code signing issues under Windows.
       // signtool.exe would e.g. try to sign android-arm\node.napi.armv7.node which will in fail.
-      const nodeGypPrebuildsDir = path.join(buildPath, 'node_modules/firmware-flash/node_modules/@serialport/bindings-cpp/prebuilds/');
+      const nodeGypPrebuildsDir = path.join(buildPath, 'node_modules/@serialport/bindings-cpp/prebuilds/');
       
       // Remove files under node_modules\usb\prebuilds because they are not needed after building and they cause code signing issues under Windows.
       // signtool.exe would e.g. try to sign android-arm\node.napi.armv7.node which will in fail.
