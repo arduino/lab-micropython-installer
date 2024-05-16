@@ -79,6 +79,10 @@ module.exports = {
     ignore: filesToExclude,
     prune: true,
     derefSymlinks: true,
+    protocols: [ {
+      name: 'micropython-installer',
+      schemes: ['micropython-installer']
+    }],
     afterCopy: [(buildPath, electronVersion, platform, arch, callback) => {
       const fs = require('fs');
       const path = require('path');
