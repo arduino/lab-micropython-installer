@@ -82,7 +82,7 @@ jobs:
         fi
     - name: publish
       env:
-        # DEBUG: 'electron-osx-sign*'
+        # DEBUG: 'electron-osx-sign* electron-notarize*'
         DEBUG: 'electron-windows-installer*'
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         KEYCHAIN_PATH: ${{ runner.temp }}/app-signing.keychain-db
