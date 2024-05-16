@@ -18,19 +18,19 @@ jobs:
           - os: windows-2019
             dependencies: npm install
           - os: ubuntu-latest
+            # build-essential libudev-dev are required by usb package
             dependencies: sudo apt-get install build-essential libudev-dev && npm install
           - os: macos-latest
+            # python-setuptools includes distutils required by node-gyp
             dependencies: brew install python-setuptools && npm install
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@master
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: 18
     - name: install dependencies
       run: ${{ matrix.dependencies }}
-    - name: debug
-      run: ls -l node_modules/usb/node_modules/
     - name: build
       run: npm run make      
