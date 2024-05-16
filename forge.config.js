@@ -112,7 +112,7 @@ module.exports = {
       // Remove temporary build files of usb module to speed up code signing under macOS
       const usbObjectsDir = path.join(buildPath, 'node_modules/usb/build/Release/obj.target/');
 
-      [serialportNodeGypBinsDir, usbNodeGypBinsDir, nodeGypPrebuildsDir, usbPrebuildsDir, usbObjectsDir].forEach(dir => {
+      [usbNodeGypBinsDir, usbPrebuildsDir, usbObjectsDir].forEach(dir => {
         if (fs.existsSync(dir)) {
           fs.rmSync(dir, { recursive: true });
         }
