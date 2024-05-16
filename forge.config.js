@@ -86,7 +86,13 @@ module.exports = {
       // because the cause notarization issues and they are not needed after building.
       // One of the files is a symlink to python which is outside of the app bundle.
       // SEE: https://github.com/nodejs/node-gyp/issues/2713#issuecomment-1400959609
-      const nodeGypBinsDir = path.join(buildPath, 'node_modules/firmware-flash/node_modules/@serialport/bindings-cpp/build/node_gyp_bins/');
+      const serialportNodeGypBinsDir = path.join(buildPath, 'node_modules/firmware-flash/node_modules/@serialport/bindings-cpp/build/node_gyp_bins/');
+
+      // Remove files under node_modules/usb/build/node_gyp_bins/
+      // because the cause notarization issues and they are not needed after building.
+      // One of the files is a symlink node_gyp_bins/python3 which points outside of the app bundle.
+      const usbNodeGypBinsDir = path.join(buildPath, 'node_modules/firmware-flash/node_modules/usb/build/node_gyp_bins/');
+      // const usbNodeGypBinsDir = path.join(buildPath, 'node_modules/usb/build/node_gyp_bins/');
       
       // Remove files under node_modules/@serialport/bindings-cpp/prebuilds/
       // because they are not needed after building and they cause code signing issues under Windows.
@@ -100,7 +106,7 @@ module.exports = {
       // Remove temporary build files of usb module to speed up code signing under macOS
       const usbObjectsDir = path.join(buildPath, 'node_modules/usb/build/Release/obj.target/');
 
-      [nodeGypBinsDir, nodeGypPrebuildsDir, usbPrebuildsDir, usbObjectsDir].forEach(dir => {
+      [serialportNodeGypBinsDir, usbNodeGypBinsDir, nodeGypPrebuildsDir, usbPrebuildsDir, usbObjectsDir].forEach(dir => {
         if (fs.existsSync(dir)) {
           fs.rmSync(dir, { recursive: true });
         }
