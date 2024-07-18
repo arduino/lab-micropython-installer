@@ -81,6 +81,7 @@ module.exports = {
   packagerConfig: {
     icon: './assets/app-icon',
     name: applicationName, // Name cannot contain spaces because gyp doesn't support them
+    arch: 'all',
     ignore: filesToExclude,
     prune: true,
     derefSymlinks: true,
@@ -88,6 +89,9 @@ module.exports = {
       name: 'micropython-installer',
       schemes: ['micropython-installer']
     }],
+    // osxUniversal: {
+    //   outAppPath: './out/' + applicationName + '-darwin-universal.app',
+    // },
     afterCopy: [(buildPath, electronVersion, platform, arch, callback) => {
       const fs = require('fs');
       const path = require('path');
