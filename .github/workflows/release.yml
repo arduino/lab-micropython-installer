@@ -17,7 +17,7 @@ jobs:
         config:
           - os: macos-latest
           - os: ubuntu-latest
-          - os: windows-2019
+          - os: [self-hosted, windows-sign-pc]
     runs-on: ${{ matrix.config.os }}
     timeout-minutes: 90
     steps:
@@ -26,7 +26,8 @@ jobs:
       with:
         node-version: 18
     - name: install dependencies
-      run: npm install
+      shell: bash
+      run: npm install    
     - name: install signing certificate (macOS)
       if: ${{ runner.OS == 'macOS' }}
       shell: bash
@@ -69,20 +70,23 @@ jobs:
       shell: bash
       env: 
         WINDOWS_BUILD_CERTIFICATE_BASE64: ${{ secrets.SIGNING_CERTIFICATE_BASE64_WINDOWS }}      
-        WINDOWS_CERTIFICATE_FILE: ${{ runner.temp }}/signing_certificate.pfx
+        WINDOWS_CERTIFICATE_FILE: ${{ runner.temp }}/signing_certificate.cer
       run: |
         if [ -n "$WINDOWS_BUILD_CERTIFICATE_BASE64" ]; then
-          # npm config set msvs_version 2017 --global
           echo "$WINDOWS_BUILD_CERTIFICATE_BASE64" | base64 --decode > "$WINDOWS_CERTIFICATE_FILE"
         fi
     - name: publish
       env:
-        DEBUG: 'electron-osx-sign*'
+        # DEBUG: 'electron-osx-sign*'
+        DEBUG: 'electron-windows-installer*'
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         KEYCHAIN_PATH: ${{ runner.temp }}/app-signing.keychain-db
         APPLE_API_KEY_PATH: ${{ runner.temp }}/auth_key.p8
         APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
         APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-        WINDOWS_CERTIFICATE_FILE: ${{ runner.temp }}/signing_certificate.pfx
-        WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD_WINDOWS }}
+        WINDOWS_CERTIFICATE_FILE: ${{ runner.temp }}/signing_certificate.cer
+        # New certificate (.cer) does not require password as the key
+        # is stored on the self-hosted runner
+        # WINDOWS_CERTIFICATE_PASSWORD: "${{ secrets.SIGNING_CERTIFICATE_PASSWORD_WINDOWS }}"
+      shell: bash
       run: npm run publish
