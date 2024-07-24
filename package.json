@@ -1,6 +1,6 @@
 {
   "name": "micropython-installer",
-  "version": "1.4.0-opta-beta.0",
+  "version": "1.4.0-opta-beta.1",
   "description": "A tool to flash MicroPython onto supported Arduino boards.",
   "main": "main.js",
   "directories": {
