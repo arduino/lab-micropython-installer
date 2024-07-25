@@ -14,11 +14,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - os: macos-latest
+        os: [ubuntu-latest, macos-latest, windows-sign-pc]
+        include:
+          - os: windows-sign-pc
           - os: ubuntu-latest
-          - os: [self-hosted, windows-sign-pc]
-    runs-on: ${{ matrix.config.os }}
+          - os: macos-latest
+            publish-flags: --arch=x64,arm64
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
     - uses: actions/checkout@v3
@@ -89,4 +91,4 @@ jobs:
         # is stored on the self-hosted runner
         # WINDOWS_CERTIFICATE_PASSWORD: "${{ secrets.SIGNING_CERTIFICATE_PASSWORD_WINDOWS }}"
       shell: bash
-      run: npm run publish -- --arch=x64,arm64,ia32
+      run: npm run publish -- ${{ matrix.publish-flags }}
