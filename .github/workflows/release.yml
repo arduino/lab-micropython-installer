@@ -89,4 +89,4 @@ jobs:
         # is stored on the self-hosted runner
         # WINDOWS_CERTIFICATE_PASSWORD: "${{ secrets.SIGNING_CERTIFICATE_PASSWORD_WINDOWS }}"
       shell: bash
-      run: npm run publish
+      run: npm run publish -- --arch=x64,arm64,ia32
