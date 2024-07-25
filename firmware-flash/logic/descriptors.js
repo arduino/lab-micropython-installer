@@ -59,7 +59,7 @@ arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device, isMicroPy
 const arduinoOptaIdentifiers = {
     "default" : {
         "vid" : 0x2341,
-        "pids" : {"arduino" : 0x0264, "bootloader" : 0x0364, "upython" : 0x0562}
+        "pids" : {"arduino" : 0x0264, "bootloader" : 0x0364, "upython" : 0x0564}
     }
 };
 
