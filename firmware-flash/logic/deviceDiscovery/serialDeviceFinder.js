@@ -12,7 +12,14 @@ class SerialDeviceFinder extends DeviceFinder {
             if(port.vendorId === undefined || port.productId === undefined) continue;
             const vendorID = this.convertHexToNumber(port.vendorId);
             const productID = this.convertHexToNumber(port.productId);
-            const newDevice = new Device(vendorID, productID, port.path, port.serialNumber);
+            let serialNumber = port.serialNumber;
+
+            // Check if serial number contains an ampersand (bug on Windows)
+            // SEE: https://github.com/serialport/node-serialport/issues/2726
+            if(port.serialNumber?.includes('&')){
+                serialNumber = null;
+            }
+            const newDevice = new Device(vendorID, productID, port.path, serialNumber);
             devices.push(newDevice);
         }
         return devices;

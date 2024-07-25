@@ -56,6 +56,16 @@ arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device, isMicroPy
     throw new Error("❌ Invalid firmware file");
 };
 
+const arduinoOptaIdentifiers = {
+    "default" : {
+        "vid" : 0x2341,
+        "pids" : {"arduino" : 0x0264, "bootloader" : 0x0364, "upython" : 0x0564}
+    }
+};
+
+const arduinoOptaDescriptor = new DeviceDescriptor(arduinoOptaIdentifiers, "Opta", "Arduino", "ARDUINO_OPTA", "dfu");
+arduinoOptaDescriptor.onFlashFirmware = arduinoPortentaH7Descriptor.onFlashFirmware;
+
 const arduinoPortentaC33Identifiers = {
     "default" : {
         "vid" : 0x2341,
@@ -224,7 +234,8 @@ arduinoNanoESP32NativeDescriptor.onFlashFirmware = async (firmware, device, isMi
 export {
     arduinoPortentaC33Descriptor,
     arduinoGigaDescriptor, 
-    arduinoPortentaH7Descriptor, 
+    arduinoPortentaH7Descriptor,
+    arduinoOptaDescriptor, 
     arduinoNanoRP2040Descriptor,
     arduinoNiclaVisionDescriptor,
     arduinoNano33BLEDescriptor,
