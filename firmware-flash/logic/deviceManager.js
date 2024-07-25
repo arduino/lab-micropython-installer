@@ -129,6 +129,14 @@ class DeviceManager {
             }
         }
 
+        // Sort device by name, then by Serial Number
+        this.devices.sort((a, b) => {
+            if(a.getName() < b.getName()) { return -1; }
+            if(a.getName() > b.getName()) { return 1; }
+            if(a.getSerialNumber() < b.getSerialNumber()) { return -1; }
+            if(a.getSerialNumber() > b.getSerialNumber()) { return 1; }
+            return 0;
+        });
         return this.devices;
     }
 
