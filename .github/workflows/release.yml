@@ -32,7 +32,7 @@ jobs:
         node-version: 18
     - name: install dependencies
       shell: bash
-      run: npm install    
+      run: ${{ matrix.dependencies }}
     - name: install signing certificate (macOS)
       if: ${{ runner.OS == 'macOS' }}
       shell: bash
