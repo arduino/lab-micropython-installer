@@ -43,6 +43,11 @@ app.whenReady().then(async () => {
     logger = flash.Logger.defaultLogger;
     logger.onLog = forwardOutput;
     logger.setLogLevel(flash.Logger.LOG_LEVEL.DEBUG);
+    flash.deviceManager.onDeviceListChanged = async () => {
+        const devices = await flash.deviceManager.getDeviceList();
+        const pojos = await Promise.all(devices.map(device => device.toPlainObject()));
+        win.webContents.send("on-device-list-changed", pojos);
+    }
     createWindow()
 })
 
@@ -88,18 +93,25 @@ ipcMain.handle('on-install', async (event, data) => {
     const { deviceData, usePreviewBuild } = data;
     return new Promise(async function (resolve, reject) {
         const selectedDevice = flash.deviceManager.getDevice(deviceData.vendorID, deviceData.productID);
+        const selectedDeviceName = selectedDevice?.deviceDescriptor.name;
+        
+        // Enable this code block to test the UI without flashing the firmware
+        // await flash.deviceManager.wait(2000);
+        // resolve(`🎉 Successfully flashed firmware onto ${selectedDeviceName}. You may need to reboot the board.`);
+        // return;
+        
         try {
             if(!selectedDevice){
-                reject("❌ Selected device is not available. Click 'Refresh' to update the list of devices.");
+                reject("❌ Selected device is not available. Make sure the device is connected and try again.");
                 return;
             }
             if (await flash.flashMicroPythonFirmware(selectedDevice, usePreviewBuild)) {
-                resolve("🎉 Done! You may need to reboot the board.");
+                resolve(`🎉 Successfully flashed firmware onto ${selectedDeviceName}. You may need to reboot the board.`);
             } else {
                 // Due to a bug in Electron the error message is reformatted and needs
                 // to be cleaned up in the renderer process.
                 // See: https://github.com/electron/electron/issues/24427
-                reject("❌ Failed to flash firmware.");
+                reject(`❌ Failed to flash firmware onto ${selectedDeviceName}.`);
             }
         } catch (error) {
             logger.log(error, flash.Logger.LOG_LEVEL.DEBUG);
@@ -108,23 +120,21 @@ ipcMain.handle('on-install', async (event, data) => {
     });
 });
 
+// Handle event for when the renderer requests the list of devices
 ipcMain.handle('on-get-devices', async (event, arg) => {
     return new Promise(async function (resolve, reject) {
-        await flash.deviceManager.refreshDeviceList();
         const devices = await flash.getDeviceList();
-        if (devices.length === 0) {
-            resolve([]);
-        } else {
-            const pojos = devices.map(device => device.toPlainObject());
-            resolve(pojos);
-        }
+        const pojos = await Promise.all(devices.map(device => device.toPlainObject()));
+        resolve(pojos);
     });
 });
 
+// Handle native dialog events from renderer
 ipcMain.handle('dialog', (event, method, params) => {
     dialog[method](win, params);
 });
 
+// Handle auto updater events
 function handleSquirrelEvent() {
     if (process.argv.length === 1) {
         return false;

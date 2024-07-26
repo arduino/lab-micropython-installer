@@ -2,6 +2,12 @@ import Logger from "../logger.js";
 
 class DeviceFinder {
 
+    constructor() {
+        this._logger = undefined;
+        this.onDeviceConnected = undefined;
+        this.onDeviceDisconnected = undefined;
+    }
+
     get logger() {
         if(this._logger === undefined) {
             return Logger.defaultLogger;

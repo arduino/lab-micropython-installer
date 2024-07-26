@@ -20,6 +20,23 @@ class DeviceManager {
     }
 
     addDeviceFinder(deviceFinder) {
+        deviceFinder.onDeviceConnected = async () => {
+            this.logger?.log(`🔌 Device connected`, Logger.LOG_LEVEL.DEBUG);
+            await this.refreshDeviceList();
+            
+            if(this.onDeviceListChanged){
+                this.onDeviceListChanged();
+            }
+        };
+        
+        deviceFinder.onDeviceDisconnected = async () => {
+            this.logger?.log(`🔌 Device disconnected`, Logger.LOG_LEVEL.DEBUG);
+            await this.refreshDeviceList();
+
+            if(this.onDeviceListChanged){
+                this.onDeviceListChanged();
+            }
+        };
         this.deviceFinders.push(deviceFinder);
     }
 
@@ -118,9 +135,12 @@ class DeviceManager {
                 if (deviceDescriptor) {
                     foundDevice.setDeviceDescriptor(deviceDescriptor);
                     foundDevice.deviceManager = this;
+                    
+                    // Only add the device if it is not already in the list.
                     if (!this.devices.find(device => 
                                             device.getVendorID() === foundDevice.getVendorID() && 
-                                            device.getProductID() === foundDevice.getProductID())) {
+                                            device.getProductID() === foundDevice.getProductID() &&
+                                            device.getSerialNumber() === foundDevice.getSerialNumber())) {
                         this.devices.push(foundDevice);
                     } else {
                         this.logger?.log(`⏭️ ${deviceFinder.constructor.name}: Device with VID ${foundDevice.getVendorID()} and PID ${foundDevice.getProductID()} already exists in list. Skipping.`, Logger.LOG_LEVEL.DEBUG);

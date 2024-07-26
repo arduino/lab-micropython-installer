@@ -112,7 +112,7 @@ export class Device {
         return await this.deviceDescriptor.onFlashFirmware(firmwareFile, this, isMicroPython);
     }
 
-    async sendREPLCommand(command, awaitResponse = true) {
+    async sendREPLCommand(command, awaitResponse = true, timeout = 3000) {
         const serialPort = this.getSerialPort();
         if (!serialPort) {
             this.logger?.log(`❌ Can't send REPL command. No serial port available.`, Logger.LOG_LEVEL.ERROR);
@@ -123,6 +123,8 @@ export class Device {
         
         return new Promise((resolve, reject) => {
             let responseData = "";
+            let timeoutID = null;
+
             // For MicroPython devices, we need to open the serial port with a baud rate of 115200
             const serialport = new SerialPort({ path: serialPort, baudRate: 115200, autoOpen : false } );
             
@@ -150,6 +152,7 @@ export class Device {
                             return;
                         }
                         
+                        // If no response is expected, we close the port immediately
                         if(!awaitResponse) {
                             if(serialport.isOpen){
                                 serialport.close(function(err){
@@ -164,6 +167,17 @@ export class Device {
                             }
                             return;
                         }
+
+                        // Set a timeout for the response
+                        timeoutID = setTimeout(() => {
+                            if(serialport.isOpen){
+                                serialport.close(function(err){
+                                    reject("❌ Timeout while waiting for response.");
+                                });
+                            } else {
+                                reject("❌ Timeout while waiting for response.");
+                            }
+                        }, timeout);
                     });
                 });
     
@@ -171,6 +185,7 @@ export class Device {
     
             // Read response
             serialport.on('data', function (data) {
+                if(timeoutID) clearTimeout(timeoutID);
                 responseData += data.toString();
                 let lines = responseData.split('\r\n');
                 let secondLastLine = lines[lines.length - 2];
@@ -330,6 +345,30 @@ export class Device {
         return this.productID === bootloaderID || this.productID === bootloaderIDAlt;
     }
 
+    runsArduino() {
+        const arduinoID = this.deviceDescriptor.getDefaultIDs().pids.arduino;
+        // The Arduino firmware should never run with the alternative IDs but we check it anyway
+        // in case that changes in the future. 
+        const arduinoIDAlt = this.deviceDescriptor.getAlternativeIDs()?.pids.arduino;
+        return this.productID === arduinoID || this.productID === arduinoIDAlt;
+    }
+
+    /**
+     * Returns the device's current mode based on the VID / PID information.
+     * @returns {string} The current mode as a string.
+     */
+    getMode() {
+        if (this.runsMicroPython()) {
+            return "MicroPython";
+        } else if (this.runsBootloader()) {
+            return "Bootloader";
+        } else if (this.runsArduino()) {
+            return "Arduino";
+        } else {
+            return "Unknown";
+        }
+    }
+
     // Function to convert the vendor /product ID to a hex string wihtout the 0x prefix.
     // The number is padded with a 0 if it is less than 4 digits long.
     convertNumberToHex(anID) {
@@ -395,20 +434,19 @@ export class Device {
     }
 
     async getMicroPythonVersion() {
-        const versionData = await this.sendREPLCommand('import sys; print(sys.implementation.version)\r\n');
+        const versionData = await this.sendREPLCommand('import os; print(os.uname().release)\r\n');
         const lines = versionData.trim().split('\r\n');
-        // Find the line that starts with a '(' which contains the version string e.g. (1, 19, 1)
-        const versionStringLine = lines.find((line) => line.startsWith('('));
+        // Find the line that matches the pattern 'x.y.z'
+        const versionStringLine = lines.find(line => line.match(/\d+\.\d+\.\d+/));
+
         if (!versionStringLine) {
             this.logger?.log(`❌ Could not find version string in response: ${versionData}`);
             return null;
         }
-        const versionString = versionStringLine.split(', ').join('.');
-        // Remove the parentheses from the version string
-        return versionString.substring(1, versionString.length - 1);
+        return versionStringLine;
     }
 
-    toPlainObject() {
+    async toPlainObject() {
         return {
             manufacturer: this.deviceDescriptor.manufacturer,
             name: this.deviceDescriptor.name,
@@ -416,6 +454,8 @@ export class Device {
             productID: this.productID,
             serialNumber: this.serialNumber,
             serialPort: this.getSerialPort(),
+            mode: this.getMode(),
+            microPythonVersion: this.runsMicroPython() ? await this.getMicroPythonVersion() : null
         };
     }
 
