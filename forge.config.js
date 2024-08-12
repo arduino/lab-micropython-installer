@@ -106,6 +106,18 @@ module.exports = {
       appleApiKey: process.env.APPLE_API_KEY_PATH,
       appleApiKeyId: process.env.APPLE_API_KEY_ID,
       appleApiIssuer: process.env.APPLE_API_ISSUER,
+    } : undefined,
+    windowsSign: process.env.WINDOWS_CERTIFICATE_FILE ? {
+      signWithParams : [
+        '/d', 'MicroPython Installer',
+        '/f', process.env.WINDOWS_CERTIFICATE_FILE,
+        '/csp', 'eToken Base Cryptographic Provider',
+        '/kc', `[{{${process.env.WINDOWS_CERTIFICATE_PASSWORD}}}]=${process.env.WINDOWS_CERTIFICATE_CONTAINER}`,
+        '/fd', 'sha256',
+        '/tr', 'http://timestamp.digicert.com',
+        '/td', 'SHA256',
+        '/v'
+      ]
     } : undefined
   },
   rebuildConfig: {},
@@ -114,7 +126,7 @@ module.exports = {
       name: '@electron-forge/maker-squirrel',
       platforms: ['win32'],
       config: {
-        certificateFile: process.env.WINDOWS_CERTIFICATE_FILE,
+        // certificateFile: process.env.WINDOWS_CERTIFICATE_FILE,
         // certificatePassword: process.env.WINDOWS_CERTIFICATE_PASSWORD,
         name: 'MicroPythonInstaller',
         loadingGif: './assets/installer.gif',
