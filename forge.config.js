@@ -130,6 +130,16 @@ module.exports = {
         // certificatePassword: process.env.WINDOWS_CERTIFICATE_PASSWORD,
         name: 'MicroPythonInstaller',
         loadingGif: './assets/installer.gif',
+        signWithParams : [
+          '/d', 'MicroPython Installer',
+          '/f', process.env.WINDOWS_CERTIFICATE_FILE,
+          '/csp', 'eToken Base Cryptographic Provider',
+          '/kc', `[{{${process.env.WINDOWS_CERTIFICATE_PASSWORD}}}]=${process.env.WINDOWS_CERTIFICATE_CONTAINER}`,
+          '/fd', 'sha256',
+          '/tr', 'http://timestamp.digicert.com',
+          '/td', 'SHA256',
+          '/v'
+        ]
       },
     },
     {
