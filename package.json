@@ -20,7 +20,7 @@
   "keywords": [
     "MicroPython"
   ],
-  "author": "Sebastian Romero",
+  "author": "Arduino",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/arduino/lab-micropython-installer/issues"
