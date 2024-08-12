@@ -16,8 +16,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-sign-pc]
         include:
-          - os: windows-sign-pc
-          - os: ubuntu-latest
           - os: macos-latest
             publish-flags: --arch=x64,arm64
     runs-on: ${{ matrix.os }}
