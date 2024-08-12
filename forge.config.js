@@ -124,7 +124,7 @@ module.exports = {
           '/fd', '\"sha256\"',
           '/tr', '\"http://timestamp.digicert.com\"',
           '/td', '\"SHA256\"',
-          '/v'
+          // '/v' // Verbose output
         ].join(' ') : undefined
       },
     },

@@ -79,7 +79,7 @@ jobs:
     - name: publish
       env:
         # DEBUG: 'electron-osx-sign*'
-        DEBUG: 'electron-windows-installer*'
+        # DEBUG: 'electron-windows-installer*'
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         KEYCHAIN_PATH: ${{ runner.temp }}/app-signing.keychain-db
         APPLE_API_KEY_PATH: ${{ runner.temp }}/auth_key.p8
