@@ -75,6 +75,7 @@ jobs:
         if [ -n "$WINDOWS_BUILD_CERTIFICATE_BASE64" ]; then
           echo "$WINDOWS_BUILD_CERTIFICATE_BASE64" | base64 --decode > "$WINDOWS_CERTIFICATE_FILE"
         fi
+        # Inspect certificate for debugging: openssl x509 -noout -text -in cert_new.cer -passin "pass:yourpassword"
     - name: publish
       env:
         # DEBUG: 'electron-osx-sign*'
@@ -87,6 +88,6 @@ jobs:
         WINDOWS_CERTIFICATE_FILE: ${{ runner.temp }}/signing_certificate.cer
         # New certificate (.cer) does not require password as the key
         # is stored on the self-hosted runner
-        # WINDOWS_CERTIFICATE_PASSWORD: "${{ secrets.SIGNING_CERTIFICATE_PASSWORD_WINDOWS }}"
+        WINDOWS_CERTIFICATE_PASSWORD: "${{ secrets.SIGNING_CERTIFICATE_PASSWORD_WINDOWS }}"
       shell: bash
       run: npm run publish -- ${{ matrix.publish-flags }}
