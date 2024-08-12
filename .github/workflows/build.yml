@@ -13,18 +13,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config:
+        os: [ubuntu-latest, macos-latest, windows-2019]
+        include:
           - os: windows-2019
+            dependencies: npm install
           - os: ubuntu-latest
+            # build-essential libudev-dev are required by usb package
+            dependencies: sudo apt-get install build-essential libudev-dev && npm install
           - os: macos-latest
-    runs-on: ${{ matrix.config.os }}
+            # python-setuptools includes distutils required by node-gyp
+            dependencies: brew install python-setuptools && npm install
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@master
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: 18
     - name: install dependencies
-      run: npm install
+      run: ${{ matrix.dependencies }}
     - name: build
-      run: npm run make
+      run: npm run make      

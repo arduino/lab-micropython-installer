@@ -1,7 +1,7 @@
 .item-selection-list {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: stretch;
     flex-direction: row;
     gap: var(--main-flexbox-gap);
 }
@@ -17,7 +17,7 @@
     border: none;
     background-color: #F8F8F8;
     width: 165px;
-    height: 150px;
+    min-height: 150px;
     cursor: pointer;
     user-select: none;
 }
@@ -30,4 +30,10 @@
 .selection-item-label {
     font-size: 0.9rem;
     margin-top: 0.5rem;
+}
+
+.selection-item-details-label {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    color: #666666;
 }

@@ -16,18 +16,23 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-sign-pc]
         include:
+          - os: windows-sign-pc
+            dependencies: npm install
+          - os: ubuntu-latest
+            dependencies: sudo apt-get install build-essential libudev-dev && npm install
           - os: macos-latest
+            dependencies: brew install python-setuptools && npm install
             publish-flags: --arch=x64,arm64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@master
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
       with:
         node-version: 18
     - name: install dependencies
       shell: bash
-      run: npm install    
+      run: ${{ matrix.dependencies }}
     - name: install signing certificate (macOS)
       if: ${{ runner.OS == 'macOS' }}
       shell: bash

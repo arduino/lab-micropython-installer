@@ -8,6 +8,8 @@ export class DeviceDescriptor {
         this.firmwareExtension = firmwareExtension;
         this.onFlashFirmware = null;
         this.onReset = null;
+        
+        // TODO: This can probably removed now that we use libusb to detect devices.
         // Currently used to skip the wait for device step when the device 
         // cannot be detected via its serial port or DFU interface.
         this.skipWaitForDevice = false;
@@ -20,6 +22,13 @@ export class DeviceDescriptor {
         return Object.values(this.getDefaultIDs().pids);
     }
 
+    /**
+     * @brief Returns all the alternative product IDs as an array of numbers.
+     * The boards have multiple product IDs depending on the firmware they run.
+     * The alternative product IDs are used when the device has a different VID when running
+     * a different firmware. For example, the Arduino Nano RP2040 has a different VID when it runs the native bootloader.
+     * @returns {Array} An array of integers representing the alternative product IDs.
+     */
     getAlternativeProductIDList() {
         return Object.values(this.getAlternativeIDs().pids);
     }
