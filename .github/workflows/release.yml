@@ -16,8 +16,6 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-sign-pc]
         include:
-          - os: windows-sign-pc
-          - os: ubuntu-latest
           - os: macos-latest
             publish-flags: --arch=x64,arm64
     runs-on: ${{ matrix.os }}
@@ -77,18 +75,19 @@ jobs:
         if [ -n "$WINDOWS_BUILD_CERTIFICATE_BASE64" ]; then
           echo "$WINDOWS_BUILD_CERTIFICATE_BASE64" | base64 --decode > "$WINDOWS_CERTIFICATE_FILE"
         fi
+        # Inspect certificate for debugging: openssl x509 -noout -text -in cert_new.cer -passin "pass:yourpassword"
     - name: publish
       env:
         # DEBUG: 'electron-osx-sign*'
-        DEBUG: 'electron-windows-installer*'
+        # DEBUG: 'electron-windows-installer*'
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         KEYCHAIN_PATH: ${{ runner.temp }}/app-signing.keychain-db
         APPLE_API_KEY_PATH: ${{ runner.temp }}/auth_key.p8
         APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
         APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         WINDOWS_CERTIFICATE_FILE: ${{ runner.temp }}/signing_certificate.cer
-        # New certificate (.cer) does not require password as the key
-        # is stored on the self-hosted runner
-        # WINDOWS_CERTIFICATE_PASSWORD: "${{ secrets.SIGNING_CERTIFICATE_PASSWORD_WINDOWS }}"
+        WINDOWS_CERTIFICATE_PASSWORD: '${{ secrets.SIGNING_CERTIFICATE_PASSWORD_WINDOWS }}'
+        WINDOWS_CERTIFICATE_CONTAINER: '${{ secrets.SIGNING_CERTIFICATE_CONTAINER_WINDOWS }}'
+
       shell: bash
       run: npm run publish -- ${{ matrix.publish-flags }}

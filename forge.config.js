@@ -106,7 +106,7 @@ module.exports = {
       appleApiKey: process.env.APPLE_API_KEY_PATH,
       appleApiKeyId: process.env.APPLE_API_KEY_ID,
       appleApiIssuer: process.env.APPLE_API_ISSUER,
-    } : undefined
+    } : undefined,
   },
   rebuildConfig: {},
   makers: [
@@ -114,10 +114,19 @@ module.exports = {
       name: '@electron-forge/maker-squirrel',
       platforms: ['win32'],
       config: {
-        certificateFile: process.env.WINDOWS_CERTIFICATE_FILE,
-        certificatePassword: process.env.WINDOWS_CERTIFICATE_PASSWORD,
-        name: 'MicroPythonInstaller',
         loadingGif: './assets/installer.gif',
+        // See: https://js.electronforge.io/interfaces/_electron_forge_maker_squirrel.InternalOptions.WindowsSignOptions.html
+        // See: https://www.npmjs.com/package/@electron/windows-sign
+        signWithParams : process.env.WINDOWS_CERTIFICATE_FILE ? [
+          '/d', '\"MicroPython Installer\"',
+          '/f', `\"${process.env.WINDOWS_CERTIFICATE_FILE}\"`,
+          '/csp', '\"eToken Base Cryptographic Provider\"',
+          '/kc', `\"[{{${process.env.WINDOWS_CERTIFICATE_PASSWORD}}}]=${process.env.WINDOWS_CERTIFICATE_CONTAINER}\"`,
+          '/fd', '\"sha256\"',
+          '/tr', '\"http://timestamp.digicert.com\"',
+          '/td', '\"SHA256\"',
+          // '/v' // Verbose output
+        ].join(' ') : undefined
       },
     },
     {
