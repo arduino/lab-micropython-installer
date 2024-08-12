@@ -115,6 +115,7 @@ module.exports = {
       platforms: ['win32'],
       config: {
         loadingGif: './assets/installer.gif',
+        // See: https://js.electronforge.io/interfaces/_electron_forge_maker_squirrel.InternalOptions.WindowsSignOptions.html
         // See: https://www.npmjs.com/package/@electron/windows-sign
         signWithParams : process.env.WINDOWS_CERTIFICATE_FILE ? [
           '/d', '\"MicroPython Installer\"',
