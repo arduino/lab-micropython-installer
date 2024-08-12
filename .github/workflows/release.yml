@@ -14,11 +14,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-sign-pc]
-        # os: [ubuntu-latest, macos-latest, windows-sign-pc]
-        # include:
-        #   - os: macos-latest
-        #     publish-flags: --arch=x64,arm64
+        os: [ubuntu-latest, macos-latest, windows-sign-pc]
+        include:
+          - os: macos-latest
+            publish-flags: --arch=x64,arm64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
