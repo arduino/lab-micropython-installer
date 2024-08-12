@@ -16,9 +16,9 @@ jobs:
       matrix:
         os: [windows-sign-pc]
         # os: [ubuntu-latest, macos-latest, windows-sign-pc]
-        include:
-          - os: macos-latest
-            publish-flags: --arch=x64,arm64
+        # include:
+        #   - os: macos-latest
+        #     publish-flags: --arch=x64,arm64
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     steps:
@@ -89,6 +89,6 @@ jobs:
         WINDOWS_CERTIFICATE_FILE: ${{ runner.temp }}/signing_certificate.cer
         # New certificate (.cer) does not require password as the key
         # is stored on the self-hosted runner
-        WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.SIGNING_CERTIFICATE_PASSWORD_WINDOWS }}
+        WINDOWS_CERTIFICATE_PASSWORD: deadbeef
       shell: bash
       run: npm run publish -- ${{ matrix.publish-flags }}
