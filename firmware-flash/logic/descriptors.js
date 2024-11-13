@@ -43,17 +43,17 @@ arduinoPortentaH7Descriptor.onFlashFirmware = async (firmware, device, isMicroPy
     const serialNumber = device.getSerialNumber();
     
     // Check if firmware is a DFU file
-    if(firmware.endsWith(".dfu")){
+    if(path.extname(firmware) == ".dfu"){
         await commandRunner.runDfuUtil(firmware, vid, pid, serialNumber, true);
         return;
     }
     // Check if firmware is a binary file
-    if(firmware.endsWith(".bin")){
+    if(path.extname(firmware) == ".bin"){
         await commandRunner.runDfuUtil(firmware, vid, pid, serialNumber, true, true, "0x08040000");
         return;
     }
 
-    throw new Error("❌ Invalid firmware file");
+    throw new Error("❌ Invalid firmware file. Please use a .dfu or .bin file.");
 };
 
 const arduinoOptaIdentifiers = {
@@ -75,15 +75,13 @@ const arduinoPortentaC33Identifiers = {
 const arduinoPortentaC33Descriptor = new DeviceDescriptor(arduinoPortentaC33Identifiers, 'Portenta C33', 'Arduino', 'ARDUINO_PORTENTA_C33', 'bin');
 arduinoPortentaC33Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     // Check if firmware is a binary file
-    if(firmware.endsWith(".bin")){
-        const vid = device.getVendorIDHex();
-        const pid = device.getProductIDHex();
-        const serialNumber = device.getSerialNumber();
-        await commandRunner.runDfuUtil(firmware, vid, pid, serialNumber, false);
-        return;
+    if(path.extname(firmware) != ".bin"){
+        throw new Error("❌ Invalid firmware file. Please use a .bin file.");
     }
-    
-    throw new Error("❌ Invalid firmware file");
+    const vid = device.getVendorIDHex();
+    const pid = device.getProductIDHex();
+    const serialNumber = device.getSerialNumber();
+    await commandRunner.runDfuUtil(firmware, vid, pid, serialNumber, false);
 };
 
 const arduinoGigaIdentifiers = {
@@ -112,6 +110,9 @@ const arduinoNanoRP2040Identifiers = {
 };
 const arduinoNanoRP2040Descriptor = new DeviceDescriptor(arduinoNanoRP2040Identifiers, 'Nano RP2040 Connect', 'Arduino', 'ARDUINO_NANO_RP2040_CONNECT', 'uf2');
 arduinoNanoRP2040Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
+    if(path.extname(firmware) != ".uf2"){
+        throw new Error("❌ Invalid firmware file. Please use a .uf2 file.");
+    }
     await commandRunner.runPicotool(firmware, device.getVendorIDHex(), device.getProductIDHex());
 };
 
@@ -123,6 +124,9 @@ const arduinoNiclaVisionIdentifiers = {
 };
 const arduinoNiclaVisionDescriptor = new DeviceDescriptor(arduinoNiclaVisionIdentifiers, 'Nicla Vision', 'Arduino', 'ARDUINO_NICLA_VISION', 'dfu');
 arduinoNiclaVisionDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
+    if(path.extname(firmware) != ".dfu"){
+        throw new Error("❌ Invalid firmware file. Please use a .dfu file.");
+    }
     const vid = device.getVendorIDHex();
     const pid = device.getProductIDHex();
     const serialNumber = device.getSerialNumber();
@@ -162,6 +166,11 @@ arduinoNano33BLEDescriptor.onFlashFirmware = async (firmware, device, isMicroPyt
         throw new Error("Bootloader version is too old. Please update it to version 3.0 or higher.");
     }
     */
+
+    if(path.extname(firmware) != ".bin"){
+        throw new Error("❌ Invalid firmware file. Please use a .bin file.");
+    }
+
     const deviceManager = device.getDeviceManager();
 
     logger.log("🔥 Flashing SoftDevice updater...");
@@ -206,8 +215,11 @@ const arduinoNanoESP32Identifiers = {
 const arduinoNanoESP32Descriptor = new DeviceDescriptor(arduinoNanoESP32Identifiers, 'Nano ESP32', 'Arduino', 'ARDUINO_NANO_ESP32', 'app-bin');
 arduinoNanoESP32Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     if(path.extname(firmware) == ".bin"){
-        throw new Error("❌ Installing a raw binary from DFU bootloader is not supported. Please use the native bootloader instead or flash an application image.");
+        throw new Error("❌ Installing a raw binary from DFU bootloader is not supported. Please use the native bootloader instead or flash an application image (.app-bin).");
+    } else if(path.extname(firmware) != ".app-bin"){
+        throw new Error("❌ Invalid firmware file. Please use an .app-bin file.");
     }
+
     const vid = device.getVendorIDHex();
     const pid = device.getProductIDHex();
     const serialNumber = device.getSerialNumber();
@@ -223,8 +235,11 @@ const arduinoNanoESP32NativeIdentifiers = {
 const arduinoNanoESP32NativeDescriptor = new DeviceDescriptor(arduinoNanoESP32NativeIdentifiers, 'Nano ESP32', 'Arduino', 'ARDUINO_NANO_ESP32', 'bin');
 arduinoNanoESP32NativeDescriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     if(path.extname(firmware) == ".app-bin"){
-        throw new Error("❌ Installing an application image from native bootloader is not supported. Please use the DFU bootloader instead or flash a full firmware image.");
+        throw new Error("❌ Installing an application image from native bootloader is not supported. Please use the DFU bootloader instead or flash a full firmware image (.bin).");
+    } else if(path.extname(firmware) != ".bin"){
+        throw new Error("❌ Invalid firmware file. Please use a .bin file.");
     }
+    
     const config = {"chip": "esp32s3", "flashSize" : "16MB", "flashMode" : "dio", "flashFreq" : "80m"};
     const recoveryCommand = {"address" : "0xf70000", "path" : getNanoESP32RecoveryFirmwarePath()};
     const firmwareCommand = {"address" : "0x0", "path" : firmware};
