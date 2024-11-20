@@ -215,7 +215,7 @@ const arduinoNanoESP32Identifiers = {
 const arduinoNanoESP32Descriptor = new DeviceDescriptor(arduinoNanoESP32Identifiers, 'Nano ESP32', 'Arduino', 'ARDUINO_NANO_ESP32', 'app-bin');
 arduinoNanoESP32Descriptor.onFlashFirmware = async (firmware, device, isMicroPython) => {
     if(path.extname(firmware) == ".bin"){
-        throw new Error("❌ Installing a raw binary from DFU bootloader is not supported. Please use the native bootloader instead or flash an application image (.app-bin).");
+        throw new Error("❌ Installing a raw binary from DFU bootloader is not supported. Please use the native bootloader instead or flash an .app-bin file.");
     } else if(path.extname(firmware) != ".app-bin"){
         throw new Error("❌ Invalid firmware file. Please use an .app-bin file.");
     }
